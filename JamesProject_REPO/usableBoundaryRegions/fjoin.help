@@ -1,0 +1,48 @@
+Usage: 
+	fjoin.py -h
+	fjoin.py -v
+	fjoin.py [options] -1 FILE -2 FILE
+
+Options:
+  -h, --help         show this help message and exit
+  --version          Print program name and version, and exit.
+  -k [+-]N[%]        Minimum overlap amount. (Default: 1) Examples: -k100 :
+                     overlap of at least 100 bases. -k-1000 : separated by no
+                     more than 1 kb. -k50% : overlap of >= 50% of longer of
+                     pair. -k-85% : overlap of >= 85% of shorter of pair.
+  -c                 Use continuous coordinate system. (Default: Uses discrete
+                     coordinate system.)
+  -1 FILE            First input file. (Required.) Use "-" for standard in.
+  -2 FILE            Second input file. (Required.) Use "-" for standard in.
+  -s 1|2|both        Sort the input(s). Specify 1, 2, or both. (Default: no
+                     sorting done.)
+  --sortInternal     Forces any sorting to be done internally. (Default: uses
+                     GNU sort, if available)
+  -o FILE            Output file. (Default: standard out)
+  -l FILE            Log file. This is where messages, stats, and errors go.
+                     (Default: standard error)
+  --columns1=COLS    Tells fjoin where to find chromosome,start,end,strand in
+                     file1. COLS is a comma-separated list of column indices;
+                     column numbers start at 1. The list may contain 2, 3, or
+                     4 integers, as follows: If 2 integers (e.g.,
+                     --columns1=4,5), they specify the start and end columns,
+                     respectively; chromosome and strand are ignored. If 3
+                     integers (e.g., --columns1=1,4,5), they specify the
+                     chromosome, start, and end columns, respectively; strand
+                     is ignored. If 4 integers (e.g., --columns1=1,4,5,6),
+                     they specify the chromosome, start, end, and strand
+                     columns, respectively. (Default: assumes GFF format,
+                     which is equivalent to: --columns1=1,4,5,7)
+  --columns2=COLS    See help for option --columns1. (Default: assumes GFF
+                     format, which is equivalent to: --columns2=1,4,5,7)
+  --separator1=CHAR  The column separator for input 1. (Default: TAB
+                     character)
+  --separator2=CHAR  The column separator for input 2. (Default: TAB
+                     character)
+  --comment1=STRING  The character or string signifying a comment line in
+                     input 1. A comment line begins with STRING and ends at
+                     the next newline. Comment lines are ignored and are not
+                     preserved in the output. (Default: the HASH character,
+                     '#')
+  --comment2=STRING  The character or string signifying a comment line in
+                     input 2. (Default: the HASH character, '#')

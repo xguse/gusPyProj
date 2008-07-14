@@ -1,0 +1,5 @@
+chr1	TEST	gene	1001	1100	.	-	.	ID=gene00005
+chr2	TEST	gene	4444	11111	.	+	.	ID=gene00006
+chr3	TEST	exon	5101	5200	.	+	.	ID=exon00001
+chr1	TEST	exon	5301	5400	.	+	.	ID=exon00002
+chr2	TEST	exon	5501	5600	.	+	.	ID=exon00003

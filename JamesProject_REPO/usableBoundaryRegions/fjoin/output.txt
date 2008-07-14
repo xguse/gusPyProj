@@ -1,0 +1,6 @@
+100	chr1	TEST	gene	1001	1100	.	-	.	ID=gene00005	chr1	TEST	gene	1001	1100	.	-	.	ID=gene00005
+6668	chr2	TEST	gene	4444	11111	.	+	.	ID=gene00006	chr2	TEST	gene	4344	11111	.	+	.	ID=gene00006
+100	chr3	TEST	exon	5101	5200	.	+	.	ID=exon00001	chr3	TEST	exon	5101	5200	.	+	.	ID=exon00001
+100	chr2	TEST	gene	4444	11111	.	+	.	ID=gene00006	chr2	TEST	exon	5501	5600	.	+	.	ID=exon00003
+100	chr2	TEST	exon	5501	5600	.	+	.	ID=exon00003	chr2	TEST	gene	4344	11111	.	+	.	ID=gene00006
+100	chr2	TEST	exon	5501	5600	.	+	.	ID=exon00003	chr2	TEST	exon	5501	5600	.	+	.	ID=exon00003

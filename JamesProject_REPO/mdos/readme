@@ -1,0 +1,26 @@
+MDOS: a method for Motif Discovery using Orthologous Sequences
+
+MDOS is a comparative genomics method for regulatory motif discovery. Different from previous
+methods, it does not require or use sequence alignments. It is particularly suitable for 
+discovering motifs in highly diverged genomes, or genomes with sequence alignments difficult 
+to obtain or poor in quality.
+
+
+To run the program: use the following command line:
+usage: perl mdos.pl input.seq kmer_size single_strand(1:single,0:both) with_extension(1:yes,0:no) num_samples
+
+#input.seq: is the filename of input sequences.  The format of the file should start with ">id", followed by 
+            two lines of sequences representing sequences from each of the two genomes being compared. 
+#kmer_size: size of kmers 
+#sing_strand: whether to use single (1) or doulbe (0) for motif search. 
+#with_extend: whether to extend discovered kmer motifs to include degenerate codes
+#num_samples: number of samples used for estimating mean and variance
+
+For example:
+run the following command:
+perl mdos.pl test.seq 6 1 1 10 > motif.output
+
+The program will run to discover motifs in sequence test.seq, starting with 6-mers and using 10 samples.
+
+
+

@@ -1,0 +1,61 @@
+
+README file for fjoin. Fjoin is a program for finding overlapping 
+features in a pair of delimited, tabular files, e.g., GFF files. 
+You need Python 2.3 or later to use fjoin. Details of GFF format
+can be found at: http://www.sanger.ac.uk/Software/formats/GFF/ 
+
+Files in this directory:
+  README	- this file
+  fjoin.zip	- ZIP file containing the distribution
+
+Instructions:
+1. Download fjoin.zip
+2. Unpack the contents:
+	% unzip fjoin.zip
+   This creates 11 files in your current directory:
+	1. fjoin.py		- the fjoin program
+	2. testfj		- small test program
+	3-7. t1.gff, t2.gff,	- five small test
+	     t3.gff, t4.gff,	  files used by testfj
+	     t5.gff
+	8,9. mSample.gff	- two slightly more realistic files
+	     iSample.gff	  (also used by testfj)
+	10. README		- this file (the one you're reading)
+	11. fjoin.pdf		- paper describing the fjoin algorithm
+
+3. Run the test script:
+	% python testfj
+   You should see a bunch of output and log messages.
+   If all goes well, you'll see "PASSED" as the last
+   line of output. If you get any kind of error message
+   instead, please email me:
+   	jer@informatics.jax.org
+   Please include the complete error message.
+
+3a. GNU sort utility: if fjoin needs to sort a
+   feature set, it will preferentially use GNU sort,
+   an external sorting utility that's fast and robust.
+   If it cannot locate GNU sort, fjoin will attempt to
+   do an internal sort (i.e., read the whole thing in
+   and use Python's sort() method). This will increase
+   fjoin's memory requirement from O(1) to O(n), which
+   is OK in many instances. If you have really big files
+   and you don't have GNU sort, your options are:
+   	(1) Get GNU sort and install it.
+	(2) Presort your files some other way.
+   Note that if you are going to do repeated runs with
+   large files, it makes sense to presort them anyway, rather
+   than have fjoin sort them each time.
+
+4. Try your own tests. E.g., try:
+	% python fjoin.py -1 t1.gff -2 t2.gff -k-5000
+   This should generate three (3) output rows.
+   For help, type:
+   	% python fjoin.py -h
+
+5. At this point, you can delete the test files and test
+script, and move fjoin.py to wherever you want to put it.
+
+Problems and suggestions should be emailed to:
+jer@informatics.jax.org
+

@@ -1,0 +1,10 @@
+Ag.2L.100.0_CDS_at
+Ag.2L.1000.0_CDS_at
+Ag.2L.1001.0_UTR_a_at
+Ag.2L.1001.2_CDS_at
+Ag.2L.1002.1_CDS_a_at
+Ag.2L.1003.0_CDS_at
+Ag.2L.1007.0_CDS_at
+Ag.2L.1009.0_CDS_at
+Ag.2L.101.0_CDS_at
+Ag.2L.1010.0_CDS_at

@@ -1,0 +1,8 @@
+# this is a comment. Comments and blank lines
+# are skipped.
+
+chr1	TEST	gene	1001	1100	.	+	.	ID=gene00001
+chr1	TEST	gene	5001	5500	.	+	.	ID=gene00002
+
+chr1	TEST	gene	10001	11001	.	+	.	ID=gene00003
+chr1	TEST	gene	15001	20000	.	+	.	ID=gene00004

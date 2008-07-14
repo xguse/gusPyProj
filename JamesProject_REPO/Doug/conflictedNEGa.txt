@@ -1,0 +1,3 @@
+68	AAEL015600	supercont1.3628	660	1659	-	AAEL015599	supercont1.3628	800	867	-
+271	AAEL015600	supercont1.3628	660	1659	-	AAEL015599	supercont1.3628	960	1230	-
+end	end	end	end	end	end	end	end	end	end	end

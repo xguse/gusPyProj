@@ -1,0 +1,74 @@
+
+import types
+from fjoin import FJoin
+
+#-------------------------------
+def runFJ(argv, n=None):
+    if type(argv) is types.StringType:
+        argv = argv.split()
+    fj=FJoin(argv)
+    m = fj.go()
+    if not(n is None or n == m):
+	raise "Error", \
+	 "Wrong number of results: %d (expected %d)" % (m,n)
+    print 
+
+#-------------------------------
+argv = [
+  "-1", "t1.gff", 
+  "-2", "t2.gff", 
+  ]
+
+runFJ(argv,1)
+
+#-------------------------------
+argv = [
+  "-1", "t5.txt", 
+  "-2", "t2.gff", 
+  "--separator1", "|",
+  "--columns1", "1,2,3,4",
+  "--comment1", "//"
+  ]
+
+runFJ(argv,1)
+
+#-------------------------------
+argv = [
+  "-1", "t1.gff", 
+  "-2", "t2.gff", 
+  "-k", "-10000",
+  ]
+
+runFJ(argv,4)
+
+#-------------------------------
+argv = [
+  "-1", "t3.gff", 
+  "-2", "t4.gff", 
+  "-k", "-10000",
+  "-s", "1",
+  ]
+
+runFJ(argv,12)
+
+#-------------------------------
+argv = [
+  "-1", "t4.gff", 
+  "-2", "t4.gff", 
+  ]
+
+runFJ(argv,16)
+
+#-------------------------------
+argv = [
+  "-1", "mSample.gff", 
+  "-2", "iSample.gff", 
+  "-s", "both",
+  "--columns1", "1,4,5"
+  ]
+
+runFJ(argv,2432)
+
+#-------------------------------
+
+print "\nPASSED"

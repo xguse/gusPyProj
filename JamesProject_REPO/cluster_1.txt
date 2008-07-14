@@ -1,0 +1,13 @@
+AF203339.1_at
+AF203339.1_s_at
+AJ130951.1_RC_s_at
+AJ302661.1_s_at
+AJ304410.1_s_at
+AY062189.1_s_at
+AY062190.1_s_at
+AY137766.1_s_at
+Ag.2L.1.0_CDS_s_at
+Ag.2L.1.0_UTR_s_at
+Ag.2L.10.0_CDS_at
+Ag.2L.100.0_CDS_at
+Ag.2L.1000.0_CDS_at

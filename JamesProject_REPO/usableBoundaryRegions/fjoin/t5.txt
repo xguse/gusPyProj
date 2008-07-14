@@ -1,0 +1,7 @@
+//This file has a different comment
+//string, and different delimiter char.
+
+chr1|1001|1100|+|ID=gene00001
+chr1|5001|5500|+|ID=gene00002
+chr1|10001|11001|+|ID=gene00003
+chr1|15001|20000|+|ID=gene00004
