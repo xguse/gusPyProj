@@ -77,6 +77,9 @@ for AGAPList in motifMap:
 map2DictEnd = time()    
 print 'map2dict took %.3f min.' % ((map2DictEnd-map2DictStrt)/60.0)
 
+
+
+
 #  Generate list of all motif combinations(modules) of lengths between 1 and the user defined mostMotifsInSet
 listOfSearchModules = []
 comboLen = 2
@@ -116,6 +119,9 @@ print "dictOfSortedMotifsByAGAP loop took %s minutes." % ((t2-t1)/60.0)
 
 writeOutDict(dictOfMotifSetsByAGAP,dictOfMotifSetsByAGAP_OUT)
 x=1
+
+# Delete dictOfSortedMotifsByAGAP to free memory:
+del dictOfSortedMotifsByAGAP
 
 
 #  list to hold ModuleClass;ClusterID;hyperGeoParams
