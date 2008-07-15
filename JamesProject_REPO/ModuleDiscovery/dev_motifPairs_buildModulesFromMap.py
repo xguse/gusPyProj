@@ -153,7 +153,8 @@ for module in listOfSearchModules:
         #  Format hyperGeoParams_4_moduleClusterPairs record
         tab = '\t'
         # ------------------------------------->  N,n,K,k
-        hyperGeoParams_4_moduleClusterPairs.append(str(module)+','+seqID[0]+tab+str(len(dictOfMotifSetsByAGAP))+tab+str(len(cluster))+tab+str(moduleCountInAll)+tab+str(moduleCountInCluster)+'\n') 
+        outFile.write(str(module)+','+seqID[0]+tab+str(len(dictOfMotifSetsByAGAP))+tab+str(len(cluster))+tab+str(moduleCountInAll)+tab+str(moduleCountInCluster)+'\n') 
+        outFile.flush()
 
 t2 = time()        
 
@@ -165,28 +166,17 @@ for each in notIn_dictOfMotifSetsByAGAP:
     print each
 
 
-t3 = time()
-#c = 0
-#while c < len(hyperGeoParams_4_moduleClusterPairs):
-    ##  explode string to list of params
-    #params = hyperGeoParams_4_moduleClusterPairs[c].split('\t')
-    
-    ##  calc hyperGeo pVal
-    #pVal = hyperGeoPvalue(int(params[1]),int(params[2]),int(params[3]),int(params[4]))
-    #print pVal
-    #hyperGeoParams_4_moduleClusterPairs[c] = hyperGeoParams_4_motifClusterPairs[c]+'\t'+str(pVal)+'\n'
-    #c+=1    
-t4 = time()
 
 
 
-outFile.writelines(hyperGeoParams_4_moduleClusterPairs)
+
+## Now writing as I go instead of:  outFile.writelines(hyperGeoParams_4_moduleClusterPairs)
 outFile.close()
 
 totalTimeEnd = time()
 
-print 'The cluster counting took %.3f minutes.\nThe hyperGeo function took %.3f minutes.\nTotalTime: %.3f' \
-      % ((t2-t1)/60.0, (t4-t3)/60.0, (totalTimeEnd-totalTimeStart)/60.0)
+print 'The cluster counting took %.3f minutes.\nTotalTime: %.3f' \
+      % ((t2-t1)/60.0, (totalTimeEnd-totalTimeStart)/60.0)
 
 sys.exit('proper end')    
 
