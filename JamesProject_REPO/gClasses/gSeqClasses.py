@@ -86,9 +86,8 @@ class gSeq:
     def getResFreq(self, residueChar):
         return self._rFreqs[residueChar]
     
-    def search(self,pattern,regEx=0):
-        assert regEx == 0 or 1  # 0=unambiguous pattern match; 1=use regular expressions
-        
+
+            
         
     
         
