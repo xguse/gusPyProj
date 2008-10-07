@@ -54,22 +54,22 @@ class gSeq:
     def __repr__(self):
         return "%s(%s, %s)" % (self.__class__.__name__,
                                repr(self.toString()),
-                               repr(self._alphabet))
+                               repr(self._seqType))
     def __str__(self):
         if len(self._seq) > 60:
-            s = repr(self._seq[:60] + " ...")
+            s = (self.toString()[:60] + " ...")
         else:
             s = repr(self._seq)
         return "%s(%s, %s)" % (self.__class__.__name__, s,
-                               repr(self._alphabet))
+                               repr(self._seqType))
     
-    def _enforceAlphabet(self,alphabet):
+    def _enforceAlphabet(self):
         # enforce correct alphabet
         charsInSeq   = sets.Set(self._seq)
-        charsInAlpha = sets.Set(alphabet)
+        charsInAlpha = sets.Set(self._alphabet)
 
-#!!     will want to build in a way to report the offending Char (prob use Set methods)
-        assert charsInSeq.issubset(charsInAlpha), 'Your %s sequence contains %s. The following are allowed: %s' % (self._alphabet,list(charsInSeq.difference(charsInAlpha)),alphabet)
+
+        assert charsInSeq.issubset(charsInAlpha), 'Your %s sequence contains %s. The following are allowed: %s' % (self._seqType,list(charsInSeq.difference(charsInAlpha)),alphabet)
 
     def toString(self):    
         return ''.join(self._seq)
@@ -84,16 +84,16 @@ class gSeq:
         # set correct alphabet to use
         if type(customAlpha) is list:
             alpha = customAlpha
-        elif self._alphabet == "DNA":
+        elif self._seqType == "DNA":
             alpha = supportVars.iupacDNA
-        elif self._alphabet == "AA":
+        elif self._seqType == "AA":
             alpha = supportVars.iupacAA
         
         for char in alpha:
-            self._rFreqs[char] = Decimal(self._seq.count(char))/len(self._seq)
+            self._rFreqs[char] = Decimal('%.6f' % (self._seq.count(char)/len(self._seq)))
     
     def getResFreq(self, residueChar):
-        assert residueChar in supportVars.self._alphabet
+        assert residueChar in self._alphabet
         ##if self._rFreqs:
             ##return self._rFreqs[residueChar]
         ##else:
@@ -110,7 +110,7 @@ class gSeq:
         
         freqTab = ['Residue\t%s' % (self.name)]
         for res in sortedResidues:
-            freqTab.append(self._rFreqs[res])
+            freqTab.append('%s\t%s' % (res,self._rFreqs[res]))
         return freqTab
 
 
@@ -135,13 +135,14 @@ class DNAseq(gSeq):
     
     
     # declare that I am DNA
-    _alphabet = 'iupacDNA'
+    _seqType = 'DNA'
+    _alphabet = supportVars.iupacDNA
     
     def __init__(self,seq='', name=None, convertToUpper=1):
         gSeq.__init__(self,seq, name, convertToUpper)
         
         # enforce correct alphabet
-        self._enforceAlphabet(supportVars.iupacDNA)
+        self._enforceAlphabet()
 
 
 
@@ -193,13 +194,14 @@ class PROTseq(gSeq):
     
     
     # declare that I am AA
-    _alphabet = 'iupacAA'
+    _seqType = 'AA'
+    _alphabet = supportVars.iupacAA
     
     def __init__(self,seq='', name=None, convertToUpper=1):
         gSeq.__init__(self,seq, name, convertToUpper)
         
         # enforce correct alphabet
-        self._enforceAlphabet(supportVars.iupacAA)
+        self._enforceAlphabet()
         
         
         
@@ -207,9 +209,3 @@ class PROTseq(gSeq):
         
         
 ################ Change Log ######################
-##gSeq:
-
-##DNAseq:
-##- added codons()
-##- completed version 1 of translate() 
-##PROTseq:
