@@ -69,7 +69,7 @@ class gSeq:
         charsInAlpha = sets.Set(alphabet)
 
 #!!     will want to build in a way to report the offending Char (prob use Set methods)
-        assert charsInSeq.issubset(charsInAlpha), 'Your %s sequence must contain only these characters: %s' % (self._alphabet,alphabet)
+        assert charsInSeq.issubset(charsInAlpha), 'Your %s sequence contains %s. The following are allowed: %s' % (self._alphabet,list(charsInSeq.difference(charsInAlpha)),alphabet)
 
     def toString(self):    
         return ''.join(self._seq)
@@ -78,7 +78,7 @@ class gSeq:
         return self.__class__(self.toString()[index1:index2])
 
 
-    def calcResidueFreqs(self, customAlpha=None):
+    def _calcResidueFreqs(self, customAlpha=None):
         """Usage: residueFreqs(customAlpha=None) customAlpha is list of characters
         Returns a Dict with Key<residue>,Value<Freq of Key>"""
         # set correct alphabet to use
@@ -93,13 +93,25 @@ class gSeq:
             self._rFreqs[char] = Decimal(self._seq.count(char))/len(self._seq)
     
     def getResFreq(self, residueChar):
+        assert residueChar in supportVars.self._alphabet
+        ##if self._rFreqs:
+            ##return self._rFreqs[residueChar]
+        ##else:
+        self._calcResidueFreqs()
         return self._rFreqs[residueChar]
 
 #!!!!
     def getResFreqTable(self):
         # will want to sort keys in _rFreqs dict and write out to a 
         # list of strings or just a formatted string
-        pass
+        self._calcResidueFreqs()
+        sortedResidues = self._rFreqs.keys()
+        sortedResidues.sort()
+        
+        freqTab = ['Residue\t%s' % (self.name)]
+        for res in sortedResidues:
+            freqTab.append(self._rFreqs[res])
+        return freqTab
 
 
 # !!!!!    
@@ -123,7 +135,7 @@ class DNAseq(gSeq):
     
     
     # declare that I am DNA
-    _alphabet = 'DNA'
+    _alphabet = 'iupacDNA'
     
     def __init__(self,seq='', name=None, convertToUpper=1):
         gSeq.__init__(self,seq, name, convertToUpper)
@@ -141,13 +153,34 @@ class DNAseq(gSeq):
         else:
             return self.__class__(JamesDefs.revComp(self.toString()))
 
+    def codons(self, frame=1): 
+        """Return list of codons for self._seq""" 
+        assert frame in [1,2,3,-1,-2,-3] , 'Frame must only be these numbers.'
+        if frame < 0:
+            rvCmp = self.revCmp()
+            end = len(rvCmp._seq) - (len(rvCmp._seq) % 3) - 1 
+            codons = [''.join(rvCmp._seq[i:i+3]) for i in range(0+abs(frame)-1, end, 3)] 
+            return codons 
+        else:
+            end = len(self._seq) - (len(self._seq) % 3) - 1 
+            codons = [''.join(self._seq[i:i+3]) for i in range(0+frame-1, end, 3)] 
+            return codons 
     
 # !!!!!!!
-    def translate(self, frame, toString=0):
+    def translate(self, frame=1, toString=0):
         """returns PROTseq Class derived from provided frame (1,2,3,-1,-2,-3) OR a string if toString == 1
         """
-        assert frame in [1,2,3,-1,-2,-3]  # frame must only be these numbers
-        pass
+        assert frame in [1,2,3,-1,-2,-3] , 'Frame must only be these numbers.'
+        
+        # get list of codons
+        codons = self.codons(frame)
+        
+        peptide = ''
+        for each in codons:
+            if len(each) == 3:
+                peptide =  peptide+supportVars.geneCode[each]
+                
+        return PROTseq(peptide)
     
     
 
@@ -160,10 +193,23 @@ class PROTseq(gSeq):
     
     
     # declare that I am AA
-    _alphabet = 'AA'
+    _alphabet = 'iupacAA'
     
     def __init__(self,seq='', name=None, convertToUpper=1):
         gSeq.__init__(self,seq, name, convertToUpper)
         
         # enforce correct alphabet
         self._enforceAlphabet(supportVars.iupacAA)
+        
+        
+        
+        
+        
+        
+################ Change Log ######################
+##gSeq:
+
+##DNAseq:
+##- added codons()
+##- completed version 1 of translate() 
+##PROTseq:
