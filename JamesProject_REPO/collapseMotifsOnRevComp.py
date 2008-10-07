@@ -10,8 +10,8 @@ import re
 
 
 #========================= User Defined Variables =========================
-inFile =  '/Users/biggus/Documents/James/Data/2KB/2kb_Sequence/2kb_Combo/2Kb_AllMosquitoes/MosqMotifs/collapsed_upstream_ex-conserved_mosquito-motifs_nr.txt'
-outFile = '/Users/biggus/Documents/James/Data/2KB/2kb_Sequence/2kb_Combo/2Kb_AllMosquitoes/MosqMotifs/collapsed_upstream_ex-conserved_mosquito-motifs_nr.copRvCmp.txt'
+inFile =  '/Users/biggus/Documents/James/Data/2KB/2kb_Sequence/2kb_Combo/2kb_DmelMosquitoes/Dmel-MosqMotifs/JAR_2KBupDmelAndMosqCombined_8mer.rvCmp.Reduced_gte3.motifs'
+outFile = '/Users/biggus/Documents/James/Data/2KB/2kb_Sequence/2kb_Combo/2kb_DmelMosquitoes/Dmel-MosqMotifs/JAR_2KBupDmelAndMosqCombined_8mer.rvCmp.Reduced_gte3.nr.motifs'
 
 #==========================================================================
 
@@ -26,15 +26,17 @@ print "Starting number: %s" % inFile_Len
 
 
 while inFile:
+    
     # always inFile[0] bc i pop the tops later on so next motif always becomes inFile[0]
     motif = inFile[0].split('\t')
     motif = makeFwdAndRevCompRegExObj_IUPAC(motif[0])
     #print len(sortedMotifs)
     i = 0
     motifList = []
+    
     while i < inFile_Len:
-        
-        if motif.match(inFile[i]):
+             
+        if motif.search(inFile[i]):
             motifList.append(inFile.pop(i)+'\n')
             inFile_Len = len(inFile)
             i-=1

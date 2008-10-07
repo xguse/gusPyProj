@@ -98,12 +98,18 @@ def readInMatrixFromFile(pathToFile):
     return [dictOfAGAPS, motifList]
 
 
-def makeFwdAndRevCompRegExObj_IUPAC(motif):
+def makeFwdAndRevCompRegExObj_IUPAC(motif, equals=0):
     import re
     
     motifPair = [motif, JamesDefs.revComp(motif)]
         
-    motif = '(%s|%s)' % (motifPair[0], motifPair[1])
+    targetContainsMotif  = '(%s|%s)' % (motifPair[0], motifPair[1])
+    targetISMotif        = '^(%s|%s)&' % (motifPair[0], motifPair[1])
+    
+    if equals == 1:
+        motif = targetISMotif
+    elif equals == 0:
+        motif = targetContainsMotif
     
     fwdRevComp_regExObj = re.compile(motif, re.IGNORECASE)
     return fwdRevComp_regExObj

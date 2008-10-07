@@ -8,11 +8,11 @@ import string
 #========================= User Defined Variables =========================
 
 #  Path to original file
-originalFastaDict = open('/Users/biggus/Documents/MBGB/Rotations/James/Data/2KB/2kb_Sequence/2kb_Anopheles/2kb_anophelesProcessed/2KB_anophelesUpstream/anopheles2KBupStreamTSS.masked.fas', 'rU')
+originalFastaDict = open('/Users/biggus/Documents/James/Data/2KB/2kb_Sequence/2kb_Anopheles/2KBupTSS_goodAffyAGAPsFastasOUT.masked.nr.fas', 'rU')
 
-desiredFastaList  = open('/Users/biggus/Documents/MBGB/Rotations/James/Data/AffyAgapStuff/nr_good_AffyAgap.nr.txt', 'rU').readlines()
+desiredFastaList  = open('/Users/biggus/Documents/James/Data/ClusterDefs/TC-46.txt', 'rU').readlines()
 
-outFile           = '/Users/biggus/Documents/MBGB/Rotations/James/Data/testData4Mapper/MGandUpAt24.fas'
+outFile           = '/Users/biggus/Documents/James/Data/2KB/2kb_Sequence/2kb_Combo/2Kb_AllMosquitoes/MosqMotifs/MotifGroupPWMs/AllGroups/ModuleData/TC-46.fas'
 
 #==========================================================================
 
@@ -38,3 +38,5 @@ for rec in desiredFastaList:
 outFile = open(outFile, 'w')
 SeqIO.write(desiredFastaObjList, outFile, 'fasta')
 outFile.close()
+
+print "Done."

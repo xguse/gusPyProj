@@ -63,12 +63,12 @@ def convertMotifList(motifList):
 
 #========================= User Defined Variables =========================
 #  -Input Files-
-clusterDefinitionList = map(string.strip, open('/Users/biggus/Documents/MBGB/Rotations/James/Data/ClusterDefs/053008_incompleteTimeCourse.txt', 'r'))
-motifList             = map(string.strip, open('/Users/biggus/Documents/MBGB/Rotations/James/Data/DegenMotifs/aedesAnopheles7mer.TSS.nr.motif', 'r'))
-boundarySeqs          = '/Users/biggus/Documents/MBGB/Rotations/James/Data/2KB/2kb_Sequence/2kb_Anopheles/2kb_anophelesProcessed/2KB_anophelesUpstream/2KBupTSS_goodAffyAGAPsFastasOUT.masked.nr.fas'
+clusterDefinitionList = map(string.strip, open('/Users/biggus/Documents/James/Data/Osvaldo/OM_MaleFemaleClusterDefs.txt', 'r'))
+motifList             = map(string.strip, open('/Users/biggus/Documents/James/Data/2KB/2kb_Sequence/2kb_Combo/2Kb_AllMosquitoes/MosqMotifs/upstream_exclsv-conserved_mosquito-motifs_nr.txt', 'r'))
+boundarySeqs          = '/Users/biggus/Documents/James/Data/2KB/2kb_Sequence/2kb_Anopheles/2KBupTSS_goodAffyAGAPsFastasOUT.masked.nr.fas'
 
 #  -Output File-
-outFile               = '/Users/biggus/Documents/MBGB/Rotations/James/Data/ClusterDefs/053008_incompleteTimeCourse.7mer.pVals.txt'
+outFile               = '/Users/biggus/Documents/James/Data/Osvaldo/OM_MaleFemale.mosqMotifs137.pVals.txt'
 outFile = open(outFile,'w')
 
 #==========================================================================
@@ -128,7 +128,7 @@ while c < len(hyperGeoParams_4_motifClusterPairs):
     
     #  calc hyperGeo pVal
     pVal = hyperGeoPvalue(int(params[1]),int(params[2]),int(params[3]),int(params[4]))
-    print pVal
+    print "%.6f" % (pVal)
     hyperGeoParams_4_motifClusterPairs[c] = hyperGeoParams_4_motifClusterPairs[c]+'\t'+str(pVal)+'\n'
     c+=1    
 t4 = time()
