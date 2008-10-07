@@ -1,10 +1,10 @@
 ############### list of user variables ####################
 
 # file to import from
-rFile = open('/Users/biggus/Documents/James/Data/2KB/2kb_Sequence/2kb_Drosophila/FBgn_2_CG.txt','r').readlines()
+rFile = open('/Users/biggus/Documents/James/Data/OrthologDefs/nrOrthos/RedunListOfQuadThreats.txt','r').readlines()
 
 # file to write output to
-outFile = '/Users/biggus/Documents/James/Data/2KB/2kb_Sequence/2kb_Drosophila/FBgn_2_CG.nr.txt'
+outFile = '/Users/biggus/Documents/James/Data/OrthologDefs/nrOrthos/RedunListOfQuadThreats.nr.txt'
 
 # open and read data into var
 
