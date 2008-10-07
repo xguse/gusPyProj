@@ -14,8 +14,7 @@ from decimal import Decimal
         ##self.name = name
 
 class gSeq:
-    """
-    Parent class for Seq objects
+    """Parent class for Seq objects
     """
     
     
@@ -25,7 +24,7 @@ class gSeq:
     _rFreqs = {}
     
     
-# done
+
     def __init__(self,seq='', name=None, convertToUpper=1):        
         # enforce string type data
         assert (type(seq) == type("") or type(seq) == type(u""))  # must use a string but can be a unicode string
@@ -64,11 +63,21 @@ class gSeq:
         return "%s(%s, %s)" % (self.__class__.__name__, s,
                                repr(self._alphabet))
     
-# done
+    def _enforceAlphabet(self,alphabet):
+        # enforce correct alphabet
+        charsInSeq   = sets.Set(self._seq)
+        charsInAlpha = sets.Set(alphabet)
+
+#!!     will want to build in a way to report the offending Char (prob use Set methods)
+        assert charsInSeq.issubset(charsInAlpha), 'Your %s sequence must contain only these characters: %s' % (self._alphabet,alphabet)
+
     def toString(self):    
         return ''.join(self._seq)
-    
-# ??????
+
+    def slice(self,index1,index2):
+        return self.__class__(self.toString()[index1:index2])
+
+
     def calcResidueFreqs(self, customAlpha=None):
         """Usage: residueFreqs(customAlpha=None) customAlpha is list of characters
         Returns a Dict with Key<residue>,Value<Freq of Key>"""
@@ -85,11 +94,25 @@ class gSeq:
     
     def getResFreq(self, residueChar):
         return self._rFreqs[residueChar]
-    
 
-            
+#!!!!
+    def getResFreqTable(self):
+        # will want to sort keys in _rFreqs dict and write out to a 
+        # list of strings or just a formatted string
+        pass
+
+
+# !!!!!    
+    def search(self,):
+        assert regEx == 0 or 1  # 0=unambiguous pattern match; 1=use regular expressions
+        if regEx == 1:
+            pass
+        else:
+            pass
         
-    
+    def toFasta(self):
+        return ">%s\n%s\n" % (self.name, self.toString())
+        
         
 
 
@@ -106,9 +129,9 @@ class DNAseq(gSeq):
         gSeq.__init__(self,seq, name, convertToUpper)
         
         # enforce correct alphabet
-        charsInSeq   = sets.Set(self._seq)
-        charsInAlpha = sets.Set(supportVars.iupacDNA)
-        assert charsInSeq.issubset(charsInAlpha) # enforce correct alphabet in self._seq
+        self._enforceAlphabet(supportVars.iupacDNA)
+
+
 
     def revCmp(self, toString=0):
         assert toString == 0 or 1 # 0 = return new SeqObj; 1 = return string
@@ -117,11 +140,7 @@ class DNAseq(gSeq):
             return JamesDefs.revComp(self.toString())
         else:
             return self.__class__(JamesDefs.revComp(self.toString()))
-    
-        
-# Done
-    def revCmpToString(self):   
-        return JamesDefs.revComp(self.toString())
+
     
 # !!!!!!!
     def translate(self, frame, toString=0):
@@ -131,8 +150,20 @@ class DNAseq(gSeq):
         pass
     
     
-    def slice(self,index1,index2):
-        return DNAseq(self.toString()[index1:index2])
+
     
     
+class PROTseq(gSeq):
+    """homemade class to deal with everyday Protein seq needs
+    """
+    import JamesDefs
+    
+    
+    # declare that I am AA
+    _alphabet = 'AA'
+    
+    def __init__(self,seq='', name=None, convertToUpper=1):
+        gSeq.__init__(self,seq, name, convertToUpper)
         
+        # enforce correct alphabet
+        self._enforceAlphabet(supportVars.iupacAA)
