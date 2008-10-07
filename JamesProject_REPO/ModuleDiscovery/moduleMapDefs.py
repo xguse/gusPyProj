@@ -121,6 +121,46 @@ def buildModulesForAGAP(AGAPentryOfSortedMotifs, dictOfMotifSetsByAGAP, windowLe
     print 'buildModulesForAGAP found %s modules for %s.' % (str(len(listOfMotifSets)), AGAPname)
 
 
+
+
+#==============================================================
+def spawnMotifInstances4AGAPv2(an_AGAPs_listOfMotifs):
+    '''
+    takes    - motifMap of one AGAP
+    
+    does     - creates instances(list of atribs [name,strand*,startPos]) of each occurence of each motif  
+
+            
+    returns  - list: [AGAPname,[sortedListOfMotifInstances]]
+    '''
+    
+    #  give list its AGAP name as index[0]
+    AGAP_and_instances = [an_AGAPs_listOfMotifs[0][0]]
+    instancesList = []
+    while an_AGAPs_listOfMotifs:
+        
+        ## pop first two indexes of list (motif and motif_rc) to temp list
+        motifsFwdRev = []
+        motifsFwdRev.append(an_AGAPs_listOfMotifs.pop(0))
+        #motifsFwdRev.append(an_AGAPs_listOfMotifs.pop(0))
+        
+        ## next few steps: Combine fwd and rev lists of positions and check to see if the list is NON-empty
+        motifName = motifsFwdRev[0][1]
+                
+        ##  Convert each pos into an instance list [motifName, pos] and add all to motifInstList only
+        ##    if there are occurences of the motif
+        if motifsFwdRev[0][2:]:
+            for pos in motifsFwdRev[0][2:]:
+                instancesList.append([motifName, int(pos)])
+        
+        
+    #  Sort instanceList append it to AGAP_and_instances and return that list
+    instancesList.sort(cmp=lambda x,y: x[1]-y[1])    
+    AGAP_and_instances.append(instancesList)
+    
+    return AGAP_and_instances
+    
+    
 #==============================================================
 
 def spawnMotifInstances4AGAP(an_AGAPs_listOfMotifs):

@@ -1,10 +1,11 @@
+import sys
 from doug_hypergeometric import hyperGeoPvalue
 from time import time
 
 #========================= User Defined Variables =========================
-paramsFile      = '/Users/biggus/Documents/James/Data/2KB/2kb_Sequence/2kb_Combo/2Kb_AllMosquitoes/2KBup_9sConservedInAaegAgamCulex.collapsedOnPerf.hgp.txt'
+paramsFile  = sys.argv[1]
 
-outFile = open('/Users/biggus/Documents/James/Data/2KB/2kb_Sequence/2kb_Combo/2Kb_AllMosquitoes/2KBup_9sConservedInAaegAgamCulex.collapsedOnPerf.pVals.txt','a')
+outFile     = open(sys.argv[2],'w')
 #===============================================
 
 hyperGeoParams = map(lambda line : line.strip(), open(paramsFile, 'rU').readlines())

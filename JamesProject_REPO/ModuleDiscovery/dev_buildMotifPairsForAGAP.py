@@ -32,7 +32,7 @@ def buildMotifPairsForAGAP(AGAPentryOfSortedMotifs, windowLen=500):
         # copy motifs in window to working list
         # BREAK once window is exited to avoid extra computations
         for each in listOfSortedMotifs:
-            if each[1] <= primaryMotif[1]+500:
+            if each[1] <= primaryMotif[1]+windowLen:
                 motifsInWindow.append(each)
             else:
                 break
@@ -57,9 +57,13 @@ def buildMotifPairsForAGAP(AGAPentryOfSortedMotifs, windowLen=500):
             setOfMotifSets.add(ImmutableSet([primaryMotif[0],m[0]]))
             
     if len(setOfMotifSets) > 0:
-        print 'buildMotifPairsForAGAP found %i pairs for %s.' % (len(setOfMotifSets), AGAPname)
+        #print 'buildMotifPairsForAGAP found %i pairs for %s.' % (len(setOfMotifSets), AGAPname)
         return [AGAPname,[list(setOfMotifSets),0]]
-            
+    
+    #  cant list(None) or len(None) so I must manually return an empty list and set len to zero
+    else:   
+        print 'buildMotifPairsForAGAP found %i pairs for %s.' % (0, AGAPname)
+        return [AGAPname,[[],0]]
         
 
 
