@@ -3,8 +3,8 @@ from bioDefs import revComp
 # To convert Aa putative TSS seqs into +1 Ori based on gene's Ori
 
 
-chromOriSeqs = map(lambda line: line.strip(), open('/Users/biggus/Documents/James/Data/AedesCorePromoterWork/Aa_Ensbl49_AaegL1.1.PlusMinus50coords.chromStrand.fas','rU').readlines())
-outFile = '/Users/biggus/Documents/James/Data/AedesCorePromoterWork/Aa_Ensbl49_AaegL1.1.PlusMinus50coords.geneStrand.fas'
+chromOriSeqs = map(lambda line: line.strip(), open('/Users/biggus/Documents/James/Data/AedesCorePromoterWork/output/Inr_DPE/Aa_Ensbl49_AaegL1.1.plus100minus100._InrDPE_.newInr.chromStrand.fa','rU').readlines())
+outFile = '/Users/biggus/Documents/James/Data/AedesCorePromoterWork/output/Inr_DPE/Aa_Ensbl49_AaegL1.1.plus100minus100._InrDPE_.newInr.geneStrand.local.fa'
 geneOriSeqs  = []
 
 

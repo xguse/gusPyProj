@@ -3,10 +3,10 @@ import motility
 from gSeqClasses import DNAseq
 
 print 'loading seq file...'
-seqFile    = map(lambda line: line.strip(), open('/Users/biggus/Documents/James/Data/AedesCorePromoterWork/output/Aa_Ensbl49_AaegL1.1.plus50minus100._InrDPE_seqSlices_.fa','rU').readlines())
-outFile    = '/Users/biggus/Documents/James/Data/AedesCorePromoterWork/output/Aa_Ensbl49_AaegL1.1.plus50minus100._InrDPE_.locations.txt'
+seqFile    = map(lambda line: line.strip(), open('/Users/biggus/Documents/James/Data/AedesCorePromoterWork/output/TATA_Inr/Aa_Ensbl49_AaegL1.1.plus50minus100._TataInr_seqSlices_.fas','rU').readlines())
+outFile    = '/Users/biggus/Documents/James/Data/AedesCorePromoterWork/output/TATA_Inr/Aa_Ensbl49_AaegL1.1.plus50minus100._TataInr_seqSlices_.locations.txt'
 motif2 = motility.IUPAC('RGWYV') 
-winTo2ndMotif = (22,24) # <---- This is based from END of first motif!!!
+winTo2ndMotif = (23,27) # <---- This is based from END of first motif!!!
 seqList = zipped = zip(seqFile[:-1:2], seqFile[1::2])
 seqDict = {}
 

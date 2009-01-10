@@ -5,13 +5,12 @@ from fjoin import FJoin
 # fjoin Paths
  
 # codingBoundsOUT
-path2fjIn1    = '/Users/biggus/Documents/James/Data/2KB/2kb_Sequence/2kb_Drosophila/2KB_drosophilaBoundaryCoordsTSS.neg.txt'
-
+path2fjIn1    = '/Users/biggus/Documents/James/Data/Tu_miRNA/Cq_500afterCoding.newCoords.neg.txt'
 # exon/codingExon file total
-path2fjIn2    = '/Users/biggus/Documents/James/Data/SourceCoords/Drosophila/drosophilaExonCoordsTSS.protCoding.txt'
+path2fjIn2    = '/Users/biggus/Documents/James/Data/Tu_miRNA/MegyDBdumpData/Cq_CpipJ1-2_GeneTranscrExon_112408.noBlanks.txt'
 
 # outfile
-path2outFile  = '/Users/biggus/Documents/James/Data/2KB/2kb_Sequence/2kb_Drosophila/2KBdown_drosophilaBoundaryCoordsTSS.neg.fjoin.txt'
+path2outFile  = '/Users/biggus/Documents/James/Data/Tu_miRNA/Cq_500afterCoding.newCoords.neg.fjoin.txt'
 
 # other fjoin arguments: [will need to change 5 & 6 when doing ]
 """ set _columns1_ as correct variable from below """

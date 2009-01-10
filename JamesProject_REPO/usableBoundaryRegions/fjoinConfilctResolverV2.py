@@ -68,10 +68,10 @@ def resolver(groupedList, resolverArgs):
 ############### list of user variables ####################
 
 # file to import from
-inFile  = '/Users/biggus/Documents/James/Data/2KB/2kb_Sequence/2kb_Drosophila/2KBdown_drosophilaBoundaryCoordsTSS.both.fjoin.txt'
+inFile  = '/Users/biggus/Documents/James/Data/Tu_miRNA/Cq_500afterCoding.newCoords.both.fjoin.txt'
 
 # file to write output to
-outFile = '/Users/biggus/Documents/James/Data/2KB/2kb_Sequence/2kb_Drosophila/2KBdown_drosophilaBoundaryCoordsTSS.both.fjoinResolved.txt '
+outFile = '/Users/biggus/Documents/James/Data/Tu_miRNA/Cq_500afterCoding.newCoords.fjoinResolved.txt'
 
 whichBoundary = 'downStream' # 'upStream' or 'downStream'
 

@@ -23,10 +23,10 @@ class HitList:
         self.countOfSeqsWithHit = count
 print 'loading file...'
 seqFile    = map(lambda line: line.strip(), open('/Users/biggus/Documents/James/Data/AedesCorePromoterWork/sourceCoords/Aa_Ensbl49_AaegL1.1.Plus50Minus100coords.geneStrand.fas','rU').readlines())
-##outFile    = '/Users/biggus/Documents/James/Data/AedesCorePromoterWork/Aa_Ensbl49_AaegL1.1.plus50minus100._InrDPE_Hits_.fas'
-##outFile2   = '/Users/biggus/Documents/James/Data/AedesCorePromoterWork/Aa_Ensbl49_AaegL1.1.plus50minus100._InrDPE_seqSlices_.fas'
-Inr = motility.IUPAC('m')
-DPE = motility.IUPAC('RGWYV')
+outFile    = '/Users/biggus/Documents/James/Data/AedesCorePromoterWork/output/Aa_Ensbl49_AaegL1.1.plus50minus100._InrDPE_Hits_2.fas'
+outFile2   = '/Users/biggus/Documents/James/Data/AedesCorePromoterWork/output/Aa_Ensbl49_AaegL1.1.plus50minus100._InrDPE_seqSlices_2.fas'
+motif1 = motility.IUPAC('TCAKTY')
+motif2 = motility.IUPAC('RGWYV')
 winTo2ndMotif = 36
 seqList = zipped = zip(seqFile[:-1:2], seqFile[1::2])
 seqDict = {}
@@ -47,7 +47,7 @@ seqNames.sort()
 # populate Hits Dict
 print 'searching seqDict...'
 for each in seqNames:
-    seqHits[each] = Inr.find(seqDict[each].toString())
+    seqHits[each] = motif1.find(seqDict[each].toString())
 
 ### write to file in an easily python readable format
 ##outFile = open(outFile, 'w')
@@ -61,7 +61,7 @@ hitList1.countSeqWithHit()
 ##print "I found %s seqs with motif." % (hitList.countOfSeqsWithHit)
 ##print 'len of seqsWithHit dict = %s' % (len(hitList.seqsWithHit))
 
-# create new seqDict for seqs with inr
+# create new seqDict for seqs with motif1
 hitSeqDict = {}
 motif1SeqsNames = hitList1.seqsWithHit.keys()
 
@@ -76,18 +76,18 @@ seqSliceDict = {}
 
 for key in hitSeqDict_keys:
     for site in hitList1.seqsWithHit[key]:
-        # creat slice and attach infor to it
+        # creat slice and attach info to it
         seqSlice = seqDict[key].slice(int(site[1]),int(site[1])+winTo2ndMotif)
-        seqSlice.name = '%s|Inr(..DPE):%s-%s' % (seqDict[key].name,site[1],int(site[1])+winTo2ndMotif)
+        seqSlice.name = '%s|%s(..%s)|%s-%s' % (seqDict[key].name,motif1.motif,motif2.motif,site[1],int(site[1])+winTo2ndMotif)
         ##print seqSlice.name
         # ommit seqs that are shorter than motif to be searched
-        if len(seqSlice) < len(DPE):
+        if len(seqSlice) < len(motif2):
             continue
         else:
             
-            DPEhits  = DPE.find(seqSlice.toString())
+            motif2hits  = motif2.find(seqSlice.toString())
         
-        for hit in DPEhits:
+        for hit in motif2hits:
             if hit[2] == 1:                
                 ##print "%s:%s" % (key,hit)
                 # on success drop SeqObj into doubleHitSeqDict

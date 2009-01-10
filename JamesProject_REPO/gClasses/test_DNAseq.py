@@ -1,7 +1,16 @@
 from gSeqClasses import DNAseq
 from Bio.Seq import Seq
 
-d = DNAseq('ATACTGACTGACTGTTTTTTTTTTTTTTTTTTTTTTTAAAAAAAAAAAAAAAAAAAATTTTTTTAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA','testSeq1')
+q = Seq('kjhas')
+
+d = DNAseq('''atgatgaagatcacgatcgccgccctcgctctgctggccgtcgccgttgctgcatacgaa
+catgaggactatcattcgcatcccagctacaagttcgagtatggagtaaaggatcctcac
+accggagaccacaagagccagtgggaacatcgggacggagatgtcgtcaagggagcatat
+acccttcacgaggctgacggaactgagcgagtagttgagtactcgtccgacaagcacaac
+ggcttccaggctcacgtcaagcgagtgggtcatgctcaccacccggaagtgtatggacac
+catgaggctggacactcgtacggccatggacacggtcatggtcatggcagcagctacgcc
+aacggcaacctgtaccagcaccatcactaa
+''','testSeq1')
 
 print 'repr:\n%s' % (d)
 print 'str(d):\n%s' % (str(d))

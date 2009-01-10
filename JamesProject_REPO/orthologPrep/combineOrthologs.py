@@ -11,11 +11,11 @@ import JamesDefs
 #  NOTE: genomeFileOne should get the seqs from the genome
 #       that occurs FIRST in the orthologList file!!!
 
-genomeFileOne = '/Users/biggus/Documents/James/Data/2KB/2kb_Sequence/2kb_Drosophila/drosophila2KBupStreamTSS.nameConvertion.masked.fas'
-genomeFileTwo = '/Users/biggus/Documents/James/Data/2KB/2kb_Sequence/2kb_Culex/culex2KBupStreamTSS.masked.fas'
-orthologList  = open('/Users/biggus/Documents/James/Data/OrthologDefs/Dmel_Culex_1-to-1.txt','r').readlines()
+genomeFileOne = '/Users/biggus/Documents/James/Data/Tu_miRNA/Fastas/Cq_500afterCoding.newCoords.usuable.stpCdn.fas'
+genomeFileTwo = '/Users/biggus/Documents/James/Data/Tu_miRNA/Fastas/Ag_500afterCoding.usuable.stpCdn.fas'
+orthologList  = open('/Users/biggus/Documents/James/Data/OrthologDefs/Culex_Agam_1-to-1.nr.txt','r').readlines()
 
-outFile       = '/Users/biggus/Documents/James/Data/2KB/2kb_Sequence/2kb_Combo/2kb_DmelMosquitoes/2KBup_CombinedDrosophilaAndCulexOrthologs.masked.fas'
+outFile       = '/Users/biggus/Documents/James/Data/Tu_miRNA/Fastas/OrthoPairFastas/CqAg_orthosForMDOS_500afterCoding.usuable.stpCdn.fas'
 
 #==========================================================================
 

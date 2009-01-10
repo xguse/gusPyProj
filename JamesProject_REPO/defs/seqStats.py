@@ -17,7 +17,7 @@ def calcStats(fastaPath):
     
     combinedSeq= combinedSeq.upper()
     
-    seqLen     = len(seqFile)
+    seqs       = len(seqFile)
     totNucs    = len(combinedSeq)
     aCnt       = combinedSeq.count('A')
     cCnt       = combinedSeq.count('C')
@@ -31,7 +31,7 @@ def calcStats(fastaPath):
     
     
     
-    return {'seqLen':seqLen,
+    return {'seqs':seqs,
             'totNucs':totNucs,
             'aCnt':aCnt,
             'cCnt':cCnt,
@@ -46,7 +46,7 @@ def calcStats(fastaPath):
     
     
 if __name__ == '__main__':
-    assert len(sys.argv[1:]) == 1 , "usage: gcContent [fastaFile]"
+    assert len(sys.argv[1:]) == 1 , "usage: %s [fastaFile]" % (sys.argv[0].split('/')[-1])
 
 
     

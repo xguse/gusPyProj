@@ -1,10 +1,15 @@
 import sys
 
 
+
+#print 'sys args = %s' % (len(sys.argv))
+assert len(sys.argv) == 3, 'Usage: nonRedunList_sysArgs.py listFile outFile'
+
 ############### list of user variables ####################
 
 # file to import from
 rFile = open(sys.argv[1],'r').readlines()
+
 
 # file to write output to
 outFile = sys.argv[2]

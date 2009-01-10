@@ -8,11 +8,18 @@ import string
 #========================= User Defined Variables =========================
 
 #  Path to original file
-originalFastaDict = open('/Users/biggus/Documents/James/Data/2KB/2kb_Sequence/2kb_Anopheles/2KBupTSS_goodAffyAGAPsFastasOUT.masked.nr.fas', 'rU')
+##originalFastaDict = open('/Users/biggus/Documents/James/Data/2KB/2kb_Sequence/2kb_Anopheles/2KBupTSS_goodAffyAGAPsFastasOUT.masked.nr.fas', 'rU')
 
-desiredFastaList  = open('/Users/biggus/Documents/James/Data/ClusterDefs/TC-46.txt', 'rU').readlines()
+##desiredFastaList  = open('/Users/biggus/Documents/James/Data/ClusterDefs/TC-46.txt', 'rU').readlines()
 
-outFile           = '/Users/biggus/Documents/James/Data/2KB/2kb_Sequence/2kb_Combo/2Kb_AllMosquitoes/MosqMotifs/MotifGroupPWMs/AllGroups/ModuleData/TC-46.fas'
+##outFile           = '/Users/biggus/Documents/James/Data/2KB/2kb_Sequence/2kb_Combo/2Kb_AllMosquitoes/MosqMotifs/MotifGroupPWMs/AllGroups/ModuleData/TC-46.fas'
+
+originalFastaDict = open('/Users/biggus/Documents/James/Data/2KB/2kb_Sequence/2kb_Anopheles/anopheles2KBupStreamTSS.masked.fas', 'rU')
+
+desiredFastaList  = open('/Users/biggus/Documents/James/Data/DougEmail/Genes_linked-to_usuable_GOs.txt', 'rU').readlines()
+
+outFile           = '/Users/biggus/Documents/James/Data/2KB/2kb_Sequence/2kb_Anopheles/anophelesGenes_linked-to_usuable_GOs.TSS.masked.fas'
+
 
 #==========================================================================
 

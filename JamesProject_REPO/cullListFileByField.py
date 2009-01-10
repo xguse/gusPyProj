@@ -2,11 +2,14 @@ import re
 from time import time
 
 #========================= User Defined Variables =========================
-inFile      = '/Users/biggus/Documents/James/Data/2KB/2kb_Sequence/2kb_Combo/2Kb_AllMosquitoes/MosqMotifs/outPut/outPut/2KBup_collapsed_upstream_ex-conserved_mosquito-motifs_nr.te.hgp.txt'
+inFile      = '/Users/biggus/Documents/James/Data/Tu_miRNA/Cq_CpipJ1-2_GeneTranscrExon_112408.txt'
 
-outFile = open('/Users/biggus/Documents/James/Data/2KB/2kb_Sequence/2kb_Combo/2Kb_AllMosquitoes/MosqMotifs/outPut/outPut/2KBup_collapsed_upstream_ex-conserved_mosquito-motifs_nr.te.hgp.ngt0.txt','w')
+outFile = open('/Users/biggus/Documents/James/Data/Tu_miRNA/Cq_CpipJ1-2_GeneTranscrExon_112408.noBlanks.txt','w')
 
 fieldIndex = 2
+
+regEx = ''
+
 #===============================================
 
 inFile = map(lambda line: line.strip(), open(inFile, 'rU').readlines())
@@ -14,11 +17,11 @@ len_inFile = len(inFile)
 
 culledLines =[]
 
-regEx = re.compile('protein_coding', re.IGNORECASE)
+regEx = re.compile(regEx, re.IGNORECASE)
 for item in inFile:
     
     itemFields = item.split('\t')
-    if itemFields[4] != '0':    #  regEx.search(itemFields[fieldIndex])
+    if itemFields[5] and itemFields[6] != '':    #  regEx.search(itemFields[fieldIndex])
         
         culledLines.append(item+'\n')
         

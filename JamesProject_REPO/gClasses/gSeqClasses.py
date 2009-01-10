@@ -25,16 +25,19 @@ class gSeq:
     
     
 
-    def __init__(self,seq='', name=None, convertToUpper=1):        
+    def __init__(self,seq='', name=None, header=None, convertToUpper=1):        
         # enforce string type data
         assert (type(seq) == type("") or type(seq) == type(u""))  # must use a string but can be a unicode string
         
         if convertToUpper != 0:
-            self._seq = list(seq.upper())
+            self._seq = list(seq.upper().strip('\w'))
         else:
             self._seq = list(seq)
         self.name = name
-        
+        if header == None:
+            self.header = header
+        else:
+            self.header = header.strip('>')
         
         
 
@@ -123,8 +126,12 @@ class gSeq:
             pass
         
     def toFasta(self):
-        return ">%s\n%s\n" % (self.name, self.toString())
-        
+        if self.header:
+            return ">%s\n%s\n" % (self.header, self.toString())
+        elif self.name:
+            return ">%s\n%s\n" % (self.name, self.toString())
+        else:
+            return ">NoNameGiven\n%s\n" % (self.toString())
         
 
 
@@ -138,8 +145,8 @@ class DNAseq(gSeq):
     _seqType = 'DNA'
     _alphabet = supportVars.iupacDNA
     
-    def __init__(self,seq='', name=None, convertToUpper=1):
-        gSeq.__init__(self,seq, name, convertToUpper)
+    def __init__(self,seq='', name=None, header=None, convertToUpper=1):
+        gSeq.__init__(self,seq, name, header, convertToUpper)
         
         # enforce correct alphabet
         self._enforceAlphabet()
@@ -160,11 +167,17 @@ class DNAseq(gSeq):
         if frame < 0:
             rvCmp = self.revCmp()
             end = len(rvCmp._seq) - (len(rvCmp._seq) % 3) - 1 
-            codons = [''.join(rvCmp._seq[i:i+3]) for i in range(0+abs(frame)-1, end, 3)] 
+            codons = [''.join(rvCmp._seq[i:i+3]) for i in range(0+abs(frame)-1, end, 3)]  
+            # remove incomplete codons
+            if len(codons[-1]) != 3:
+                codons.pop(-1)
             return codons 
         else:
             end = len(self._seq) - (len(self._seq) % 3) - 1 
             codons = [''.join(self._seq[i:i+3]) for i in range(0+frame-1, end, 3)] 
+            # remove incomplete codons
+            if len(codons[-1]) != 3:
+                codons.pop(-1)
             return codons 
     
 # !!!!!!!
@@ -197,8 +210,8 @@ class PROTseq(gSeq):
     _seqType = 'AA'
     _alphabet = supportVars.iupacAA
     
-    def __init__(self,seq='', name=None, convertToUpper=1):
-        gSeq.__init__(self,seq, name, convertToUpper)
+    def __init__(self,seq='', name=None, header=None, convertToUpper=1):
+        gSeq.__init__(self,seq, name, header, convertToUpper)
         
         # enforce correct alphabet
         self._enforceAlphabet()
@@ -209,3 +222,7 @@ class PROTseq(gSeq):
         
         
 ################ Change Log ######################
+# - altered DNAseq.codons() to exclude incomplete codons in return data
+# - added 'header' to all Seq classes to support storing name AND full fasta header (will need to incorperate parsing of header later)
+#      |-- self.toFasta() now uses 'self.header' elif 'self.name' else "NoNameGiven" 
+#      |-- 

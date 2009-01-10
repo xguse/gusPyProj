@@ -28,6 +28,22 @@ compl_iupacdict = {'A':'T',
                    'B':'V',
                    'X':'X',
                    'N':'N',
+                   'a':'t',
+                   'c':'g',
+                   'g':'c',
+                   't':'a',
+                   'm':'k',
+                   'r':'y',
+                   'w':'w',
+                   's':'s',
+                   'y':'r',
+                   'k':'m',
+                   'v':'b',
+                   'h':'d',
+                   'd':'h',
+                   'b':'v',
+                   'x':'x',
+                   'n':'n',
                    '-':'-'}
 
 def compliment(motif, compl_iupacdict):
@@ -76,5 +92,11 @@ def iupac2regex(motif):
     transl_motif = ""
     for i in range(0,len(motif)):
         letter = motif[i]
-        transl_motif = transl_motif + iupacdict[letter]
+        if letter in iupacdict:
+            transl_motif = transl_motif + iupacdict[letter]
+        else:
+            # if letter not in dict use letter
+            # |-- motivation: allow regEx syntax like N{3,7}
+            transl_motif = transl_motif + letter
+            
     return transl_motif

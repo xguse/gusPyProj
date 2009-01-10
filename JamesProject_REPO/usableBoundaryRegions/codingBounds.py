@@ -1,7 +1,7 @@
 import sys
 import time
 import JamesDefs
-from fjoin import FJoin
+
 
 #--------- Script Specific Function Definitions ---------------------
 def combineExons(groupedList, BdryLen):
@@ -21,6 +21,8 @@ def combineExons(groupedList, BdryLen):
         
         # Convert str coords into int coords
         for strCoord in strCoordsList:
+            if strCoord.startswith('#'):
+                continue
             intCoordsList.append(int(strCoord))
         
         # Write new one line record for the gene
@@ -54,11 +56,11 @@ def combineExons(groupedList, BdryLen):
 #========================= User Defined Variables =========================
 
 # File paths:
-sourceFile = '/Users/biggus/Documents/James/Data/SourceCoords/Drosophila/drosophilaExonCoords.protCoding.txt'
-boundaryOutPutFile = '/Users/biggus/Documents/James/Data/2KB/2kb_Sequence/2kb_Drosophila/2KB_drosophilaBoundaryCoordsEXONS.txt'
+sourceFile = '/Users/biggus/Documents/James/Data/Tu_miRNA/MegyDBdumpData/Cq_CpipJ1-2_GeneTranscrExon_112408.noBlanks.txt'
+boundaryOutPutFile = '/Users/biggus/Documents/James/Data/Tu_miRNA/Cq_500afterCoding.newCoords.txt'
     
 #  Boundary Region Length (1000 or 3000 bp etc)
-bdryLen = 2000
+bdryLen = 500
 
 #==========================================================================
 

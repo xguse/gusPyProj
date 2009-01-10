@@ -9,16 +9,16 @@ import sys
 # File paths:
 
 # IN:
-codingBoundsList       = open('/Users/biggus/Documents/James/Data/2KB/2kb_Sequence/2kb_Drosophila/2KB_drosophilaBoundaryCoordsTSS.txt','r').readlines()
-resolvedConflictsList  = open('/Users/biggus/Documents/James/Data/2KB/2kb_Sequence/2kb_Drosophila/2KBup_drosophilaBoundaryCoordsTSS.both.fjoinResolved.txt','r').readlines()
+codingBoundsList       = open('/Users/biggus/Documents/James/Data/Tu_miRNA/Cq_500afterCoding.newCoords.txt','r').readlines()
+resolvedConflictsList  = open('/Users/biggus/Documents/James/Data/Tu_miRNA/Cq_500afterCoding.newCoords.fjoinResolved.txt','r').readlines()
 
 # OUT:
-reCombinedCoordsFILE   = open('/Users/biggus/Documents/James/Data/2KB/2kb_Sequence/2kb_Drosophila/2KBup_drosophilaUsableBoundaryCoordsTSS.txt','w')
+reCombinedCoordsFILE   = open('/Users/biggus/Documents/James/Data/Tu_miRNA/Cq_500afterCoding.newCoords.usuable.txt','w')
 
-boundaryRegion = 'up' # 'up' or 'down'   <-<-<-<-<-<-!!!!!!!!!__DO NOT FORGET TO CHANGE THIS__!!!!!!!!!!!
+boundaryRegion = 'down' # 'up' or 'down'   <-<-<-<-<-<-!!!!!!!!!__DO NOT FORGET TO CHANGE THIS__!!!!!!!!!!!
 
 
-shortestUsableBdryReg  = 10
+shortestUsableBdryReg  = 15
 
 
 #==========================================================================

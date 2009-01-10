@@ -1,3 +1,54 @@
+#=========================================================================
+# 12/13/08
+def loadXXmiRNAs(filePath):
+    f = open(filePath, 'rU').readlines()
+    f = ''.join(f)
+    
+    miRNAs = f.split('>')
+    miRNAs.pop(0)
+    
+    #split miRNA indexes into their own lists
+    for i in range(0,len(miRNAs)):
+        miRNAs[i] = miRNAs[i].strip('\n').split('\n')
+    
+    return miRNAs
+        
+
+
+#=========================================================================
+# 12/10/08
+def removeCommentLines(listOfLines,commentChar):
+    cleansed = []
+    for l in listOfLines:
+        if l.startswith(commentChar):
+            continue
+        else:
+            cleansed.append(l)
+    return cleansed
+
+#=========================================================================
+def overlapRegEx(reObj,seq,skip=1,startPos=0,count=0,posList=[],hitList=[]):
+    ## This is bc these two lists kept surviving multiple calls to this func
+    ## >There must be better way but I am bored with this.
+    #posList = eval(str(posList))
+    #hitList = eval(str(hitList))
+    h = reObj.search(seq,startPos)
+    print 'matchObj:%s' %  (h)
+    ##if h:
+        ##print '%s\t%s\t%s' % (h.start(),h.end(),h.group())
+        ##x=1
+    if h:
+        posList.append(h.start())
+        hitList.append(h.group())
+        count += 1
+        startPos += h.start()+skip
+        #posList = str(posList)
+        #hitList = str(hitList)
+        returnList = overlapRegEx(reObj,seq,skip,startPos,count,posList,hitList)
+        return returnList
+    posList = str(posList)
+    hitList = str(hitList)
+    return str([count,eval(posList),eval(hitList)])
 
 #=========================================================================
 def cpu():

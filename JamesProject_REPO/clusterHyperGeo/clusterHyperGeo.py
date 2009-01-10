@@ -63,12 +63,12 @@ def convertMotifList(motifList):
 
 #========================= User Defined Variables =========================
 #  -Input Files-
-clusterDefinitionList = map(string.strip, open('/Users/biggus/Documents/James/Data/Osvaldo/OM_MaleFemaleClusterDefs.txt', 'r'))
-motifList             = map(string.strip, open('/Users/biggus/Documents/James/Data/2KB/2kb_Sequence/2kb_Combo/2Kb_AllMosquitoes/MosqMotifs/upstream_exclsv-conserved_mosquito-motifs_nr.txt', 'r'))
+clusterDefinitionList = map(string.strip, open('/Users/biggus/Documents/James/Data/ClusterDefs/TC-2.def.txt', 'r'))
+motifList             = map(string.strip, open('/Users/biggus/Documents/James/Data/ClusterDefs/WGATAAS.txt', 'r'))
 boundarySeqs          = '/Users/biggus/Documents/James/Data/2KB/2kb_Sequence/2kb_Anopheles/2KBupTSS_goodAffyAGAPsFastasOUT.masked.nr.fas'
 
 #  -Output File-
-outFile               = '/Users/biggus/Documents/James/Data/Osvaldo/OM_MaleFemale.mosqMotifs137.pVals.txt'
+outFile               = '/Users/biggus/Documents/James/Data/ClusterDefs/TC-2.pVals.txt'
 outFile = open(outFile,'w')
 
 #==========================================================================
