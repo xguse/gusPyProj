@@ -199,13 +199,17 @@ class TamoWrap:
         keepers = []  
         
         t1 = time()
+        count = 1
+        shortList_Len = len(theShortList)
         for kmer in theShortList:
-            p_value  = 1 #self.allSeqs.p_value(kmer, self.linkedSeqs_ids)
-            church   = self.allSeqs.church(kmer, self.linkedSeqs_ids)
-            binomial = 1 #self.allSeqs.binomial(kmer, self.linkedSeqs_ids)
+            p_value  = self.allSeqs.p_value(kmer, self.linkedSeqs_ids)
+            church   = 'NA' #self.allSeqs.church(kmer, self.linkedSeqs_ids)
+            binomial = 'NA' #self.allSeqs.binomial(kmer, self.linkedSeqs_ids)
             
             if p_value <= pVal_thresh or church <= church_thresh or binomial <= binomial_thresh:
                 keepers.append([kmer, p_value, church, binomial])
+                print '%s\t%s\t--\t%s of %s' % (kmer, p_value, count, shortList_Len)
+            count+=1
         t2 = time()
         self.output = keepers
         print 'Calculating the metrics took %.3f min.' % ((t2-t1)/60) 
