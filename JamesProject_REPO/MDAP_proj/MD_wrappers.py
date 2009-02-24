@@ -16,7 +16,11 @@ supportDirectory = 'path'
 class AceWrap:
     """This is a wrapper to allow MDAP to initialize, run, and recieve results from TAMO's AlignAce
     interface.  It gets its optional aruments from those given to the MDAP main class by the user.
-    The options are in the form an optparse options object (assume pass by ref).  This class should not be run 
+    The options are in the form an optparse options object (assume pass by ref).
+    
+    Output is stored in self.output as TAMO.AligAce result object.
+    
+    This class should not be run 
     directly.  If you want to do this you should just call TAMO's interface directly.."""
     
     # Below is the __init__ def for TAMO's MetaAce class.
@@ -44,12 +48,13 @@ class AceWrap:
     #-----------    
     def go(self):
         """Execution function: coordinates options used and background GC calculation, then runs
-        TAMO.MD.AlignAce.MetaAce and catches the output in self.output for access from MDAP."""
+        TAMO.MD.AlignAce.MetaAce and catches the output in self.output for access from MDAP.
+        Output is TAMO.AligAce result object."""
         
         # Calc GC background of genomic sequences representing the
         # entire data set if requested.
         if self.mdapOptions['background'] == 1:
-            self.dataStats = seqStats(self.mdapArgs[0])
+            self.dataStats = seqStats.calcStats(self.mdapArgs[0])
             self.gcback = self.dataStats['percentGC']
             
         
