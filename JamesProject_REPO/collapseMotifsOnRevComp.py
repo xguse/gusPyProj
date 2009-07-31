@@ -1,8 +1,22 @@
 import JamesDefs
-from defs_moduleByTableLookUp import makeFwdAndRevCompRegExObj_IUPAC
 import re
 
 #--------- Script Specific Function Definitions ---------------------
+def makeFwdAndRevCompRegExObj_IUPAC(motif, equals=0):
+    import re
+    
+    motifPair = [motif, JamesDefs.revComp(motif)]
+        
+    targetContainsMotif  = '(%s|%s)' % (motifPair[0], motifPair[1])
+    targetISMotif        = '^(%s|%s)&' % (motifPair[0], motifPair[1])
+    
+    if equals == 1:
+        motif = targetISMotif
+    elif equals == 0:
+        motif = targetContainsMotif
+    
+    fwdRevComp_regExObj = re.compile(motif, re.IGNORECASE)
+    return fwdRevComp_regExObj
 
 
 #--------------------------------------------------------------------
@@ -54,9 +68,15 @@ for each in sortedMotifs:
 collapsedMotifList_Len = len(collapsedMotifList)
 print "Final number: %s" % collapsedMotifList_Len
 
-x=1
+#x=1
 
 outFile = open(outFile, 'w')
 outFile.writelines(collapsedMotifList)
 
-X=1
+#X=1
+
+
+def reduceRevCompMotifs(listOfMotifs_IUPAC):
+    reducedMotifs = []
+    
+    pass

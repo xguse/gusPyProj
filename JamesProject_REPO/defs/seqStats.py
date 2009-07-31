@@ -31,7 +31,7 @@ def calcStats(fastaPath):
     
     
     
-    return {'seqs':seqs,
+    return {'seqLen':seqs,
             'totNucs':totNucs,
             'aCnt':aCnt,
             'cCnt':cCnt,
@@ -55,16 +55,16 @@ if __name__ == '__main__':
     stats = calcStats(sys.argv[1])
     
     print '''Total Sequences:\t\t%s
-    Total Nucleotides:\t\t%s
-    Total Non-N Nucleotides:\t%s
-    Total N Nucleotieds:\t%s
-    Ns/tot:\t\t\t%s
-    Ns/non-Ns:\t\t\t%s
-    A count:\t\t\t%s
-    C count:\t\t\t%s
-    G count:\t\t\t%s
-    T count:\t\t\t%s
-    Percent GC:\t\t\t%s''' % (stats['seqLen'],stats['totNucs'],stats['nonNs'],stats['nCnt'],stats['n2tot'],stats['n2nonN'],stats['aCnt'],stats['cCnt'],stats['gCnt'],stats['tCnt'],stats['percentGC'])
+Total Nucleotides:\t\t%s
+Total Non-N Nucleotides:\t%s
+Total N Nucleotieds:\t%s
+Ns/tot:\t\t\t%s
+Ns/non-Ns:\t\t\t%s
+A count:\t\t\t%s
+C count:\t\t\t%s
+G count:\t\t\t%s
+T count:\t\t\t%s
+Percent GC:\t\t\t%s''' % (stats['seqLen'],stats['totNucs'],stats['nonNs'],stats['nCnt'],stats['n2tot'],stats['n2nonN'],stats['aCnt'],stats['cCnt'],stats['gCnt'],stats['tCnt'],stats['percentGC'])
     
     
     

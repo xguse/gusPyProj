@@ -14,12 +14,13 @@ import string
 
 ##outFile           = '/Users/biggus/Documents/James/Data/2KB/2kb_Sequence/2kb_Combo/2Kb_AllMosquitoes/MosqMotifs/MotifGroupPWMs/AllGroups/ModuleData/TC-46.fas'
 
-originalFastaDict = open('/Users/biggus/Documents/James/Data/2KB/2kb_Sequence/2kb_Anopheles/anopheles2KBupStreamTSS.masked.fas', 'rU')
+originalFastaDict = open('/Users/biggus/Documents/James/Data/2KB/2kb_Sequence/2kb_Aedes/aedes2KBupStreamTSS.softMasked.geneStrand.fas', 'rU')
 
-desiredFastaList  = open('/Users/biggus/Documents/James/Data/DougEmail/Genes_linked-to_usuable_GOs.txt', 'rU').readlines()
+desiredFastaList  = open('/Users/biggus/Documents/James/Collaborations/Campbell/data/CCupAt4Days.genes.txt', 'rU').readlines()
 
-outFile           = '/Users/biggus/Documents/James/Data/2KB/2kb_Sequence/2kb_Anopheles/anophelesGenes_linked-to_usuable_GOs.TSS.masked.fas'
+outFile           = '/Users/biggus/Documents/James/Collaborations/Campbell/data/CCupAt4Days.masked.fas'
 
+hardMask          = False 
 
 #==========================================================================
 
@@ -40,6 +41,15 @@ for rec in desiredFastaList:
     else:
         print rec+' not found in source fasta list!'
     
+
+# Hard Mask if requested
+if hardMask:
+    for x in desiredFastaObjList:
+        desiredFastaObjList[x] = desiredFastaObjList[x].replace('a','N')
+        desiredFastaObjList[x] = desiredFastaObjList[x].replace('c','N')
+        desiredFastaObjList[x] = desiredFastaObjList[x].replace('g','N')
+        desiredFastaObjList[x] = desiredFastaObjList[x].replace('t','N')
+
 #  Write selected recs to outFile
 
 outFile = open(outFile, 'w')

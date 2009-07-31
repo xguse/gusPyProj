@@ -38,9 +38,9 @@ def main(fastafile, outDirectory=''):  # !! 1/2/09 AD added 'fastafile' var and 
                 pass
         _t = nmersD.keys()
         _t.sort()
-        output.append("# freq in %s (total %d with pseudocounts)"%(fastafile,total))
+        output.append("# freq in %s (total %d with pseudocounts)\n"%(fastafile.split('/')[-1],total))  # AD 02-27-09 added a '\n' to make file look right
         for nmer in _t:
-            output.append( "%-7s %20.17f"%(nmer,float(nmersD[nmer]) / total))
+            output.append( "%-7s %20.17f\n"%(nmer,float(nmersD[nmer]) / total))  # AD 02-27-09 added a '\n' to make file look right
         
         # open output file and write out results
         outFile = '%s/%s.freq' % (outDirectory, fastafile.split('/')[-1])
@@ -60,4 +60,5 @@ def permute(depth, letters=['A','C','G','T'], seqs=[''],curdepth=0):
 
 
 
-if __name__ == '__main__': main(sys.argv[1])
+if __name__ == '__main__': 
+    main(sys.argv[1])

@@ -1,3 +1,130 @@
+import sys
+import random
+from scipy import mat, transpose
+from TAMO.MotifTools import Motif
+from TAMO.seq import Fasta
+
+
+def makeRandomSeq(length):
+    alpha = ['A','C','G','T']
+    seq   = '' 
+    
+    for i in range(length):
+        seq = seq + random.choice(alpha)
+    
+    return seq
+
+def taMotif2MopatMatrix(taMotif):
+    """
+    Uses ONE tamo motif to produce a probability matrix compatible with MOPAT.
+    RETURNS: [oneLetterName, [list of lists]]
+    """
+    name = taMotif.oneletter.replace('.','n')
+    matrix = []
+    
+    # Use logLiklihoods to generate info for motif.counts
+    taMotif = Motif(taMotif.bogus_kmers())
+    
+    for pos in taMotif.counts:
+        mopatPos = []
+        for nuc in sorted(pos.keys()):
+            mopatPos.append(pos[nuc])
+        matrix.append(mopatPos)
+            
+    return [name, matrix]
+
+def convertTAMOs2MOPATs(listOfTamoMotifs):
+    """
+    Converts a list of tamo motifs into a dict of mopat compatible matrices.
+    RETURNS: dictOfMopatMatrices (keys<number_oneletter>, values<listOfLists>)
+    """
+    
+    mopatDict = {}
+    
+    count = 0
+    for m in listOfTamoMotifs:
+        count+=1
+        temp = taMotif2MopatMatrix(m)
+        mopatDict['%s_%s' % (count,temp[0])] = temp[1]
+    
+    return mopatDict
+
+#def jaspar2tamoMotif(jasparMatrix):
+    
+    ## Transpose the matrix
+    #pfm = transpose(mat(jasparMatrix)).tolist()
+    
+    ## convert to tamo-like count dict
+    
+    
+    
+    #pass
+
+def softMaskDict2HardMask(fastaDict):
+    """
+    Replaces(in place) all lower-case sequence letters with 'N'.
+    """
+    
+    for i in fastaDict:
+        fastaDict[i] = fastaDict[i].replace('a','N')
+        fastaDict[i] = fastaDict[i].replace('c','N')
+        fastaDict[i] = fastaDict[i].replace('g','N')
+        fastaDict[i] = fastaDict[i].replace('t','N')
+    
+
+def geneList2FastaDict(geneList, sourceFastaPath, hardMasked=True):
+    """
+    Returns a Dict of requested fasta recs in form SeqName:Sequence.
+    Defaults to HardMasked return seqeunces.
+    """
+    
+    sourceDict = Fasta.load(sourceFastaPath)
+    
+    # make new dict of all genes both in geneList AND sourceDict
+    # new dict may be shorter than geneList!!!!!!
+    
+    newDict = {}
+    for i in geneList:
+        if sourceDict[i]:
+            newDict[i] = sourceDict[i]
+            
+    print "%s genes names given, %s found." % (len(geneList), len(newDict))
+    
+    if hardMasked:
+        softMaskDict2HardMask(newDict)
+    
+    return newDict
+
+def ifKmerInAll(kmer,dictOfSeqs, factor=1):
+    kmer = Motif(kmer)
+    results = []
+    for seq in dictOfSeqs:
+        temp = kmer.scan(dictOfSeqs[seq], factor=factor)
+        if temp[0]:
+            results.append(True)
+        else:
+            results.append(False)
+        
+    if False in results:
+        return False
+    else:
+        return True
+
+def bestIdentOverLen(Bio_Blast_Record_Blast): # full name of BioPython obj for clairity
+    """Returns the greatest fraction of the query's length found to be identicle
+    in any alignment objs HSPs. <possible values: 0 to 1>"""
+
+    blastRec = Bio_Blast_Record_Blast # rename for ease of use
+    
+    bestIdent = 0
+    for i in range(len(blastRec.alignments)):
+        # use alignments[].hsps[0].match to count how many consequtive |s
+        None
+        
+    # !!! this def is NOT finished !!! #
+    assert 1==2, ' def bestIdentOverLen() is NOT finished!!!'
+    
+
 def fastaFileToBioSeqDict(pathToFastaFile, Alphabet='IUPACAmbiguousDNA', splitOn=None, indexAsName=0):
     from Bio.Alphabet.IUPAC import Alphabet
     from Bio import SeqIO
@@ -100,3 +227,18 @@ def iupac2regex(motif):
             transl_motif = transl_motif + letter
             
     return transl_motif
+
+changeLog=\
+"""Log created 2009-05-13 with the following already existing:
+def fastaFileToBioSeqDict(pathToFastaFile, Alphabet='IUPACAmbiguousDNA', splitOn=None, indexAsName=0):
+compl_iupacdict 
+def compliment(motif, compl_iupacdict):
+def reverse(text):
+def revComp(seq):
+def iupacList_2_regExList(motifList):
+def iupac2regex(motif):
+
+2009-05-13 -- Added def bestIdentOverLen(Bio_Blast_Record_Blast)
+2009-06-17 -- Added def ifKmerInAll(kmer,dictOfSeqs, factor=1)
+2009-06-23 -- Added def geneList2FastaDict(geneList, sourceFastaPath, hardMasked=True)
+"""

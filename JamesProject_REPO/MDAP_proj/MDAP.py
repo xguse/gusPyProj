@@ -41,8 +41,13 @@ class MDAP():
 	self.optParser.add_option('-r', '--kRange', dest='kmerRange', metavar='LOW,HIGH', type='str', default=False, \
 				  help='Sets motif range to use. [default=%default].')
 	
+	# --bg may be useless.  I can just use whether there is a 'memeBackground' provided or not.  AlignAce GC content is
+	# fast enough to just ALWAYS calculate.
 	self.optParser.add_option('--bg', dest='background', metavar='0/1', type='int', default=1, \
-				  help="Compute each program's background requirement from data. [default=%default]")
+				  help="Compute each program's background requirement from data. [default=%default]") 
+	
+	self.optParser.add_option('--mBg', dest='memeBackground', metavar='FILE', type='string', default=None, \
+				  help="File with an n-order Markov background model for Meme. [default=%default]")
 	
 	self.optParser.add_option('--aiter', dest='ace_iter', metavar='NUM', type='int', default=3, \
 				  help='Iterations of AlignAce to run. [default=%default]')

@@ -1,3 +1,135 @@
+import re
+import random
+
+#=========================================================================
+# 07/19/09
+def odd_or_even(integer):
+    assert type(integer) == type(1), 'Error: odd_or_even only takes integers. You gave: %s' % (integer)
+    if integer % 2 == 0:
+        return "even"
+    else:
+        return "odd"
+#=========================================================================
+
+
+#=========================================================================
+# 06/05/09
+#def cmpListOfLists(a,b):
+    
+
+#=========================================================================
+# 06/04/09
+def randFromList_noReplace(data):
+    if data != []:
+        index = random.randint(0, len(data) - 1)
+        elem = data[index]
+        data[index] = data[-1]
+        del data[-1]
+        return elem
+    else:
+        return data
+#=========================================================================
+# 05/28/09
+def combineOrthoTabs(orthoTabsList):
+    """
+    Take list of ortholog def lists in format:list[GeneIDspecies1,GeneIDspecies2]
+    Return a list of orthologs found in all species.
+    """
+    
+    orthoTabs = orthoTabsList
+    
+    # Learn how many Genomes we are dealing with
+    # and log the species prefixes
+    
+    # Get representative geneNames
+    geneNames = []
+    for i in orthoTabs:
+        geneNames.extend(i[0])
+
+    # Extract letter portion of gene tokens
+    genomes = set([])
+    prefixRegEx = re.compile('^\D+', re.IGNORECASE)
+    for name in geneNames:
+        assert prefixRegEx.match(name) != None , 'geneNames(%s) do not seem to have form "PREFIX000000"' % (name)
+        genomes.add(prefixRegEx.match(name).group())
+    genomes = list(genomes)
+        
+    # Move longest list to first position and use _IT_ as root list for merging
+    orthoTabSizes = []
+    for i in orthoTabs:
+        orthoTabSizes.append(len(i))
+    ##print '%s' % (str(orthoTabSizes))
+    for i in range(len(orthoTabs)):
+        if len(orthoTabs[i]) == max(orthoTabSizes):
+            biggest = orthoTabs.pop(i)
+            orthoTabs.insert(0,biggest)
+    
+    orthoTabSizes2 = []
+    for i in orthoTabs:
+        orthoTabSizes2.append(len(i))       
+    ##print '%s' % (str(orthoTabSizes2))
+    
+    # Set-ify all orthoPairs
+    for i in range(len(orthoTabs)):
+        for j in range(len(orthoTabs[i])):
+            orthoTabs[i][j] = set(orthoTabs[i][j])
+    
+    # Merge sets if any geneIDs are in common
+    for i in range(1,len(orthoTabs)):                          # Start w/ 2nd orthoList and compare it and all after to 1st list
+        for j in range(len(orthoTabs[i])):                     # For every j in 2nd or higher 
+            for k in range(len(orthoTabs[0])):                 # Test every k in 1st orthoList for j
+                if orthoTabs[0][k]&orthoTabs[i][j]:            # If there is intersection bt k and ij,
+                    orthoTabs[0][k].update(orthoTabs[i][j])    # merge k and ij
+                    
+    # Remove redundancy and rename merged list for ease of use
+    print 'len of mergedIDs list = %s' % (len(orthoTabs[0]))
+    mergedIDs = orthoTabs[0]
+    for i in range(len(mergedIDs)):
+        mergedIDs[i] = frozenset(mergedIDs[i])
+    mergedIDs = list(set(mergedIDs))
+    print 'len of nr mergedIDs list = %s' % (len(mergedIDs))
+    
+
+    
+    
+    # Sort each orthoSet
+    for i in range(len(mergedIDs)):
+        mergedIDs[i] = list(mergedIDs[i])
+        mergedIDs[i].sort()
+        
+    # Retain only those relationships that are the correct length
+    # AND do not repeat Species prefixs ('AGAP')
+    filteredIDs = []
+    for orthoSet in mergedIDs:
+        prefixes = []
+        for ID in orthoSet:
+            for g in genomes:
+                if ID.startswith(g):
+                    prefixes.append(g)
+                    continue
+        if len(prefixes) != len(genomes):
+            continue
+        if len(prefixes) == len(set(prefixes)):
+            filteredIDs.append(orthoSet)
+            
+    # test for repeats in each genome's list of final names
+    genomeNameLists = []
+    for i in range(len(filteredIDs[0])):
+        tempL = []
+        for j in range(len(filteredIDs)):
+            tempL.append(filteredIDs[j][i])
+        genomeNameLists.append(tempL)
+    oneGenomeNRs = []    
+    for each in genomeNameLists:
+        oneGenomeNRs.append(len(set(each)))
+    c1 = 0
+    for each in oneGenomeNRs:
+        c1 += 1
+        print '%s NRs in genome %s' % (each,c1)
+            
+            
+    return filteredIDs
+
 #=========================================================================
 # 12/13/08
 def loadXXmiRNAs(filePath):
@@ -27,29 +159,31 @@ def removeCommentLines(listOfLines,commentChar):
     return cleansed
 
 #=========================================================================
-def overlapRegEx(reObj,seq,skip=1,startPos=0,count=0,posList=[],hitList=[]):
-    ## This is bc these two lists kept surviving multiple calls to this func
-    ## >There must be better way but I am bored with this.
-    #posList = eval(str(posList))
-    #hitList = eval(str(hitList))
-    h = reObj.search(seq,startPos)
-    print 'matchObj:%s' %  (h)
-    ##if h:
-        ##print '%s\t%s\t%s' % (h.start(),h.end(),h.group())
-        ##x=1
-    if h:
-        posList.append(h.start())
-        hitList.append(h.group())
-        count += 1
-        startPos += h.start()+skip
-        #posList = str(posList)
-        #hitList = str(hitList)
-        returnList = overlapRegEx(reObj,seq,skip,startPos,count,posList,hitList)
-        return returnList
-    posList = str(posList)
-    hitList = str(hitList)
-    return str([count,eval(posList),eval(hitList)])
-
+#def overlapRegEx(reObj,seq,skip=1,startPos=0,count=0,posList=[],hitList=[]):
+#	""" This def does not work.  It does not seem to kill its vars and the info 
+#	gets used later when it should not still exist.  Dont use in current form."""
+#    ## This is bc these two lists kept surviving multiple calls to this func
+#    ## >There must be better way but I am bored with this.
+#    #posList = eval(str(posList))
+#    #hitList = eval(str(hitList))
+#    h = reObj.search(seq,startPos)
+#    print 'matchObj:%s' %  (h)
+#    ##if h:
+#        ##print '%s\t%s\t%s' % (h.start(),h.end(),h.group())
+#        ##x=1
+#    if h:
+#        posList.append(h.start())
+#        hitList.append(h.group())
+#        count += 1
+#        startPos += h.start()+skip
+#        #posList = str(posList)
+#        #hitList = str(hitList)
+#        returnList = overlapRegEx(reObj,seq,skip,startPos,count,posList,hitList)
+#        return returnList
+#    posList = str(posList)
+#    hitList = str(hitList)
+#    return str([count,eval(posList),eval(hitList)])
+#
 #=========================================================================
 def cpu():
     import resource
@@ -127,11 +261,29 @@ def iupacList_2_regExList(motifList):
         motifList[i] = [motifList[i], iupac2regex(motifList[i])]
         i += 1
 
-
+def iupac2fwdRevCmpTRegExObj(motif):
+    """Takes motif in IUPAC form (WGATAR).  Returns a compiled python regular expression
+    object recognizing either upper or lowercase of the fwd or revComp version of the motif."""
+    
+    import re
+    
+    # list of few and rev
+    fwdAndRevCp = [motif,revComp(motif)]
+    
+    # convert WGATAR to [AT]GATA[AG] for fwd and rev
+    for i in range(2):
+        fwdAndRevCp[i] = iupac2regex(fwdAndRevCp[i])
+    
+    # create string to feed to re
+    reString = '(%s|%s)' % (fwdAndRevCp[0],fwdAndRevCp[1])
+    
+    # return compiled regEx Obj
+    return re.compile(reString,re.IGNORECASE)
 
 
 def iupac2regex(motif):
-
+    """Convert 'WGATAR' to '[AT]GATA[AG]'"""
+    
     iupacdict = {'A':'A',
                  'C':'C',
                  'G':'G',

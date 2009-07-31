@@ -10,8 +10,9 @@ from TAMO.MD.MDscan import MDscan
 from TAMO.MD.Meme import Meme 
 import MarkovBackground
 import seqStats
+import MDAP_defs
 
-supportDirectory = 'path'
+supportDirectory = '%s/MDAP_SupportDir' % (sys.path[0])
     
 class AceWrap:
     """This is a wrapper to allow MDAP to initialize, run, and recieve results from TAMO's AlignAce
@@ -38,6 +39,7 @@ class AceWrap:
         # object attributes
         self.output    = None
         self.dataStats = None
+        self.coRegSeqs = self._getCoRegSeqs()
         
         #  Preliminary initialization of AlignAce specific options
         self.fastafile  = self.mdapArgs[1]
@@ -45,21 +47,40 @@ class AceWrap:
         self.iterations = self.mdapOptions['ace_iter']
         self.gcback     = None
     
-    #-----------    
+        #-----------
+        
+    def _getCoRegSeqs(self):
+        # get gene list and related seqs
+        geneList = map(lambda l: l.strip('\n'), open(self.mdapArgs[1]).readlines())
+        coRegSeqs = MDAP_defs.seqSubSet(geneList,self.mdapArgs[0])
+        
+        # warn user if there are missing genes
+        if coRegSeqs[1]:
+            sys.stderr.write('Warning: %s seqs in your gene list were not found in the fasta file provided.\nA list of names follows:\n%s\n'\
+                             % (len(coRegSeqs[1]),str(coRegSeqs[1])))
+        return coRegSeqs
+        
+        #-----------    
     def go(self):
         """Execution function: coordinates options used and background GC calculation, then runs
         TAMO.MD.AlignAce.MetaAce and catches the output in self.output for access from MDAP.
         Output is TAMO.AligAce result object."""
-        
+        import time
         # Calc GC background of genomic sequences representing the
         # entire data set if requested.
         if self.mdapOptions['background'] == 1:
             self.dataStats = seqStats.calcStats(self.mdapArgs[0])
             self.gcback = self.dataStats['percentGC']
             
+        # write a temp fasta file of coregulated seqs to use as input to Meme(file=TempFasta)
+        ctimeStr  = time.ctime().replace(' ','_')
+        fileName  = 'tempFastaOfCoRegSeqs.MDAP.%s.fas' %(ctimeStr)
+        tFasta    = open(fileName, 'w')
+        tFastaTxt = Fasta.text(self.coRegSeqs[0])
+        tFasta.write(tFastaTxt)
         
         # call TAMO to do its thing
-        self.output = MetaAce(self.fastafile, self.width, self.iterations, self.gcback)
+        self.output = MetaAce(fileName, self.width, self.iterations, self.gcback)
         pass
     
 
@@ -85,37 +106,91 @@ class MemeWrap:
         self.mdapArgs    = posArgs
         
         # object attributes
-        self.output    = None
-        ##self.dataStats = None
+        self.file       = self.mdapArgs[1] 
+        self.output     = None
+        self.coRegSeqs  = None  # set by ._getMaxSize
         
         #  Preliminary initialization of Meme specific options
-        self.file       = self.mdapArgs[1]  
-        self.width      = self.mdapOptions['kmerSize'] # !--> will want to add support for ranged kmers.
-        self.extra_args = None
-        self.bfile      = None
+        self.mWrapDflts = ' -dna -revcomp -mod zoops -nmotifs 3 -nostatus -text ' # MemeWrap defaults 
+        self.width      = self._getWidthOption() # Dev Note --> will want to add support for ranged kmers.
+        self.bfile      = self._get_bFile()
+        self.maxsize    = self._getMaxSize()
+        self.nmotifs    = None # may add this option to mdapOptions, for now its hard coded in self.mWrapDflts as 3
+        self.extra_args = self._getExtraArgs()
+    
+        #-----------
+    def _getWidthOption(self):
+        """Sets self.width based on whether there is a 'kmerSize' or 'kmerRange' in self.mdapOptions.
+        kmerRange is used if presentto the exclustion of kmerSize"""
+        if self.mdapOptions['kmerRange']:
+            w = self.mdapOptions['kmerRange'].split(',')
+            return '-minw %s -maxw %s ' % (w[0],w[1])
+        else:
+            return '-w %d' % (int(self.mdapOptions['kmerSize']))
+        
+        
+        #-----------
+    def _getMaxSize(self):
+        """Calculates the number of nucleotides in the set of co-regulated promoter regions."""
+        
+        # get gene list and related seqs
+        geneList = map(lambda l: l.strip('\n'), open(self.mdapArgs[1]).readlines())
+        self.coRegSeqs = MDAP_defs.seqSubSet(geneList,self.mdapArgs[0])
+        
+        # warn user if there are missing genes
+        if self.coRegSeqs[1]:
+            sys.stderr.write('Warning: %s seqs in your gene list were not found in the fasta file provided.\nA list of names follows:\n%s\n'\
+                             % (len(self.coRegSeqs[1]),str(self.coRegSeqs[1])))
+        
+        # Concatonate, get and set self.maxsize
+        return len(''.join(self.coRegSeqs[0].values()))
+        
+    
+        #-----------  
+    def _get_bFile(self):
+        # if no bfile supplied, check for possible existing  file, and call TAMO's markov background 
+        # script and place results in 'supportDirectory' with sensible name if none exists.
+        
+        if self.mdapOptions['memeBackground']:
+            return self.mdapOptions['memeBackground']   
+        else: 
+            # Try to determine if there might already be a suitible bfile based on the name of the 
+            # 'fastaOfAllSeqs' file supplied.  Otherwise create one and set bfile to point to it.
+            if '%s.freq' % (self.mdapArgs[0].split('/')[-1]) in os.listdir(supportDirectory):
+                sys.stderr.write("""ATTENTION: bfile found in %s \nthat matches the'fastaOfAllSeqs' file name.  This will be used. Check valididty of this file.\n""" \
+                                 % (supportDirectory))
+                return '%s/%s.freq' % (supportDirectory, self.mdapArgs[0].split('/')[-1])
+            else:
+                MarkovBackground.main(self.mdapArgs[0],supportDirectory)
+                sys.stderr.write("""ATTENTION: bfile <%s.freq> created and placed in %s.\n""" % \
+                                 (self.mdapArgs[0].split('/')[-1], supportDirectory))
+                return '%s/%s.freq' % (supportDirectory, self.mdapArgs[0].split('/')[-1])
+            
+        
+        #-----------
+    def _getExtraArgs(self):
+        return '%s %s -maxsize %s' % (self.mWrapDflts,
+                                      self.width,
+                                      self.maxsize)
+
         
         #-----------    
     def go(self):
-        """Execution function: coordinates options used and any necessary background calculations,
-        then runs TAMO.MD.Meme.Meme and catches the output in self.output for access from MDAP."""
+        """Execution function: runs TAMO.MD.Meme.Meme and catches the output in self.output for access from MDAP."""
+        import time
         
-        # if no bfile supplied call TAMO's markov background script and place results
-        # in 'supportDirectory' with sensible name.
-        if self.bfile == None:
-            # Try to determine if there might already be a suitible bfile based on the name of the 
-            # 'fastaOfAllSeqs' file supplied.  Otherwise create one and set bfileto point to it.
-            if '%s.freq' % (self.mdapArgs[0]) in os.listdir(supportDirectory):
-                sys.stderr.write("""ATTENTION: bfile found in %s that'fastaOfAllSeqs' file name.  This will be used. Check valididty of this file.""" \
-                                 % (supportDirectory))
-            else:
-                MarkovBackground(self.mdapArgs[0],supportDirectory)
-                sys.stderr.write("""ATTENTION: bfile <%s.freq> created and placed in %s.""" % \
-                                 (self.mdapArgs[0].split('/')[-1], supportDirectory))
-                self.bfile = '%s/%s.freq' % (supportDirectory, self.mdapArgs[0].split('/')[-1])
-            
+        # write a temp fasta file of coregulated seqs to use as input to Meme(file=TempFasta)
+        ctimeStr  = time.ctime().replace(' ','_')
+        fileName  = 'tempFastaOfCoRegSeqs.MDAP.%s.fas' %(ctimeStr)
+        tFasta    = open(fileName, 'w')
+        tFastaTxt = Fasta.text(self.coRegSeqs[0])
+        tFasta.write(tFastaTxt)
         
         # Call TAMO to do its thing:
-        self.output = Meme(file=self.file, width=self.width, extra_args=self.extra_args, bfile=self.bfile)
+        self.output = Meme(file=fileName, width='', extra_args=self.extra_args, bfile=self.bfile)
+        
+        # delete temp file
+        os.remove(fileName)
 
 
 #====================
@@ -207,7 +282,7 @@ class TamoWrap:
         count = 1
         shortList_Len = len(theShortList)
         for kmer in theShortList:
-            p_value  = self.allSeqs.p_value(kmer, self.linkedSeqs_ids)
+            p_value  = self.allSeqs.p_value(kmer, self.linkedSeqs_ids, factor=0.75)
             church   = 'NA' #self.allSeqs.church(kmer, self.linkedSeqs_ids)
             binomial = 'NA' #self.allSeqs.binomial(kmer, self.linkedSeqs_ids)
             
@@ -222,7 +297,13 @@ class TamoWrap:
         # Create a formated string to be printed to a file in MDAP class.
         toFile = ['#kmer\tp_value\tchurch\tbinomial\n']
         for i in keepers:
-            toFile.append('%s\t%s\t%s\t%s\n' % (i[0],i[1],i[2],i[3]))
+            toFile.append('%s\t%s\t%s\t%s\n' % (i[0].oneletter,i[1],i[2],i[3]))   # AD added ".oneletter" to i[0] to remove the " (1)" from output
             
         self.toFile = toFile
-            
+ 
+# Change log since last commit:
+# 02-26-09 -- added MemeWrap._getMaxSize()
+# 02-26-09 -- added MemeWrap._getWidthOption()
+# 02-26-09 -- added MemeWrap._get_bFile()
+# 02-27-09 -- added MemeWrap._getExtraArgs()
+        

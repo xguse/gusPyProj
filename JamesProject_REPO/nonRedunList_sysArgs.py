@@ -1,9 +1,10 @@
 import sys
+import re
 
 
 
 #print 'sys args = %s' % (len(sys.argv))
-assert len(sys.argv) == 3, 'Usage: nonRedunList_sysArgs.py listFile outFile'
+assert len(sys.argv) == 2, 'Usage: nonRedunList_sysArgs.py listFile'
 
 ############### list of user variables ####################
 
@@ -12,7 +13,12 @@ rFile = open(sys.argv[1],'r').readlines()
 
 
 # file to write output to
-outFile = sys.argv[2]
+xtn = re.compile('\.\w{1,20}?.$')
+oldXtn = xtn.findall(sys.argv[1])
+if oldXtn:
+    outFile = xtn.sub('.nr%s' % (oldXtn[0]),sys.argv[1])
+else:
+    outFile = sys.argv[1]+'.nr'
 
 # open and read data into var
 

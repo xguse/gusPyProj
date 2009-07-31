@@ -26,6 +26,7 @@ for i in range(len(motifList)):
 	# check fwd and revCmp alignments and take the lowest
 	fwd_diff    = MotifCompare.minshortestoverhangdiff(motifList[i],motifList[j])
 	revCmp_diff = MotifCompare.minshortestoverhangdiff(motifList[i].revcomp(),motifList[j])
+	print 'Fwd: %s\nRev: %s\n' % (fwd_diff,revCmp_diff)
 	distanceMatrix[i][j] = min([fwd_diff,revCmp_diff])
 dM_t2 = time()
 pprint(distanceMatrix)
