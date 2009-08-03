@@ -96,10 +96,10 @@ comboMotifs = []
 
 for i in range(0,int(len(testMotifs)*0.2)):
     simMotifs = getKmersWithOneMisMtch(testMotifs[i][0],testMotifs) 
-    simMotifs = alignSimilarMotifs(simMotifs)
+    simMotifs = alignSimilarMotifs([x[0] for x in simMotifs])
     #for m in simMotifs:
         #print m[0].oneletter
-    comboMotifs.append(MotifTools.sum([x[0] for x in simMotifs],[-x[1] for x in simMotifs]))
+    comboMotifs.append(MotifTools.sum([x[0] for x in simMotifs],[-x[1] for x in simMotifs])) # -x[1] to convert neg logs to pos weights
     print len(comboMotifs)
 
 t2 = time.time()    
