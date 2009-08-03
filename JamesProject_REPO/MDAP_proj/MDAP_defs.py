@@ -43,14 +43,16 @@ def alignAndCombineMotifs(motifs, weights):
     # zip motifs and weights
     simMotifs = zip(motifs, weights)
     # sort by weights
-    simMotifs.sort(key=lambda x: x[1])
-    simMotifs = getKmersWithOneMisMtch(simMotifs[0][0],simMotifs)
+    simMotifs.sort(key=lambda x: abs(x[1]))
+    simMotifs.reverse()
     
-    comboMotif = MotifTools.sum([x[0] for x in simMotifs],[-x[1] for x in simMotifs])
+    aligned = alignSimilarMotifs([x[0] for x in simMotifs], minOverLap=4)
+    
+    comboMotif = MotifTools.sum(aligned,[-x[1] for x in simMotifs])
     return comboMotif
 
 
-def findBestPairAlignments(listOfMotifObjs, verbose=None):
+def findBestPairAlignments(listOfMotifObjs, minoverlap=6, verbose=None):
     """
     Takes: list of TAMO motif objects.  Finds best pairwise alignments among list members, trying both
     orientations. Motifs in list are numbered by original index in results. Returns: 2D list of 
@@ -58,9 +60,9 @@ def findBestPairAlignments(listOfMotifObjs, verbose=None):
     index in original list (exp: dist of motif0 and motif4 == 2dList[0][4]; BUT 2dList[4][0] == None).
     Always put lower index first or you will get 'None'.  Same index twice also gives 'None'
     
-    Each value at the 2D coords contains a tuple: (alignOri,distScore,alignment).  alignOri = 1 == both
-    motifs in original ori.  alignOri = -1 == motif with higher index was revComped to get best 
-    score.
+    Each value at the 2D coords contains a tuple: (alignOri,distScore,alignment,offset).
+    alignOri = 1 == both motifs in original ori.  alignOri = -1 == motif with higher index
+    was revComped to get best score.
     
     verbose == True prints the scores, orientations and alignments for each motif pair.
     """
@@ -79,8 +81,9 @@ def findBestPairAlignments(listOfMotifObjs, verbose=None):
         alignOri  = None
         distScore = None
         alignment = None
+        offset    = None
         
-        minDiffOri = getMinDiffOri(motifs[toCompare[i][0]],motifs[toCompare[i][1]],minoverlap=4, getOffset=1)
+        minDiffOri = getMinDiffOri(motifs[toCompare[i][0]],motifs[toCompare[i][1]],minoverlap=minoverlap, getOffset=1)
         
         # If pos ori, then motif obj returned will be ref to original motifs[toCompare[i][1]]
         # else: newly constructed revComp is returned
@@ -88,12 +91,11 @@ def findBestPairAlignments(listOfMotifObjs, verbose=None):
         else: alignOri = -1
         
         distScore = minDiffOri[1]
-        
         alignment = alignPairWithOffSet(motifs[toCompare[i][0]], minDiffOri[0], minDiffOri[2])
-        #print alignment+'\n'
+        offset = minDiffOri[2]
         
         # Assign tuple to  matrix coords:
-        rMat[toCompare[i][0]][toCompare[i][1]] = (alignOri, distScore, alignment)
+        rMat[toCompare[i][0]][toCompare[i][1]] = (alignOri, distScore, alignment, offset)
 
     # Write out the results if verbose
     if verbose:
@@ -145,21 +147,28 @@ def getKmersWithOneMisMtch(motif1, motifListWithMetrics):
 
 
 # ----------------------
-def alignSimilarMotifs(motifsWithOneMisMtch):
+def alignSimilarMotifs(similarMotifs, minOverLap=6):
     """
-    Takes list output from getKmersWithOneMisMtch(). List should be sorted by weight.
+    Takes list of similar motifs. List should be sorted by weight or pvalue since this def
+    basically aligns each motif to the top motif.  Its kind of a progressive pairwise alignment.
     Pads top motif excessivly, then pads all other motifs to align with top motif.
     Resturns list of padded, aligned motifs.
     """
     # Pad top motif with 5 on the left side, 5 on the right.
-    motifsWithOneMisMtch[0][0] = motifsWithOneMisMtch[0][0][-5,len(motifsWithOneMisMtch[0][0])+5]
+    orig = similarMotifs[0].copy()
+    #similarMotifs[0] = similarMotifs[0][-7,len(similarMotifs[0])+7]
+    for i in range(len(similarMotifs)):
+        similarMotifs[i] = similarMotifs[i][-7,len(similarMotifs[i])+7]
     
-    for i in range(1,len(motifsWithOneMisMtch)):
-        offSet = MotifCompare.minshortestoverhangdiff(motifsWithOneMisMtch[0][0],motifsWithOneMisMtch[i][0], want_offset=1)
+    for i in range(1,len(similarMotifs)):
+        
+        #distAndOff = MotifCompare.minshortestoverhangdiff(similarMotifs[0],similarMotifs[i],minoverlap=minOverLap,want_offset=None,DFUNC=None,want_DistAndOff=1)
+        distAndOff = getMinDiffOri(similarMotifs[0],similarMotifs[i],minoverlap=minOverLap,getOffset=1)
+        
         # Pad to align to top motif
-        motifsWithOneMisMtch[i][0] = motifsWithOneMisMtch[i][0][-offSet[0],len(motifsWithOneMisMtch[i][0])]
-        motifsWithOneMisMtch[i][0] = motifsWithOneMisMtch[i][0][0,len(motifsWithOneMisMtch[0][0])]
-    return motifsWithOneMisMtch
+        similarMotifs[i] = similarMotifs[i][-distAndOff[1],len(similarMotifs[i])]
+        similarMotifs[i] = similarMotifs[i][0,len(similarMotifs[0])]
+    return similarMotifs
 
 
 # ----------------------
@@ -201,30 +210,20 @@ def getMinDiffOri(motif1,motif2,minoverlap=6,getOffset=False):     ##originally 
     if getOffset:
     (motif2, distResult, offset) -OR- (motif2_rc, distResult, offset)
     """
-    # motif2_rc = MotifTools.Motif(motif2.revcomp().oneletter) SEEMS like overkill but m2.revcomp()
-    # does not produce expected result:
-    # 0.083250083250083387 vs
-    # 0.083250083250083262
-    # Perhapes this comes from floating point error?  Not sure but to be safe i use the overkill.
-    motif2_rc = MotifTools.Motif(motif2.revcomp().oneletter) 
     
-    ##dist    = MotifCompare.minshortestoverhangdiff(motif1,motif2,minoverlap=minoverlap,want_offset=0)
-    ##dist_rc = MotifCompare.minshortestoverhangdiff(motif1,motif2_rc,minoverlap=minoverlap,want_offset=0)
-    dist    = MotifCompare.minshortestoverhangdiff(motif1,motif2,minoverlap=minoverlap,want_DistAndOff=1)
-    ##if min(dist,dist_rc) == dist:
-        ##if getOffset:
-            ##padding = MotifCompare.minshortestoverhangdiff(motif1,motif2,minoverlap=minoverlap,want_offset=1)[0]
-            ##return (motif2, dist, padding)
-        ##else:return (motif2, dist)
-    ##elif min(dist,dist_rc) == dist_rc:
-        ##if getOffset:
-            ##padding = MotifCompare.minshortestoverhangdiff(motif1,motif2_rc,minoverlap=minoverlap,want_offset=1)[0]
-            ##return (motif2_rc, dist_rc, padding)
-        ##else:return (motif2, dist)
-    if dist[2]:
-        return (motif2_rc, dist[0],dist[1])
+    dist = MotifCompare.minshortestoverhangdiff(motif1,motif2,minoverlap=minoverlap,want_DistAndOff=1)
+
+        
+    if getOffset:    
+        if dist[2]:
+            return (motif2.revcomp(), dist[0],dist[1])
+        else:
+            return (motif2, dist[0],dist[1])
     else:
-        return (motif2, dist[0],dist[1])
+        if dist[2]:
+            return (motif2.revcomp(), dist[0])
+        else:
+            return (motif2, dist[0])
     
 # ----------------------
 def genRandClusters(geneList,totalSeqs, N=1, keepLen=0):
