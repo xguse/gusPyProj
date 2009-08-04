@@ -9,6 +9,6 @@ Aa_2000bpUp_softMasked       = None #'/Users/biggus/Documents/James/Data/2KB/2kb
 Aa_2000bpUp_hardMasked       = None #'/Users/biggus/Documents/James/Data/2KB/2kb_Sequence/2kb_Aedes/aedes2KBupStreamTSS.hardMasked.geneStrand.fas'
 Aa_2000bpUp_hardMasked_shuf1 = None #'/Users/biggus/Documents/James/Data/2KB/2kb_Sequence/2kb_Aedes/aedes2KBupStreamTSS.hardMasked.geneStrand.shuffledSeqs.1.fas'
 Aa_2000bpUp_hardMasked_shuf2 = None #'/Users/biggus/Documents/James/Data/2KB/2kb_Sequence/2kb_Aedes/aedes2KBupStreamTSS.hardMasked.geneStrand.shuffledSeqs.2.fas'
-Aa_2000bpUp_hardMasked_shuf3 = None #'/'
+Aa_2000bpUp_hardMasked_shuf3 = None # '/'
 
 # Culex quinquefasciatus
