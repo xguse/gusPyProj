@@ -3,7 +3,7 @@ from TAMO import MotifTools
 
 Motif = MotifTools.Motif
 
-
+outFile = '/Users/biggus/Documents/James/Collaborations/Campbell/data/Results_HyperGeoScreen/masked/Results_gGEMS/CCupAt4Days.6-8mers.gGEMS.top6PlusCombos.motifs.stdThresh.tmo'
 
 m = MotifTools.load('/Users/biggus/Documents/James/Collaborations/Campbell/data/Results_HyperGeoScreen/masked/Results_gGEMS/CCupAt4Days.6-8mers.gGEMS.top6.motifs.stdThresh.tmo')
 w = [5.8952,
@@ -18,8 +18,12 @@ toTmo.append(alignAndCombineMotifs([m[0],m[1]],[w[0],w[1]]))
 toTmo.append(alignAndCombineMotifs([m[0],m[4]],[w[0],w[4]]))
 toTmo.append(alignAndCombineMotifs([m[1],m[4]],[w[1],w[4]]))
 toTmo.append(alignAndCombineMotifs([m[2],m[3]],[w[2],w[3]]))
+toTmo.append(alignAndCombineMotifs([m[2],m[5]],[w[2],w[5]]))
+
 
 for e in toTmo:
     print e.oneletter
 
+MotifTools.save_motifs(m+toTmo,outFile)    
+    
 None

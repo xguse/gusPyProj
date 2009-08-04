@@ -46,7 +46,10 @@ def alignAndCombineMotifs(motifs, weights):
     simMotifs.sort(key=lambda x: abs(x[1]))
     simMotifs.reverse()
     
-    aligned = alignSimilarMotifs([x[0] for x in simMotifs], minOverLap=4)
+    aligned = alignSimilarMotifs([x[0] for x in simMotifs], minoverlap=4)
+    #print '--'
+    #for each in aligned: print each.oneletter
+    #print '\n'
     
     comboMotif = MotifTools.sum(aligned,[-x[1] for x in simMotifs])
     return comboMotif
@@ -147,28 +150,48 @@ def getKmersWithOneMisMtch(motif1, motifListWithMetrics):
 
 
 # ----------------------
-def alignSimilarMotifs(similarMotifs, minOverLap=6):
+def alignSimilarMotifs(similarMotifs, minoverlap=6):
     """
     Takes list of similar motifs. List should be sorted by weight or pvalue since this def
     basically aligns each motif to the top motif.  Its kind of a progressive pairwise alignment.
-    Pads top motif excessivly, then pads all other motifs to align with top motif.
-    Resturns list of padded, aligned motifs.
     """
-    # Pad top motif with 5 on the left side, 5 on the right.
-    orig = similarMotifs[0].copy()
-    #similarMotifs[0] = similarMotifs[0][-7,len(similarMotifs[0])+7]
-    for i in range(len(similarMotifs)):
-        similarMotifs[i] = similarMotifs[i][-7,len(similarMotifs[i])+7]
+    alignedMotifs = []
+    matrix = findBestPairAlignments(similarMotifs, minoverlap=minoverlap, verbose=None)
     
+    # Find longest neg-offset to motif0
+    lNegOff = 0
     for i in range(1,len(similarMotifs)):
+        if matrix[0][i][3] < lNegOff:
+            lNegOff = matrix[0][i][3]
+    # Adjust left padding of motif0 for longest negOffset
+    alignedMotifs.append(similarMotifs[0][lNegOff,similarMotifs[0].width])
+    None
+    
+    # Adjust orientation and left padding for each motif
+    for i in range(1,len(similarMotifs)):
+        if matrix[0][i][0] < 0:                                   # If neg offset
+            rcMotif = similarMotifs[i].revcomp()                  #   revComp motif_i 
+            lPad = lNegOff-matrix[0][i][3]                        #   remember -> neg - neg = closer to 0
+            alignedMotifs.append(rcMotif[lPad,rcMotif.width])
+        elif matrix[0][i][0] > 0:                                 # If pos offset
+            lPad = lNegOff-matrix[0][i][3]                        #   remember -> neg - pos = farther from 0
+            alignedMotifs.append(similarMotifs[i][lPad,similarMotifs[i].width])
+        elif matrix[0][i][0] == 0:                                # If no offset
+            alignedMotifs.append(similarMotifs[i][lNegOff,similarMotifs[i].width])
+    
+    # Add right padding to match longest motif from above
+    # Find Longest motif
+    lMotifLen = 0
+    for mtf in alignedMotifs:
+        if mtf.width > lMotifLen:
+            lMotifLen = mtf.width
+    for i in range(len(alignedMotifs)):
+        if alignedMotifs[i].width < lMotifLen:
+            alignedMotifs[i] = alignedMotifs[i][0,lMotifLen]
         
-        #distAndOff = MotifCompare.minshortestoverhangdiff(similarMotifs[0],similarMotifs[i],minoverlap=minOverLap,want_offset=None,DFUNC=None,want_DistAndOff=1)
-        distAndOff = getMinDiffOri(similarMotifs[0],similarMotifs[i],minoverlap=minOverLap,getOffset=1)
         
-        # Pad to align to top motif
-        similarMotifs[i] = similarMotifs[i][-distAndOff[1],len(similarMotifs[i])]
-        similarMotifs[i] = similarMotifs[i][0,len(similarMotifs[0])]
-    return similarMotifs
+    
+    return alignedMotifs
 
 
 # ----------------------
