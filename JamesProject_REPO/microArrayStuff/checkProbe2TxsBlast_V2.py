@@ -2,44 +2,14 @@ from Bio.Blast import NCBIXML
 import cPickle
 
 # === <defs> === #
-def retainOrNot2(Bio_Blast_Record_Blast,contigStrech):# full name of BioPython obj for clairity
-    """Determines whether blast record should be kept or passed over.
-    Returns record if it is to be retained and a Set obj of identicle
-    probe_ids. tupple:(blastRec, setOfProbeIds)"""
 
-    blastRec = Bio_Blast_Record_Blast # renamed for ease of use
-    
-    
-    # Is there more than one alignment object?
-    if len(blastRec.alignments) < 2:
-        return None
-    
-    # Collect ids of all alignments with an hsp of 100% ident
-    # along given stretch of the query seq in same orientation.
-    idents = []
-    longestPairIdents = []
-    for a in range(len(blastRec.alignments)):
-        for h in range(len(blastRec.alignments[a].hsps)):
-            if blastRec.alignments[a].hsps[h].frame[0] == 1:  # make sure the matches are in other orientation
-                continue
-            
-            longestMatchSeq = len(max(blastRec.alignments[a].hsps[h].match.split()))
-            if longestMatchSeq >= contigStrech:
-                idents.append(blastRec.alignments[a].hit_id)  # split()[0] to only keep ID and leave discription
-            
-    idents = frozenset(idents)
-    
-
-    if len(idents) > 1:
-        return (blastRec,idents)
-    else:
-        return None
-                
     
 def writeOutMatchData(blastObjs,outFileHandle,contigStrech):
-    """Takes blastObjs, an outFileHandle and the chosen shortest contiguous length
+    """
+    Takes blastObjs, an outFileHandle and the chosen shortest contiguous length
     of alignments to report. Writes out each kept probes list of overlaps with its
-    matching probes."""
+    matching probes.
+    """
     overlapGroups = {}
     recs = blastObjs.keys()
     recs.sort()
@@ -51,12 +21,14 @@ def writeOutMatchData(blastObjs,outFileHandle,contigStrech):
                 if blastRec.alignments[a].hsps[h].frame[0] == -1:  # only look at matches in SAME orientation bc RevComp of mRNA is used to hybridize.
                     continue
                 longestMatchSeq = len(max(blastRec.alignments[a].hsps[h].match.split()))
+                alnPcntID       = float(blastRec.alignments[a].hsps[h].identities)/blastRec.alignments[a].hsps[h].align_length*100
                 if longestMatchSeq >= contigStrech:
                     olpGroup.add(blastRec.alignments[a].hit_id)
-                    outFileHandle.write('%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n' % \
+                    outFileHandle.write('%s\t%s\t%s\t%.1f\t%s\t%s\t%s\t%s\t%s\t%s\n' % \
                         (blastRec.query_id, 
                          blastRec.alignments[a].hit_id,
                          blastRec.alignments[a].hsps[h].align_length,
+                         alnPcntID,
                          longestMatchSeq,
                          blastRec.alignments[a].hsps[h].query_start,
                          blastRec.alignments[a].hsps[h].query_end,
@@ -81,25 +53,26 @@ def writeOutMatchData(blastObjs,outFileHandle,contigStrech):
 
 # === <main> === #
 xmlFile = '/Users/biggus/Documents/James/Data/MicroArrayPrep/Aedes/Probes/ProbeBlastResults/Aedes.agilent.probes.nr.blastn_low.AedesTxs.xml'
+usePkl  = '/Users/biggus/Documents/James/Data/MicroArrayPrep/Aedes/Probes/ProbeBlastResults/Aedes.agilent.probes.nr.blastn_low.AedesTxs.pkl'
 bObjPkl = '/Users/biggus/Documents/James/Data/MicroArrayPrep/Aedes/Probes/ProbeBlastResults/Aedes.agilent.probes.nr.blastn_low.AedesTxs.pkl'
-outFile = '/Users/biggus/Documents/James/Data/MicroArrayPrep/Aedes/Probes/ProbeBlastResults/Aedes.agilent.probes.nr.blastn_low.AedesTxs.30stretch.txt'
+outFile = '/Users/biggus/Documents/James/Data/MicroArrayPrep/Aedes/Probes/ProbeBlastResults/Aedes.agilent.probes.nr.blastn_low.AedesTxs.15stretch.txt'
 
 #xmlFile = '/Users/biggus/Documents/James/Data/MicroArrayPrep/Aedes/Probes/ProbeBlastResults/Aedes.agilent.probes.nr.test.blastn_low.self.xml'
 #outFile = '/Users/biggus/Documents/James/Data/MicroArrayPrep/Aedes/Probes/ProbeBlastResults/Aedes.agilent.probes.nr.test.blastn_low.self.redunProbes.txt'
 
-contigStretch = 30
+contigStretch = 15
 
-
-blastObjs      = {}
-
-for rec in NCBIXML.parse(open(xmlFile)):
-    blastObjs[rec.query_id] = rec
-
-# Pickle blastObjs if file path is given
-if bObjPkl:
-    print 'Pickle to be written to %s' % (bObjPkl)
-    cPickle.dump(blastObjs,open(bObjPkl,'w'))
+if not usePkl:
+    blastObjs      = {}
     
+    for rec in NCBIXML.parse(open(xmlFile)):
+        blastObjs[rec.query_id] = rec
+        # Pickle blastObjs if file path is given and we are not using a pkl
+        if bObjPkl:
+            print 'Pickle to be written to %s' % (bObjPkl)
+            cPickle.dump(blastObjs,open(bObjPkl,'w'))
+else:
+    blastObjs      = cPickle.load(open(usePkl,'rU'))    
 
 # Write out a list of each probes alignments that has a contiguous streatch of identities
 # at least as long as contigStretch.  Then write out a nr list of each probe's matching Txs.
@@ -109,7 +82,7 @@ outFile = open(outFile, 'w')
 
 # write out header info
 outFile.write('All Alignments >= %s considered.\n' % (contigStretch))
-outFile.write('Query_Probe\tMatching_Tscript\tLength_Of_Alignment\tLongest_Contiguous_Run\tProbe_Start\tProbe_End\tTscript_Start\tTscript_End\tTscript_Length\n')
+outFile.write('Query_Probe\tMatching_Tscript\tLength_Of_Alignment\tPcntID_Of_Alignment\tLongest_Contiguous_Run\tProbe_Start\tProbe_End\tTscript_Start\tTscript_End\tTscript_Length\n')
     
 writeOutMatchData(blastObjs,outFile,contigStretch)
 
