@@ -36,8 +36,6 @@ def writeOutMatchData(group,keptBlastObjs,outFileHandle,contigStrech):
     """Takes group of matching probes, keptBlastObjs, and an outFileHandle.
     Writes out each kept probes list of overlaps with its matching probes."""
     
-
-
     for i in range(len(group)):
         blastRec = keptBlastObjs[group[i].strip()]
         
@@ -72,13 +70,13 @@ def getLongestHspStretch(BioBlastAlignObj):
 
 
 # === <main> === #
-xmlFile = '/Users/biggus/Documents/James/Data/MicroArrayPrep/Aedes/Probes/ProbeBlastResults/Aedes.agilent.probes.nr.blastn_low.self.xml'
-outFile = '/Users/biggus/Documents/James/Data/MicroArrayPrep/Aedes/Probes/ProbeBlastResults/Aedes.agilent.probes.nr.blastn_low.self.redunProbes.30strech.txt'
+xmlFile = '/Users/biggus/Documents/James/Data/MicroArrayPrep/Aedes/Probes/ProbeBlastResults/Aedes.agilent.probes.blastn_low.AedesTxs.xml'
+outFile = '/Users/biggus/Documents/James/Data/MicroArrayPrep/Aedes/Probes/ProbeBlastResults/Aedes.agilent.probes.blastn_low.AedesTxs.15stretch.test.txt'
 
 #xmlFile = '/Users/biggus/Documents/James/Data/MicroArrayPrep/Aedes/Probes/ProbeBlastResults/Aedes.agilent.probes.nr.test.blastn_low.self.xml'
 #outFile = '/Users/biggus/Documents/James/Data/MicroArrayPrep/Aedes/Probes/ProbeBlastResults/Aedes.agilent.probes.nr.test.blastn_low.self.redunProbes.txt'
 
-length = 30
+length = 15
 
 # Sort out which probes are identicle and create a dict of
 # their blastRecs and a set of each group of redundant probes.
