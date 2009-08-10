@@ -1,0 +1,3 @@
+import timeit
+
+s = 'GATCTCA'
