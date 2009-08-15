@@ -5,51 +5,54 @@ import bioDefs
 
 
 
-class SeedModels:
-    """
-    Class to centrally define the versions of seed representations and facilitate
-    the separation of data pertaining to each version of the seed.
 
-    IMPORTANT: if index[2]: it should be in form:
-    ''.join([nuc_matched_in_message, pos_in_miRNA]),   pos_in_miRNA starting with 1 NOT 0!!
-    """
-    def __init__(self):
 
-        self.seedModels = {'m3_to_m8':[2,8],
-                          'm2_to_m7':[1,7],
-                          'A1_to_m7':[0,7,'A1'],
-                          'm2_to_m8':[1,8],
-                          'A1_to_m8':[0,8,'A1'],}
+#variable to centrally define the versions of seed representations and facilitate
+#the separation of data pertaining to each version of the seed.
 
-class miRNA(SeedModels):
+#IMPORTANT: if index[2]: it should be in form:
+#''.join([nuc_matched_in_message, pos_in_miRNA]),   pos_in_miRNA starting with 1 NOT 0!!
+
+_seedModels = {'m3_to_m8':[2,8],
+              'm2_to_m7':[1,7],
+              'A1_to_m7':[0,7,'A1'],
+              'm2_to_m8':[1,8],
+              'A1_to_m8':[0,8,'A1'],}
+
+class miRNA:
     """
     Class to represent miRNAs, including the versions of seed matches.
     """
     
-    def __init__(self,miRNA,set4realMatches, name=None):
-        # will probably remove the option for submitting a kmer
+    def __init__(self,miRNA,set4realMatches,orthoRelations=None,genomeTokens=None,name=None,numOfCtrls=15):
         """
         Takes: mature miRNA or kmer<7bp.  If miRNA: extracts all 'versions' of seed defined in
         SeedModels and calcs corresponding mRNA matching seq and derives a series of control seqs;
-        stores under 'seedMatchs' and 'seedCtrls' respectively.  If kmer<7bp: assumes direct dictation
-        (does NOT derive multiple versions), corresponding mRNA matching seq and derives a series of
-        control seqs; stores under 'seedMatchs' and 'seedCtrls' respectively.
+        stores under 'seedMatchs' and 'seedCtrls' respectively.
         
         Ctrls are derived AFTER self.__init__ with obj method 'buildCtrls()' by randomly permuting the
         nucleotides in the seedMatch version while restricting the resulting list from containing any
         of the seedMatches recorded in provided list4realMatches during a loop of miRNA obj initiations.
         """
         
-        # Inherit supported seed models.
-        SeedModels.__init__(self)
-        
+
         # Define obj vars for clairity
-        self.name          = name
-        self.sourceSeq     = miRNA.upper()
-        self.sourceSeqType = None
+        self.name           = name
+        self.sourceSeq      = miRNA.upper()
+        self.sourceSeqType  = None
+        self.genomes        = genomeTokens
+        self.orthos         = orthoRelations
         self.matchVersions  = {}  # formerly self.seed
+        self.matchData      = {}  # keys=str(seedType) : values=set([matchHits])
+        self.ctrlData       = {}  # keys=str(seedType) : values=[set([ctrlVerOneHits]),set([ctrlVerTwoHits]), ... ]
+        self.matchCounts    = {}  # keys=str(seedType) : values=[countInAnyGenome,countIn1:1s, countIn1:1:1s]
+        self.ctrlCounts     = {}  # keys=str(seedType) : values=[[countInAnyGenome_1,countIn1:1s_1, countIn1:1:1s_1],[countInAnyGenome_2,countIn1:1s_2, countIn1:1:1s_2] ...]
         
         self._loadmatchVersions(set4realMatches)
+        
+        # Data storage variables are initialized during the counting,after
+        # the ctrls have been specified
+        
 
 
     def _loadmatchVersions(self, set4realMatches):
@@ -62,7 +65,7 @@ class miRNA(SeedModels):
         set4realMatches.add(bioDefs.revComp(self.sourceSeq[1:8].replace('U','T')))
         
         matchVersions = self._buildMatchVersions(self.sourceSeq)
-        for seedType in self.seedModels:
+        for seedType in _seedModels:
             self.matchVersions[seedType] = matchVersions[seedType]
             # Log each version of the seed match to use as restrictedList when building Ctrls
             set4realMatches.add(matchVersions[seedType][0]) # for technical reasons matchVersions[seedType] == ['aSeedMatchSeq'] so we must index it
@@ -75,19 +78,19 @@ class miRNA(SeedModels):
         """
         returnDict = {}
         # Extract all versions of seed from miRNA
-        for seedType in self.seedModels:
+        for seedType in _seedModels:
             returnDict[seedType] = []
             # If NO third index like here: [0,7,'A1']
-            if len(self.seedModels[seedType]) == 2:
-                index_0 = self.seedModels[seedType][0]
-                index_1 = self.seedModels[seedType][1]
+            if len(_seedModels[seedType]) == 2:
+                index_0 = _seedModels[seedType][0]
+                index_1 = _seedModels[seedType][1]
                 returnDict[seedType].append(bioDefs.revComp(miRNA_seq[index_0:index_1].replace('U','T'))) 
             # If extra data: use 'instructions index' to construct seedVersion
-            elif len(self.seedModels[seedType]) == 3:
-                nuc,pos = list(self.seedModels[seedType][2])
+            elif len(_seedModels[seedType]) == 3:
+                nuc,pos = list(_seedModels[seedType][2])
                 pos = int(pos) 
-                index_0 = self.seedModels[seedType][0]
-                index_1 = self.seedModels[seedType][1]
+                index_0 = _seedModels[seedType][0]
+                index_1 = _seedModels[seedType][1]
                 returnDict[seedType].append(bioDefs.revComp(miRNA_seq[index_0:index_1].replace('U','T'))) 
                 # Convert correct position to reflect adjustment listed
                 # in 'instructions'.
@@ -119,7 +122,7 @@ class miRNA(SeedModels):
         # permute and screen each seedVersion
         for seedType in self.matchVersions:
             # If NO third index like here: [0,7,'A1']
-            if len(self.seedModels[seedType]) == 2:
+            if len(_seedModels[seedType]) == 2:
                 # Select 15 random permutations of matchVersions[seedType] that are not in the 
                 # restrictedList.
                 matchPermList = [''.join(x) for x in xpermutations.xpermutations(list(self.matchVersions[seedType][0]))]
@@ -130,8 +133,8 @@ class miRNA(SeedModels):
                         self.matchVersions[seedType][1].append(permSeq)
             # If extra data: use 'instructions index' to only permute the nucs not explicitly
             # defined in the seedModel
-            elif len(self.seedModels[seedType]) == 3:
-                nuc,pos = list(self.seedModels[seedType][2])
+            elif len(_seedModels[seedType]) == 3:
+                nuc,pos = list(_seedModels[seedType][2])
                 # Leave 1-registered bc we will use negIndex bc dealing with rvCmp of miRNA
                 # so pos == 1 actually means pos == LAST in matchSeq 
                 pos = int(pos) 
@@ -151,11 +154,6 @@ class miRNA(SeedModels):
                         self.matchVersions[seedType][1].append(permSeq) 
             
 
-                    
-        
-        
-
-    
     def buildCtrlsFromProSeed(self, restrictedList, numOfCtrls=15):
         """
         WARNING: This should only be called after the entire list of real seeds have been initialized!
@@ -196,86 +194,30 @@ class miRNA(SeedModels):
             for seedType in self.matchVersions:
                 self.matchVersions[seedType][1].append(matchVersions[seedType][0]) # must use index[0] bc _buildMatchVersions returns a list len==1 
             
-
-class SingleSeqHits:
-    """
-    Class to store the individual genes in each genome that contain a match to
-    the various versions of supported models for a seed.
-    """
-    def __init__(self, genomeTokens):
+    def tallyHits(self, flankingRegions):
+        """
+        Takes a dict of flanking DNA seqs.  For each seq, it updates the counts for each real
+        matchVersion and each permutation of the ctrls for each matchVersion in self.matchData,
+        and self.ctrlData.
+        """
+## ! ## ! ## ! ## !  ##  MUST STILL RUN TEST FOR THIS FUNCTION  ## ! ## ! ## ! ## ! ##
         
-        # Define obj vars for clairity
-        self.matchHits = {}   # keys=str(genomeTokens) : values=dict(keys=str(geneNames) : values=Set([seedModels that succeeded]))
-        self.ctrlHits  = {}   # keys=str(genomeTokens) : values=dict(keys=str(geneNames) : values=Set([seedCompModels that succeeded]))
-        self.genomes   = genomeTokens
+        # Initialize data variables
+        for seedType in _seedModels:
+            self.matchData[seedType] = set()
+            self.ctrlData[seedType]  = [set()]*len(self.matchVersions[seedType][1])
         
-        # Finish initializing object
-        for g in self.genomes:
-            self.matchHits[g]     = {}
-            self.ctrlHits[g] = {}
-        
-class OrthologHits(SeedModels):
-    """
-    Class to store the orthologous genes in each genome that contain a match to
-    the various versions of supported models for a seed.
-    """
-    def __init__(self, nOrderOrthoDefs):
-        
-        # Define obj vars for clairity
-        self.seedHits     = {}   # keys=str(2|3|...|len(genomes)) : values=dict(keys=frozenset(X001,Y033,Z584) : values=Set([seedModels that succeeded]))
-        self.seedCompHits = {}   # 
-        self.orthos       = nOrderOrthoDefs
-        
-        # Finish initializing object
-        for o in self.orthos:
-            self.seedHits[o]     = {}
-            self.seedCompHits[o] = {}
-        
- 
-class SeedData(SeedModels):
-    """
-    Class to represent the seqeunce and targeting information pertaining to a single
-    seed-like sequence as well as the methods involved in collecting the information.
-    """
-    def __init__(self,sourceMiRNA, utrs, orthoRelations, genomeTokens):
-        # Inherit supported seed models.
-        SeedModels.__init__(self) 
-        
-        # Define obj vars for clairity
-        self.genomeTokens   = genomeTokens    # List of Letter part of gene names ('AGAP')
-        self.orthos         = orthoRelations  # for N genomes, dict of keys(2toN), vals(list of) 
-        self.sourceMiRNA    = sourceMiRNA
-        self.seedModels     = Seed(sourceSeq)   
-        self.seedGeneHits   = SingleSeqHits(self.genomeTokens)  
-        self.seedOrthoHits  = OrthologHits(self.orthos)
-        
-        
-    
-        
-        
-    #def _learnGenomes(self):
-        #"""Uses self.orthos[N] to determine the genome prefixes of all genomes, then
-        #updates self.genomeTokens."""
-        
-        ## Learn largest-way combos
-        #allWayKey = max(self.orthos.keys())
-        ## Get list of geneSets
-        #geneNames = list(self.orthos[allWayKey].keys()[0])
-        ## Extract letter portion of gene tokens
-        #tokens = []
-        #lettersRegEx = re.compile('^\D+', re.IGNORECASE)
-        #for name in geneNames:
-            #assert lettersRegEx.search(name) != None , 'geneNames(%s) do not seem to have form "PREFIX000000"' % (name)
-            #tokens.append(lettersRegEx.search(name).group())
-            #print 'ln141: Token = %s' % (lettersRegEx.search(name).group())
-        
-        ## Deposit in genomeTokens
-        #self.genomeTokens = tokens
-        
-
-    
-    def getMatches(self, seqDict):
-        pass
+        # Cycle through flanking regions
+        for gene in flankingRegions:
+            # Cycle through seedTypes
+            for seedType in _seedModels:
+                # Record hits for matchVersion
+                if flankingRegions[gene].find(self.matchVersions[seedType][0]) >= 0:
+                    self.matchData[seedType].add(gene)
+                # Record hits for each ctrl permutation of the matchVersion
+                for i in range(len(self.matchVersions[seedType][1])):
+                    if flankingRegions[gene].find(self.matchVersions[seedType][1][i]) >= 0:
+                        self.ctrlData[seedType][i].add(gene)
 
 
 #-#  Global defs  #-#
@@ -297,7 +239,11 @@ changeLog = """2009-05-25 -- script created.
 2009-08-07 -- copied to this file from targetingAllInOne
 2009-08-13 -- added miRNA.buildCtrlsFromMatchVers() and renamed miRNA.buildCtrls() to buildCtrlsFromProSeed()
 2009-08-13 -- changed miRNA.__init__() to log all matchVersions to use for the restrictedList
-2009-08-13 --  altered var names of class SingleSeqHits"""
+2009-08-13 --  altered var names of class SingleSeqHits
+2009-08-14 -- declassified SeedModels in favor of a global variable '_seedModels' (the class had no methods and I did not plan for it to have any)
+2009-08-15 -- Did away with classes SingleHits and OrthoHits, moved data storage into miRNA
+2009-08-15 -- Wrote miRNA.tallyHits
+"""
 
 notes = """2009-05-25 -- Recording hits to each type of seed:
 \t hit == dict{key=geneName : value=setOfModelsFound[model1,model2]}?
