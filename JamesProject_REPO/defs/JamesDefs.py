@@ -1,5 +1,7 @@
 import re
 import random
+import copy
+import xpermutations
 
 #=========================================================================
 # 07/19/09
@@ -16,7 +18,26 @@ def odd_or_even(integer):
 # 06/05/09
 #def cmpListOfLists(a,b):
     
-
+#=========================================================================
+# 08/26/09
+def randFromList_noRplcMulti(data, numToPull):
+    assert numToPull <= len(data), \
+           'ERROR in randFromList_noRplcMulti: numToPul > len(data)'
+    data = data[:]
+    
+    theChoosenOnes = []
+    for i in range(numToPull):
+        
+        if data != []:
+            index = random.randint(0, len(data) - 1)
+            elem = data[index]
+            data[index] = data[-1]
+            del data[-1]
+            theChoosenOnes.append(elem)
+        else:
+            raise
+        
+    return theChoosenOnes
 #=========================================================================
 # 06/04/09
 def randFromList_noReplace(data):
@@ -30,13 +51,26 @@ def randFromList_noReplace(data):
         return data
 #=========================================================================
 # 05/28/09
-def combineOrthoTabs(orthoTabsList):
+def combineOrthoTabs(orthoTabsList, infer=False):
     """
     Take list of ortholog def lists in format:list[GeneIDspecies1,GeneIDspecies2]
     Return a list of orthologs found in all species.
+    
+    If infer: allow inferences of N-way 1:1 orthos even if a members 1:1 pair is missing
+    in a genomePair's list.  Else: require that the 1:1 relationship be explicitly defined
+    in all genomes.
     """
     
-    orthoTabs = orthoTabsList
+    orthoTabs = copy.deepcopy(orthoTabsList)
+    
+    # If not infer: convert orthoTabsList to list of sets of sets
+    # (since infer defualts to False this is default behavior)
+    if infer == False:
+        for i in range(len(orthoTabsList)):
+            for j in range(len(orthoTabsList[i])):
+                orthoTabsList[i][j] = frozenset(orthoTabsList[i][j])
+            orthoTabsList[i] = frozenset(orthoTabsList[i]) 
+    
     
     # Learn how many Genomes we are dealing with
     # and log the species prefixes
@@ -98,7 +132,7 @@ def combineOrthoTabs(orthoTabsList):
         mergedIDs[i].sort()
         
     # Retain only those relationships that are the correct length
-    # AND do not repeat Species prefixs ('AGAP')
+    # AND do not repeat Species prefixs ('AGAP')    
     filteredIDs = []
     for orthoSet in mergedIDs:
         prefixes = []
@@ -107,11 +141,22 @@ def combineOrthoTabs(orthoTabsList):
                 if ID.startswith(g):
                     prefixes.append(g)
                     continue
-        if len(prefixes) != len(genomes):
+        if len(prefixes) != len(genomes):  # can get same length without having same constiuents 
             continue
         if len(prefixes) == len(set(prefixes)):
-            filteredIDs.append(orthoSet)
-            
+            if infer != False:
+                filteredIDs.append(orthoSet)
+            else:
+                orthoPairCount = 0
+                for pair in xpermutations.xuniqueCombinations(orthoSet,2):
+                    for genomePairs in orthoTabsList:
+                        if set(pair) not in genomePairs: continue
+                        else: orthoPairCount+=1
+                if orthoPairCount == len(orthoTabsList):
+                    filteredIDs.append(orthoSet)
+                    
+    
+        
     # test for repeats in each genome's list of final names
     genomeNameLists = []
     for i in range(len(filteredIDs[0])):
