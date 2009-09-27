@@ -5,6 +5,7 @@ import xpermutations
 import JamesDefs
 import bioDefs
 import mathDefs
+from pprint import pprint
 
 
 
@@ -29,7 +30,7 @@ class miRNA:
     Class to represent seedMatches.
     """
     
-    def __init__(self,miRNA,set4realMatches,orthoRelations=None,genomeTokens=None,name=None,numOfCtrls=15):
+    def __init__(self,miRNA,set4realMatches,orthoRelations=None,name=None,numOfCtrls=15):
         """
         Takes: mature miRNA or kmer<7bp.  If miRNA: extracts all 'versions' of seed defined in
         SeedModels and calcs corresponding mRNA matching seq and derives a series of control seqs;
@@ -112,9 +113,10 @@ class miRNA:
         """
         WARNING: This should only be called after the entire list of real seeds have been initialized!
         
-        Computes 15 permutations of each 'true' matchVersion and screens them for real seqs in restrictedList
-        to prevent using KNOWN seed matches for controls. Ctrl seed matches are stored in a list located
-        at second index of the list located in dict entry self.matchVersions[seedType]. 
+        Computes usr supplied number of permutations (dflt=15) of each 'true' matchVersion and screens them
+        for real seqs in restrictedList to prevent using KNOWN seed matches for controls. Ctrl seed matches
+        are stored in a list located at second index of the list located in dict entry
+        self.matchVersions[seedType]. 
         """
         
         # check to see whether this has already been done.
@@ -172,7 +174,11 @@ class miRNA:
         at second index of the list located in dict entry self.matchVersions[seedType]. Each seedVersion 
         of a ctrl set will share the same index number.
         """
-        
+        assert True==False, \
+               """WARNING!!! miRNA.buildCtrlsFromMatchVers() should be used instead!!
+               If you REALLY want to use this method, modify or remove this assert statement.
+               
+               But seriously...  use miRNA.buildCtrlsFromMatchVers()."""
         # check to see whether this has already been done.
         # If so, complain and die.
         # Else, append an empty list as index_1 after REAL matchSeq for each version
@@ -228,15 +234,23 @@ class miRNA:
                     if flankingRegions[gene].find(self.matchVersions[seedType][1][i]) >= 0:
                         self.ctrlData[seedType][i].add(gene)
 
-    def countHitsInOrthos(self):
+    def countHitsInOrthos(self,returnGenes=False):
         """
         Uses results of miRNA.tallyHits() and self.orthos to count how many genes the miRNA seed
-        hits in at least one genome, in at least two orthologs, and in all three orthologs.
+        hits in at least one genome, in at least two orthologs, and in all three orthologs.  If
+        returnGenes: returns dict(keys=seedType : vals=[None,genesIn_1,genesIn_2,genesIn_3])
         """
         # make sure we have tallied the hits already.
         assert self.matchData and self.ctrlData, \
                'ERROR:  It looks like we have not tallied the hits yet. Call miRNA.tallyHits() first.'
-              
+        
+        if returnGenes:
+            rGeneNames = {}
+            rCtrlNames = {}
+            for seedType in _seedModels:
+                rGeneNames[seedType] = [None,[],[],[]]
+                rCtrlNames[seedType] = [[]*4 for i in range(len(self.matchVersions[seedType][1]))]
+             
         # Initialize self.matchCounts/self.ctrlCounts
         for seedType in _seedModels:
             self.matchCounts[seedType] = [0,0,0,0]
@@ -249,9 +263,12 @@ class miRNA:
             for seedType in _seedModels:
                 genesInMatchD = 0
                 genesInCtrlD  = [0]*len(self.matchVersions[seedType][1])
+                if returnGenes: geneNames = [] # incase returnGenes
                 # Count how many genes in each orthoSet were hit by the respective seedTypes
                 for gene in orthoSet:
-                    if gene in self.matchData[seedType]: genesInMatchD += 1
+                    if gene in self.matchData[seedType]:
+                        genesInMatchD += 1
+                        if returnGenes: geneNames.append(gene)
                     for i in range(len(self.ctrlData[seedType])):
                         if gene in self.ctrlData[seedType][i]: genesInCtrlD[i] += 1
                         
@@ -261,14 +278,26 @@ class miRNA:
                 elif genesInMatchD == 1:
                     self.matchCounts[seedType][0] += 2
                     self.matchCounts[seedType][1] += 1
+                    if returnGenes:
+                        rGeneNames[seedType][1].extend(geneNames)
                 elif genesInMatchD == 2:
                     self.matchCounts[seedType][0] += 1
                     self.matchCounts[seedType][1] += 2
                     self.matchCounts[seedType][2] += 1
+                    if returnGenes:
+                        rGeneNames[seedType][1].extend(geneNames)
+                        rGeneNames[seedType][2].append(tuple(sorted(geneNames)))
                 elif genesInMatchD == 3:
                     self.matchCounts[seedType][1] += 3
                     self.matchCounts[seedType][2] += 3
                     self.matchCounts[seedType][3] += 1
+                    if returnGenes:
+                        rGeneNames[seedType][1].extend(geneNames)
+                        type2 = [tuple(sorted(x)) for x in xpermutations.xuniqueCombinations(geneNames,2)]
+                        type3 = tuple(sorted(geneNames))
+                        assert len(type2) == 3, 'len(type2) != 3'
+                        rGeneNames[seedType][2].extend(type2)
+                        rGeneNames[seedType][3].append(type3)
                 # Update self.ctrlData based on how many hits the orthoSet got in each ctrl for seedType
                 for i in range(len(self.ctrlData[seedType])):
                     if genesInCtrlD[i] == 0:
@@ -282,13 +311,19 @@ class miRNA:
                         self.ctrlCounts[seedType][i][1] += 3
                         self.ctrlCounts[seedType][i][2] += 3
                         self.ctrlCounts[seedType][i][3] += 1
+
+                if returnGenes:
+                    for i in range(1,4):
+                        assert len(rGeneNames[seedType][i]) == len(set(rGeneNames[seedType][i])),\
+                               "ERROR: rGeneNames[%s] in miRNA(%s) has redundancy." % (i, self.name)
+        if returnGenes:
+            return rGeneNames
                         
     def calcCtrlMeanStDv(self):
         """
         Iterate through the self.ctrlCount data and calculate the mean and stdDev for each
         seedType permutation set.
         """
-## ! ## ## ! ## ## ! ##  NEEDS TO BE TESTED!!!  ## ! ## ## ! ## ## ! ## 
         # Make sure we have already run self.countHitsInOrthos()
         assert self.matchCounts and self.ctrlCounts, \
                'ERROR:  It looks like we have not called countHitsInOrthos().'
@@ -311,7 +346,6 @@ class miRNA:
         Iterate through the self.ctrlCount data and calculate the MEDIAN and stdDev from the
         MEDIAN for each seedType permutation set.
         """
-## ! ## ## ! ## ## ! ##  NEEDS TO BE TESTED!!!  ## ! ## ## ! ## ## ! ## 
         # Make sure we have already run self.countHitsInOrthos()
         assert self.matchCounts and self.ctrlCounts, \
                'ERROR:  It looks like we have not called countHitsInOrthos().'
@@ -332,8 +366,7 @@ class miRNA:
         """
         Iterate through the self.ctrlCount data and calculate the MEDIAN and the 
         Median Absolute Deviations for each seedType permutation set.
-        """
-## ! ## ## ! ## ## ! ##  NEEDS TO BE TESTED!!!  ## ! ## ## ! ## ## ! ## 
+        """ 
         # Make sure we have already run self.countHitsInOrthos()
         assert self.matchCounts and self.ctrlCounts, \
                'ERROR:  It looks like we have not called countHitsInOrthos().'
@@ -366,19 +399,51 @@ class miRNA:
                "\n\nERROR: howManyOrthos must be >= 0 and <= 3."
         assert metric in metrics,\
                "\n\nERROR: Valid values of metric include %s." % (metrics.keys())
-        assert metrics[metric], \
-               "\n\nERROR: %s has not been calculated yet." % (metric)
+        
+        if not metrics[metric]:
+            metMeths = {'meanStDv':self.calcCtrlMeanStDv(),
+                        'medianStDv':self.calcCtrlMedianStDv(),
+                        'medianMAD':self.calcCtrlMedianMAD(),}
+            metMeths[metric]
+        ##assert metrics[metric], \
+               ##"\n\nERROR: %s has not been calculated yet." % (metric)
         
         real       = self.matchCounts[seedType][howManyOrthos]
+        ##pprint(metrics[metric][seedType])
         ctrlCenter = metrics[metric][seedType][howManyOrthos][0]
         ctrlSpread = metrics[metric][seedType][howManyOrthos][1]
         
         return (float(real)-ctrlCenter)/ctrlSpread
         
-    def test(self):
-        print 'it works!'
-
-
+    def reportGeneTargets(self,zScore=3,FDR=0.15):
+        """
+        Use supplied parameters to filter which seedTypes' "found" genes
+        are returned.  Returns dict in form:
+        keys(seedType):values(None,[geneNamesInOne,zScore,FDR],[geneNamesInTwo,zScore,FDR],[geneNamesInThree,zScore,FDR]).
+        
+        WARNING: as of now, this method COMPLETLY reRuns miRNA.countHitsInOrthos() with 
+        returnGenes=True.  Do not run this over and over right now.
+        """
+        
+        # initialize return Dict
+        rDict = {}
+        for seedType in _seedModels:
+            rDict[seedType] = [None,[],[],[]]
+        
+        # Get geneNames
+        geneNames = self.countHitsInOrthos(returnGenes=True)
+        
+        # Populate rDict
+        for seedType in _seedModels:
+            for orthoType in range(1,4):
+                seedZScore = self.scoreSeedType(seedType,orthoType)
+                seedFDR    = self.ctrlMedianStd[seedType][orthoType][0]/float(self.matchCounts[seedType][orthoType])
+                if (seedZScore >= zScore) and (seedFDR < FDR):
+                    rDict[seedType][orthoType].extend([geneNames[seedType][orthoType],seedZScore,seedFDR])
+                else:
+                    rDict[seedType][orthoType] = None
+                
+        return rDict
 
 #-#  Global defs  #-#
 def loadSeqs(fastaPathList):
@@ -446,6 +511,20 @@ def filterOrthoSeqs(seqDict, orthoRelations):
         rDict[gene] = seqDict[gene]
         
     return rDict
+
+def getTokenFromNames(geneNames):
+    """
+    Returns the list of genome tokens from a list of gene names:
+    ['AAEL','AGAP'] from geneNames=['AAEL0000567', 'AGAP0008908'].
+    """
+    toks = set()
+    
+    tokExp = re.compile('^\D+')
+    for name in geneNames:
+        match = tokExp.match(name)
+        toks.add(match.group())
+        
+    return sorted(list(toks))
     
     
     
@@ -470,6 +549,8 @@ changeLog = """2009-05-25 -- script created.
 2009-08-26 -- Finished miRNA.loadSeqs().
 2009-08-26 -- Finished miRNA.loadOrthos().
 2009-08-27 -- Changed miRNA.tallyHits() -> initialization of self.ctrlData[seedType] from [set()]*number.  This creates many refs to ONE set().  NOT good.  Did it the hard way now.
+2009-08-12 -- Added miRNA.reportGeneTargets(self,orthoType,zScore=3,FDR=0.15)
+2009-09-14 -- Changed miRNA.countHitsInOrthos(self,returnGenes=False) --> added returnGenes=False to allow gene reporting.
 """
 
 notes = """2009-05-25 -- Recording hits to each type of seed:
