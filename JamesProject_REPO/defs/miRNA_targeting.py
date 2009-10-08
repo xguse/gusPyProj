@@ -174,11 +174,11 @@ class miRNA:
         at second index of the list located in dict entry self.matchVersions[seedType]. Each seedVersion 
         of a ctrl set will share the same index number.
         """
-        assert True==False, \
-               """WARNING!!! miRNA.buildCtrlsFromMatchVers() should be used instead!!
-               If you REALLY want to use this method, modify or remove this assert statement.
+        ##assert True==False, \
+               ##"""WARNING!!! miRNA.buildCtrlsFromMatchVers() should be used instead!!
+               ##If you REALLY want to use this method, modify or remove this assert statement.
                
-               But seriously...  use miRNA.buildCtrlsFromMatchVers()."""
+               ##But seriously...  use miRNA.buildCtrlsFromMatchVers()."""
         # check to see whether this has already been done.
         # If so, complain and die.
         # Else, append an empty list as index_1 after REAL matchSeq for each version
@@ -238,7 +238,11 @@ class miRNA:
         """
         Uses results of miRNA.tallyHits() and self.orthos to count how many genes the miRNA seed
         hits in at least one genome, in at least two orthologs, and in all three orthologs.  If
-        returnGenes: returns dict(keys=seedType : vals=[None,genesIn_1,genesIn_2,genesIn_3])
+        returnGenes: returns tuple of two dicts:
+        matchDict(keys=seedType : vals=[None,genesWithMatch,genePairsWithMatch,geneTriplesWithMatch])
+        ctrlDict(keys=seedType : vals=[[],genesWithMatch_1,genePairsWithMatch_1,geneTriplesWithMatch_1],
+                                       [],genesWithMatch_2,genePairsWithMatch_2,geneTriplesWithMatch_2],
+                                       ...])
         """
         # make sure we have tallied the hits already.
         assert self.matchData and self.ctrlData, \
@@ -249,7 +253,7 @@ class miRNA:
             rCtrlNames = {}
             for seedType in _seedModels:
                 rGeneNames[seedType] = [None,[],[],[]]
-                rCtrlNames[seedType] = [[]*4 for i in range(len(self.matchVersions[seedType][1]))]
+                ##rCtrlNames[seedType] = [[]*4 for i in range(len(self.matchVersions[seedType][1]))]
              
         # Initialize self.matchCounts/self.ctrlCounts
         for seedType in _seedModels:
@@ -263,14 +267,18 @@ class miRNA:
             for seedType in _seedModels:
                 genesInMatchD = 0
                 genesInCtrlD  = [0]*len(self.matchVersions[seedType][1])
-                if returnGenes: geneNames = [] # incase returnGenes
+                if returnGenes:
+                    geneNames = [] 
+                    ##ctrlNames = []
                 # Count how many genes in each orthoSet were hit by the respective seedTypes
                 for gene in orthoSet:
                     if gene in self.matchData[seedType]:
                         genesInMatchD += 1
                         if returnGenes: geneNames.append(gene)
                     for i in range(len(self.ctrlData[seedType])):
-                        if gene in self.ctrlData[seedType][i]: genesInCtrlD[i] += 1
+                        if gene in self.ctrlData[seedType][i]:
+                            genesInCtrlD[i] += 1
+                            ##if returnGenes: ctrlNames[i].append(gene)
                         
                 # Update self.matchData based on how many hits the orthoSet got for seedType
                 if genesInMatchD == 0:
@@ -295,7 +303,6 @@ class miRNA:
                         rGeneNames[seedType][1].extend(geneNames)
                         type2 = [tuple(sorted(x)) for x in xpermutations.xuniqueCombinations(geneNames,2)]
                         type3 = tuple(sorted(geneNames))
-                        assert len(type2) == 3, 'len(type2) != 3'
                         rGeneNames[seedType][2].extend(type2)
                         rGeneNames[seedType][3].append(type3)
                 # Update self.ctrlData based on how many hits the orthoSet got in each ctrl for seedType
@@ -304,13 +311,24 @@ class miRNA:
                         self.ctrlCounts[seedType][i][0] += 3
                     elif genesInCtrlD[i] == 1: 
                         self.ctrlCounts[seedType][i][1] += 1
+                        ##if returnGenes:
+                            ##rCtrlNames[seedType][i][1].extend(ctrlNames)
                     elif genesInCtrlD[i] == 2:
                         self.ctrlCounts[seedType][i][1] += 2
                         self.ctrlCounts[seedType][i][2] += 1
+                        ##if returnGenes:
+                            ##rCtrlNames[seedType][i][1].extend(ctrlNames)
+                            ##rCtrlNames[seedType][i][2].append(tuple(sorted(ctrlNames)))
                     elif genesInCtrlD[i] == 3:
                         self.ctrlCounts[seedType][i][1] += 3
                         self.ctrlCounts[seedType][i][2] += 3
                         self.ctrlCounts[seedType][i][3] += 1
+                        ##if returnGenes:
+                            ##rCtrlNames[seedType][i][1].extend(ctrlNames)
+                            ##type2 = [tuple(sorted(x)) for x in xpermutations.xuniqueCombinations(ctrlNames,2)]
+                            ##type3 = tuple(sorted(ctrlNames))
+                            ##rCtrlNames[seedType][i][2].extend(type2)
+                            ##rCtrlNames[seedType][i][3].append(type3)
 
                 if returnGenes:
                     for i in range(1,4):
@@ -318,6 +336,7 @@ class miRNA:
                                "ERROR: rGeneNames[%s] in miRNA(%s) has redundancy." % (i, self.name)
         if returnGenes:
             return rGeneNames
+            ##return (rGeneNames,rCtrlNames)
                         
     def calcCtrlMeanStDv(self):
         """
@@ -444,6 +463,33 @@ class miRNA:
                     rDict[seedType][orthoType] = None
                 
         return rDict
+    
+    def getFDRStats(self,seedType,orthoType,spcs=()):
+        """
+        returns (median, stDvFromMed)
+        """
+        ##if not spcs:
+            ##spcs = ('AAEL','AGAP','CPIJ')
+        
+        FDRs = []
+        for i in range(len(self.ctrlCounts[seedType][orthoType])):
+            ctrl = self.ctrlCounts[seedType][i][orthoType]
+            real = float(self.matchCounts[seedType][orthoType])
+            
+            if real == 0:
+                return (None,None)
+            else:
+                fdr = ctrl/real
+                
+            if fdr > 1:
+                FDRs.append(1.0)
+            else:
+                FDRs.append(fdr)
+                
+            
+        fdrStats = mathDefs.stdDv(FDRs,'median')
+        return (fdrStats[1],fdrStats[0])
+            
 
 #-#  Global defs  #-#
 def loadSeqs(fastaPathList):
