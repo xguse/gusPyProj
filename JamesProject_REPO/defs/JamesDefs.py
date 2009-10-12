@@ -4,6 +4,22 @@ import copy
 import xpermutations
 
 #=========================================================================
+# 10/08/09
+def initList(numOfIndices,initVal):
+    """
+    Returns a list of length len(numOfIndices) initialized with initVal.
+    """
+
+    rList = []
+    for i in range(numOfIndices):
+        if (type(initVal) == type([])) or (type(initVal) == type({})):
+            rList.append(eval(repr(initVal)))  # prevent init'ing all indices with ref to same obj.
+        else:
+            rList.append(initVal)
+    return rList
+#=========================================================================
+
+#=========================================================================
 # 07/19/09
 def odd_or_even(integer):
     assert type(integer) == type(1), 'Error: odd_or_even only takes integers. You gave: %s' % (integer)

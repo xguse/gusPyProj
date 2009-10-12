@@ -51,6 +51,8 @@ class miRNA:
         self.matchVersions  = {}  # formerly self.seed
         self.matchData      = {}  # keys=str(seedType) : values=set([matchHits])
         self.ctrlData       = {}  # keys=str(seedType) : values=[set([ctrlVerOneHits]),set([ctrlVerTwoHits]), ... ]
+        self.matchEvents    = {}  # keys=str(seedType) : values=[None,genesInAnyGenome,pairsInAtLeast1:1s, tripsIn1:1:1s]
+        self.ctrlEvents     = {}  # keys=str(seedType) : values=[[None,genesInAnyGenome_1,pairsInAtLeast1:1s_1, tripsIn1:1:1s_1],[None,genesInAnyGenome_2,pairsInAtLeast1:1s_2, tripsIn1:1:1s_2]...]
         self.matchCounts    = {}  # keys=str(seedType) : values=[countInNone,countInAnyGenome,countInAtLeast1:1s, countIn1:1:1s]
         self.ctrlCounts     = {}  # keys=str(seedType) : values=[[countInNone_1, countInAnyGenome_1,countInAtLeast1:1s_1, countIn1:1:1s_1],[countInNone_2, countInAnyGenome_2,countInAtLeast1:1s_2, countIn1:1:1s_2] ...]
         self.ctrlMeanStd    = {}  # keys=str(seedType) : values=[[countInNone-mean, countInNone-stdv], [countInAnyGenome-mean, countInAnyGenome-stdv],[countInAtLeast1:1s-mean, countInAtLeast1:1s-stdv], [countIn1:1:1s-mean, countIn1:1:1s-stdv]]
@@ -234,7 +236,7 @@ class miRNA:
                     if flankingRegions[gene].find(self.matchVersions[seedType][1][i]) >= 0:
                         self.ctrlData[seedType][i].add(gene)
 
-    def countHitsInOrthos(self,returnGenes=False):
+    def countHitsInOrthos(self,returnGenes=True):
         """
         Uses results of miRNA.tallyHits() and self.orthos to count how many genes the miRNA seed
         hits in at least one genome, in at least two orthologs, and in all three orthologs.  If
@@ -253,7 +255,7 @@ class miRNA:
             rCtrlNames = {}
             for seedType in _seedModels:
                 rGeneNames[seedType] = [None,[],[],[]]
-                ##rCtrlNames[seedType] = [[]*4 for i in range(len(self.matchVersions[seedType][1]))]
+                rCtrlNames[seedType] = JamesDefs.initList(len(self.matchVersions[seedType][1]),[None,[],[],[]])
              
         # Initialize self.matchCounts/self.ctrlCounts
         for seedType in _seedModels:
@@ -269,7 +271,7 @@ class miRNA:
                 genesInCtrlD  = [0]*len(self.matchVersions[seedType][1])
                 if returnGenes:
                     geneNames = [] 
-                    ##ctrlNames = []
+                    ctrlNames = JamesDefs.initList(len(self.matchVersions[seedType][1]),[])
                 # Count how many genes in each orthoSet were hit by the respective seedTypes
                 for gene in orthoSet:
                     if gene in self.matchData[seedType]:
@@ -278,7 +280,7 @@ class miRNA:
                     for i in range(len(self.ctrlData[seedType])):
                         if gene in self.ctrlData[seedType][i]:
                             genesInCtrlD[i] += 1
-                            ##if returnGenes: ctrlNames[i].append(gene)
+                            if returnGenes: ctrlNames[i].append(gene)
                         
                 # Update self.matchData based on how many hits the orthoSet got for seedType
                 if genesInMatchD == 0:
@@ -311,32 +313,34 @@ class miRNA:
                         self.ctrlCounts[seedType][i][0] += 3
                     elif genesInCtrlD[i] == 1: 
                         self.ctrlCounts[seedType][i][1] += 1
-                        ##if returnGenes:
-                            ##rCtrlNames[seedType][i][1].extend(ctrlNames)
+                        if returnGenes:
+                            rCtrlNames[seedType][i][1].extend(ctrlNames[i])
                     elif genesInCtrlD[i] == 2:
                         self.ctrlCounts[seedType][i][1] += 2
                         self.ctrlCounts[seedType][i][2] += 1
-                        ##if returnGenes:
-                            ##rCtrlNames[seedType][i][1].extend(ctrlNames)
-                            ##rCtrlNames[seedType][i][2].append(tuple(sorted(ctrlNames)))
+                        if returnGenes:
+                            rCtrlNames[seedType][i][1].extend(ctrlNames[i])
+                            rCtrlNames[seedType][i][2].append(tuple(sorted(ctrlNames[i])))
                     elif genesInCtrlD[i] == 3:
                         self.ctrlCounts[seedType][i][1] += 3
                         self.ctrlCounts[seedType][i][2] += 3
                         self.ctrlCounts[seedType][i][3] += 1
-                        ##if returnGenes:
-                            ##rCtrlNames[seedType][i][1].extend(ctrlNames)
-                            ##type2 = [tuple(sorted(x)) for x in xpermutations.xuniqueCombinations(ctrlNames,2)]
-                            ##type3 = tuple(sorted(ctrlNames))
-                            ##rCtrlNames[seedType][i][2].extend(type2)
-                            ##rCtrlNames[seedType][i][3].append(type3)
+                        if returnGenes:
+                            rCtrlNames[seedType][i][1].extend(ctrlNames[i])
+                            type2 = [tuple(sorted(x)) for x in xpermutations.xuniqueCombinations(ctrlNames[i],2)]
+                            type3 = tuple(sorted(ctrlNames[i]))
+                            rCtrlNames[seedType][i][2].extend(type2)
+                            rCtrlNames[seedType][i][3].append(type3)
 
                 if returnGenes:
                     for i in range(1,4):
                         assert len(rGeneNames[seedType][i]) == len(set(rGeneNames[seedType][i])),\
                                "ERROR: rGeneNames[%s] in miRNA(%s) has redundancy." % (i, self.name)
         if returnGenes:
-            return rGeneNames
-            ##return (rGeneNames,rCtrlNames)
+            # store and return rGeneNames
+            self.matchEvents = rGeneNames
+            self.ctrlEvents  = rCtrlNames
+            return (rGeneNames,rCtrlNames)
                         
     def calcCtrlMeanStDv(self):
         """
@@ -464,34 +468,89 @@ class miRNA:
                 
         return rDict
     
-    def getFDRStats(self,seedType,orthoType,spcs=()):
+    def reportGeneTargetsFdrMedMeth(self,stdvLimit=2,consFdrThresh=0.25,divide=0):
         """
-        returns (median, stDvFromMed)
-        """
-        ##if not spcs:
-            ##spcs = ('AAEL','AGAP','CPIJ')
+        Use supplied parameters to filter which seedTypes' "found" genes
+        are returned.  Returns dict in form:
+        keys(seedType):values(None,[geneNamesInOne,medianFDR,consFDR],[geneNamesInTwo,medianFDR,consFDR],[geneNamesInThree,medianFDR,consFDR]).
         
+        **Eventually, this will allow the separate return of the grouped
+        culicinae and Ag2Culic results based on the [divide] option.
+        
+        WARNING: as of now, this method COMPLETLY reRuns miRNA.countHitsInOrthos() with 
+        returnGenes=True.  Do not run this over and over right now.
+        """
+        
+        if divide:
+            pass # for now
+        
+        else:
+            # initialize return Dict
+            rDict = {}
+            for seedType in _seedModels:
+                rDict[seedType] = [None,[],[],[]]
+            
+            # Get geneNames
+            if (self.matchEvents and self.ctrlEvents):
+                geneNames = (self.matchEvents,self.ctrlEvents) # <- returns (geneNames,ctrlNames)
+            else:
+                geneNames = self.countHitsInOrthos(returnGenes=True) # <- returns (geneNames,ctrlNames)
+            
+            # Populate rDict
+            for seedType in _seedModels:
+                for orthoType in range(1,4):
+                    realMatches    =  len(geneNames[0][seedType][orthoType])
+                    ctrlMatches    =  [len(x[orthoType]) for x in geneNames[1][seedType]]
+                    
+                    ctlrFDRstdv,ctlrFDRmed     =  calcFDRStats(realMatches,ctrlMatches) # <-returns(stdv,median)
+                    
+                    if (ctlrFDRstdv or ctlrFDRmed) == None:
+                        consSeedFDR = None
+                    else:
+                        consSeedFDR =  ctlrFDRmed+(stdvLimit*ctlrFDRstdv)
+                    
+                    if consSeedFDR == None:
+                        rDict[seedType][orthoType] = None
+                    else:
+                        if round(consSeedFDR,2) <= consFdrThresh:
+                            rDict[seedType][orthoType].extend([geneNames[0][seedType][orthoType],ctlrFDRmed,consSeedFDR])
+                        else:
+                            rDict[seedType][orthoType] = None
+                    
+            return rDict
+    
+    def purgeData(self):
+        """
+        Deletes self.matchData and self.ctrlData to reduce the size each miRNA obj.
+        ONLY RUN AFTER matchData and ctrlData are no longer needed.
+        """
+        del self.matchData
+        del self.ctrlData
+            
+
+#-#  Global defs  #-#
+def calcFDRStats(realCount,ctrlCounts):
+
         FDRs = []
-        for i in range(len(self.ctrlCounts[seedType][orthoType])):
-            ctrl = self.ctrlCounts[seedType][i][orthoType]
-            real = float(self.matchCounts[seedType][orthoType])
+        
+        for i in range(len(ctrlCounts)):
+            ctrl = ctrlCounts[i]
+            real = realCount
             
             if real == 0:
                 return (None,None)
             else:
-                fdr = ctrl/real
+                fdr = float(ctrl)/real
                 
             if fdr > 1:
                 FDRs.append(1.0)
             else:
                 FDRs.append(fdr)
                 
-            
-        fdrStats = mathDefs.stdDv(FDRs,'median')
-        return (fdrStats[1],fdrStats[0])
-            
+        return mathDefs.stdDv(FDRs,'median')
+        
 
-#-#  Global defs  #-#
+        
 def loadSeqs(fastaPathList):
     """
     Takes list of paths.  Returns single dict full of seqs found in the files.

@@ -9,7 +9,8 @@ outFile     = ''
 #==========================================================================
 
 #--------- Script Specific Function Definitions ---------------------
-
+def upperIt(matchObj):
+    return matchObj.group(0).upper()
 
 #--------------------------------------------------------------------
 
@@ -43,6 +44,6 @@ for i in range(0,len(inFile)):
         continue
     else:
         for peptide in peptideFile:
-            pepEx = re.compile(peptide, re.IGNORECASE)
+            pepEx = re.compile(peptide[0], re.IGNORECASE)
             
-            fastaFile[i] = fastaFile[i].replace(eachLower, each)
+            fastaFile[i] = re.sub(pepEx, upperIt, fastaFile[i])
