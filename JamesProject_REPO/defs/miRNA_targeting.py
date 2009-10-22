@@ -341,7 +341,121 @@ class miRNA:
             self.matchEvents = rGeneNames
             self.ctrlEvents  = rCtrlNames
             return (rGeneNames,rCtrlNames)
+    
+    def countHitsInOrthos4(self,genomeToken,returnGenes=True):
+        """
+        Uses results of miRNA.tallyHits() and self.orthos to count how many genes the miRNA seed
+        hits in at least one genome, in at least two orthologs, and in all three orthologs.  If
+        returnGenes: returns tuple of two dicts:
+        matchDict(keys=seedType : vals=[None,genesWithMatch,genePairsWithMatch,geneTriplesWithMatch])
+        ctrlDict(keys=seedType : vals=[[],genesWithMatch_1,genePairsWithMatch_1,geneTriplesWithMatch_1],
+                                       [],genesWithMatch_2,genePairsWithMatch_2,geneTriplesWithMatch_2],
+                                       ...])
+        """
+        # make sure we have tallied the hits already.
+        assert self.matchData and self.ctrlData, \
+               'ERROR:  It looks like we have not tallied the hits yet. Call miRNA.tallyHits() first.'
+        
+        if returnGenes:
+            rGeneNames = {}
+            rCtrlNames = {}
+            for seedType in _seedModels:
+                rGeneNames[seedType] = [None,[],[],[]]
+                rCtrlNames[seedType] = JamesDefs.initList(len(self.matchVersions[seedType][1]),[None,[],[],[]])
+             
+        # Initialize self.matchCounts/self.ctrlCounts
+        for seedType in _seedModels:
+            self.matchCounts[seedType] = [0,0,0,0]
+            self.ctrlCounts[seedType]  = [[0]*4 for i in range(len(self.matchVersions[seedType][1]))]
+        # Cycle through self.orthos 
+        for orthoSet in self.orthos:
+            assert len(orthoSet) == 3,\
+                   'ERROR: It seems len(%s) != 3.'
+            # Query the matcheData and ctrlData for hits in orthoSet
+            for seedType in _seedModels:
+                genesInMatchD = 0
+                genesInCtrlD  = [0]*len(self.matchVersions[seedType][1])
+                if returnGenes:
+                    geneNames = [] 
+                    ctrlNames = JamesDefs.initList(len(self.matchVersions[seedType][1]),[])
+                # Count how many genes in each orthoSet were hit by the respective seedTypes
+                for gene in orthoSet:
+                    if gene in self.matchData[seedType]:
+                        genesInMatchD += 1
+                        if returnGenes: geneNames.append(gene)
+                    for i in range(len(self.ctrlData[seedType])):
+                        if gene in self.ctrlData[seedType][i]:
+                            genesInCtrlD[i] += 1
+                            if returnGenes: ctrlNames[i].append(gene)
                         
+                # Update self.matchData based on how many hits the orthoSet got for seedType
+                if genesInMatchD == 0:
+                    ##self.matchCounts[seedType][0] += 3
+                    pass
+                elif genesInMatchD == 1:
+                    if ''.join(geneNames).find(genomeToken) != -1:
+                        ##self.matchCounts[seedType][0] += 2
+                        self.matchCounts[seedType][1] += 1
+                        if returnGenes:
+                            rGeneNames[seedType][1].extend(geneNames)
+                elif genesInMatchD == 2:
+                    if ''.join(geneNames).find(genomeToken) != -1:
+                        ##self.matchCounts[seedType][0] += 1
+                        self.matchCounts[seedType][1] += 1 # self.matchCounts[seedType][1] += 2
+                        self.matchCounts[seedType][2] += 1
+                        if returnGenes:
+                            rGeneNames[seedType][1].extend([x for x in geneNames if x.find(genomeToken) != -1])
+                            rGeneNames[seedType][2].append(tuple(sorted(geneNames)))
+                elif genesInMatchD == 3:
+                    if ''.join(geneNames).find(genomeToken) != -1:
+                        self.matchCounts[seedType][1] += 1 # self.matchCounts[seedType][1] += 3
+                        self.matchCounts[seedType][2] += 2 # self.matchCounts[seedType][2] += 3
+                        self.matchCounts[seedType][3] += 1
+                        if returnGenes:
+                            rGeneNames[seedType][1].extend([x for x in geneNames if x.find(genomeToken) != -1])
+                            type2 = [tuple(sorted(x)) for x in xpermutations.xuniqueCombinations(geneNames,2) if ''.join(x).find(genomeToken) != -1]
+                            type3 = tuple(sorted(geneNames))
+                            rGeneNames[seedType][2].extend(type2)
+                            rGeneNames[seedType][3].append(type3)
+                # Update self.ctrlData based on how many hits the orthoSet got in each ctrl for seedType
+                for i in range(len(self.ctrlData[seedType])):
+                    if genesInCtrlD[i] == 0:
+                        ##self.ctrlCounts[seedType][i][0] += 3
+                        pass
+                    elif genesInCtrlD[i] == 1:
+                        if ''.join(ctrlNames[i]).find(genomeToken) != -1:
+                            self.ctrlCounts[seedType][i][1] += 1
+                            if returnGenes:
+                                rCtrlNames[seedType][i][1].extend(ctrlNames[i])
+                    elif genesInCtrlD[i] == 2:
+                        if ''.join(ctrlNames[i]).find(genomeToken) != -1:
+                            self.ctrlCounts[seedType][i][1] += 1 # self.ctrlCounts[seedType][i][1] += 2
+                            self.ctrlCounts[seedType][i][2] += 1
+                            if returnGenes:
+                                rCtrlNames[seedType][i][1].extend([x for x in ctrlNames[i] if x.find(genomeToken) != -1])
+                                rCtrlNames[seedType][i][2].append(tuple(sorted(ctrlNames[i])))
+                    elif genesInCtrlD[i] == 3:
+                        if ''.join(ctrlNames[i]).find(genomeToken) != -1:
+                            self.ctrlCounts[seedType][i][1] += 1 # self.ctrlCounts[seedType][i][1] += 3
+                            self.ctrlCounts[seedType][i][2] += 2
+                            self.ctrlCounts[seedType][i][3] += 1
+                            if returnGenes:
+                                rCtrlNames[seedType][i][1].extend([x for x in ctrlNames[i] if x.find(genomeToken) != -1])
+                                type2 = [tuple(sorted(x)) for x in xpermutations.xuniqueCombinations(ctrlNames[i],2) if ''.join(x).find(genomeToken) != -1]
+                                type3 = tuple(sorted(ctrlNames[i]))
+                                rCtrlNames[seedType][i][2].extend(type2)
+                                rCtrlNames[seedType][i][3].append(type3)
+
+                if returnGenes:
+                    for i in range(1,4):
+                        assert len(rGeneNames[seedType][i]) == len(set(rGeneNames[seedType][i])),\
+                               "ERROR: rGeneNames[%s] in miRNA(%s) has redundancy." % (i, self.name)
+        if returnGenes:
+            # store and return rGeneNames
+            self.matchEvents = rGeneNames
+            self.ctrlEvents  = rCtrlNames
+            return (rGeneNames,rCtrlNames)
+        
     def calcCtrlMeanStDv(self):
         """
         Iterate through the self.ctrlCount data and calculate the mean and stdDev for each

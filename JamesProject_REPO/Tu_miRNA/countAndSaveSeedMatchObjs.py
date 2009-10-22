@@ -4,12 +4,12 @@ import sys
 import cPickle
 from time import time
 
-outFile = '/Users/biggus/Documents/James/Data/Tu_miRNA/ResultsMiRNA_Targeting/2009_10_10.seedMatches.100psCtrls.storeEvents.pkl'
+outFile = '/Users/biggus/Documents/James/Data/Tu_miRNA/ResultsMiRNA_Targeting/test.seedMatches.100mvCtrls.storeEvents.pkl'
      #'/Users/biggus/Documents/James/Data/Tu_miRNA/ResultsMiRNA_Targeting/DATE.seedMatches.NUMandTYPEofCTRLS.pkl'
 
-initCtrlsWith = 'proSeed' # 'proSeed' or 'matchVersion'     
+initCtrlsWith = 'matchVersion' # 'proSeed' or 'matchVersion'     
 ctrlIter      = 100 
-
+refGenome     = 'AGAP'
 
 print '-- -- -- -- --\n\nLoading files...'
 orthoPath  = '/Users/biggus/Documents/James/Data/OrthologDefs/nrOrthos/!nrOrthoDefs/3wayOrthos.combineOrthosJamesDefs.out.filtered.noInfers.txt'
@@ -23,11 +23,11 @@ seqDict        = miTrgt.loadSeqs(seqPaths)
 orthoRelations = miTrgt.loadOrthos(orthoPath, seqDict)
 miRNAs         = miTrgt.loadMiRNAs(miRNA_Path)
 
-#randGroup = ['aga-miR-12','aga-miR-263b']
-#d = {}
-#for i in randGroup:
-    #d[i] = miRNAs[i]
-#miRNAs = d
+randGroup = ['aga-miR-12','aga-miR-263b']
+d = {}
+for i in randGroup:
+    d[i] = miRNAs[i]
+miRNAs = d
 
 print 'Getting ortho seqs...'
 orthoSeqs  = miTrgt.filterOrthoSeqs(seqDict,orthoRelations)
@@ -61,9 +61,16 @@ print 'Tallying hits...'
 for m in miR_matches:
     miR_matches[m].tallyHits(orthoSeqs)
     print '\t'+m
-print 'Counting hits in orthos...'
+
+if refGenome:
+    print 'Counting hits in orthos for %s...' % (refGenome)
+else:
+    print 'Counting hits in orthos...'
 for m in miR_matches:
-    miR_matches[m].countHitsInOrthos(returnGenes=True)
+    if refGenome:
+        miR_matches[m].countHitsInOrthos4(genomeToken=refGenome,returnGenes=True)
+    else:
+        miR_matches[m].countHitsInOrthos(returnGenes=True)
 t2=time()
 print 'Tallying and counting took %.2f min.' % ((t2-t1)/60.0)
 

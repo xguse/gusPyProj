@@ -6,16 +6,16 @@ import miRNA_targeting as miRT
 
 print '\n\n'
 
-outFile = '/Users/biggus/Documents/James/Data/Tu_miRNA/ResultsMiRNA_Targeting/2009_10_09runs.100bothCtrls.stats.events.medFDRmeth.txt'#'/Users/biggus/Documents/James/Data/Tu_miRNA/ResultsMiRNA_Targeting/2009_08_31run.100permCtrls.stats.events.indSeeds.medFDRmeth.txt'
+outFile = '/Users/biggus/Documents/James/Data/Tu_miRNA/ResultsMiRNA_Targeting/test.100bothCtrls.stats.events.medFDRmeth.txt'#'/Users/biggus/Documents/James/Data/Tu_miRNA/ResultsMiRNA_Targeting/2009_08_31run.100permCtrls.stats.events.indSeeds.medFDRmeth.txt'
 outFile = open(outFile, 'w')
 
-pklPath_Ca = '/Users/biggus/Documents/James/Data/Tu_miRNA/ResultsMiRNA_Targeting/2009_10_09.seedMatches.100mvCtrls.storeEvents.pkl'#'/Users/biggus/Documents/James/Data/Tu_miRNA/ResultsMiRNA_Targeting/2009_08_31.seedMatches.100permCtrls.pkl' #2009_09_29.seedMatches.100psCtrls.pkl'
+pklPath_Ca = '/Users/biggus/Documents/James/Data/Tu_miRNA/ResultsMiRNA_Targeting/test.seedMatches.100mvCtrls.storeEvents.pkl'#'/Users/biggus/Documents/James/Data/Tu_miRNA/ResultsMiRNA_Targeting/2009_08_31.seedMatches.100permCtrls.pkl' #2009_09_29.seedMatches.100psCtrls.pkl'
 data_Ca    = cPickle.load(open(pklPath_Ca,'rU'))
-pklPath_Cb = '/Users/biggus/Documents/James/Data/Tu_miRNA/ResultsMiRNA_Targeting/2009_10_09.seedMatches.100psCtrls.storeEvents.pkl'#'/Users/biggus/Documents/James/Data/Tu_miRNA/ResultsMiRNA_Targeting/2009_08_31.seedMatches.100permCtrls.pkl' #2009_09_29.seedMatches.100psCtrls.pkl'
+pklPath_Cb = '/Users/biggus/Documents/James/Data/Tu_miRNA/ResultsMiRNA_Targeting/test.seedMatches.100psCtrls.storeEvents.pkl'#'/Users/biggus/Documents/James/Data/Tu_miRNA/ResultsMiRNA_Targeting/2009_08_31.seedMatches.100permCtrls.pkl' #2009_09_29.seedMatches.100psCtrls.pkl'
 data_Cb    = cPickle.load(open(pklPath_Cb,'rU'))
 
 consFdrThreshold = 0.25
-stdvsAboveMed    = 2
+stdvsAboveMed    = 1
 
 # calc the various centers and spreads
 items = ['aga-miR-1890',
@@ -137,10 +137,10 @@ def writeTargetsFdrMedMeth(miRobj_Ca,miRobj_Cb,oFile):
     
     # Write out Totals data:
     print miRobj_Cb.name
-    outFile.write('-- %s --\n' % (miRobj_Cb.name)) 
+    #outFile.write('-- %s --\n' % (miRobj_Cb.name)) 
     for i in range(1,len(totalsData)):
         if totalsData[i]:
-            outFile.write('%s : allPassedSeedsFor_%s : %s : %s : %s  Seqs=%s\n' \
+            outFile.write('%s : allPassedSeedsFor_%s : %s : %s : %s : %s\n' \
                           %(miRobj_Cb.name,
                             i,
                             len(totalsData[i][0]),
@@ -154,7 +154,7 @@ def writeTargetsFdrMedMeth(miRobj_Ca,miRobj_Cb,oFile):
     for seedType in sorted(miRHits_Ca):
         for i in range(1,len(miRHits_Ca[seedType])):
             if miRHits_Ca[seedType][i]:
-                outFile.write('%s : %s : orthoType_%s : %s : %.2f : %.4f Seqs=%s\n'\
+                outFile.write('%s : %s : orthoType_%s : %s : %.2f : %.4f : %s\n'\
                               %(miRobj_Ca.name,
                                 seedType,
                                 i,
