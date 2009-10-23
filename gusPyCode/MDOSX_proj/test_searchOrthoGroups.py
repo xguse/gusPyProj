@@ -1,5 +1,5 @@
-from MDOSX_defs.defs import searchOrthoGroups
-from MDOSX_defs.defs import spawnOrthoGroups
+from gusPyCode.MDOSX_proj.MDOSX_defs.defs import searchOrthoGroups
+from gusPyCode.MDOSX_proj.MDOSX_defs.defs import spawnOrthoGroups
 from TAMO import MotifTools
 
 

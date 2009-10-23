@@ -1,4 +1,4 @@
-from MDOSX_classes import OrthoGroup
+from gusPyCode.MDOSX_proj.MDOSX_defs.MDOSX_classes import OrthoGroup
 from TAMO import MotifTools
 
 

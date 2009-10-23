@@ -1,4 +1,4 @@
-from xpermutations import xuniqueCombinations
+from gusPyCode.defs.xpermutations import xuniqueCombinations
 
 
 inFile  = '/Users/biggus/Documents/James/Data/Tu_miRNA/ResultsMiRNA_Targeting/2009_10_09run/2009_10_09runs.100bothCtrls.stats_1stdv.events.medFDRmeth.txt'

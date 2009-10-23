@@ -3,7 +3,7 @@ from Bio import SeqIO
 from gusPyCode.defs import JamesDefs
 import re
 import string
-from defs_moduleByTableLookUp import findAllMotifsInAGAP
+from gusPyCode.defs.defs_moduleByTableLookUp import findAllMotifsInAGAP
 from time import time
 
 boundarySeqs          = '/Users/biggus/Documents/MBGB/Rotations/James/Data/testData4Mapper/MGandUpAt24.fas'

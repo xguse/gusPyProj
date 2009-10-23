@@ -1,5 +1,5 @@
 import re
-from MDOSX_classes import OrthoGroup
+from gusPyCode.MDOSX_proj.MDOSX_defs.MDOSX_classes import OrthoGroup
 from TAMO.seq import Fasta
 from TAMO import MotifMetrics
 

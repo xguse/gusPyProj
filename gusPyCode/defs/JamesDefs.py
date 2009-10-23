@@ -1,7 +1,7 @@
 import re
 import random
 import copy
-import xpermutations
+from gusPyCode.defs import xpermutations
 
 #=========================================================================
 # 10/08/09

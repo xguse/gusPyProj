@@ -1,11 +1,11 @@
 from sets import Set
 from time import time
 from gusPyCode.defs.JamesDefs import *
-from moduleMapDefs import *
+from gusPyCode.ModuleDiscovery.moduleMapDefs import *
 from probstat import Combination
 import sys
 # py modules under development
-from dev_buildMotifPairsForAGAP import buildMotifPairsForAGAP, dev_buildMotifPairsForAGAP
+from gusPyCode.ModuleDiscovery.dev_buildMotifPairsForAGAP import buildMotifPairsForAGAP, dev_buildMotifPairsForAGAP
 
 """
 takes:    - file with map of given motif locations

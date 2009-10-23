@@ -1,7 +1,7 @@
 import numpy
 import re
 from TAMO.seq import Fasta
-import xpermutations
+from gusPyCode.defs import xpermutations
 from gusPyCode.defs import JamesDefs
 from gusPyCode.defs import bioDefs
 from gusPyCode.defs import mathDefs

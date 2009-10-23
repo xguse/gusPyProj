@@ -9,8 +9,8 @@ from TAMO.MD.AlignAce import MetaAce
 from TAMO.MD.MDscan import MDscan 
 from TAMO.MD.Meme import Meme 
 import MarkovBackground
-import seqStats
-import MDAP_defs
+from gusPyCode.defs import seqStats
+from gusPyCode.MDAP_proj import MDAP_defs
 
 supportDirectory = '%s/MDAP_SupportDir' % (sys.path[0])
     
