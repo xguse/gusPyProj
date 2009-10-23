@@ -1,6 +1,6 @@
 import sys
 import time
-import JamesDefs
+from gusPyCode.defs import JamesDefs
 
 #--------- Script Specific Function Definitions ---------------------
 def resolver(groupedList, resolverArgs):

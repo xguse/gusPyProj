@@ -1,4 +1,4 @@
-from JamesDefs import revComp
+from gusPyCode.defs.JamesDefs import revComp
 import re
 
 #--------- Script Specific Function Definitions ---------------------

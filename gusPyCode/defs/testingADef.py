@@ -1,4 +1,4 @@
-from JamesDefs import *
+from gusPyCode.defs.JamesDefs import *
 
 
 motif = 'WGATAR'

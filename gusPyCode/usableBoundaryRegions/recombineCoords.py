@@ -1,5 +1,5 @@
 import string
-import JamesDefs
+from gusPyCode.defs import JamesDefs
 import sys
 
 

@@ -1,6 +1,6 @@
 import timeit
 from gmpy import comb
-from doug_hypergeometric import binc
+from gusPyCode.defs.doug_hypergeometric import binc
 from statsDefs import hypergeoP,hypergeoP_Test
 
 n=40

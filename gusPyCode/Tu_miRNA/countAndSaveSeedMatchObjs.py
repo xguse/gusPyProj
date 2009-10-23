@@ -1,5 +1,5 @@
-import JamesDefs
-import miRNA_targeting as miTrgt
+from gusPyCode.defs import JamesDefs
+from gusPyCode.defs import miRNA_targeting as miTrgt
 import sys
 import cPickle
 from time import time

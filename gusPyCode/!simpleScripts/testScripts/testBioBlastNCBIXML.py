@@ -1,5 +1,5 @@
 from Bio.Blast import NCBIXML
-from bioDefs import bestIdentOverLen
+from gusPyCode.defs.bioDefs import bestIdentOverLen
 
 xmlOut = '/Users/biggus/Documents/James/Data/MicroArrayPrep/Aedes/Probes/ProbeBlastResults/Aedes.agilent.probes.nr.test.blastn_low.self.xml'
 

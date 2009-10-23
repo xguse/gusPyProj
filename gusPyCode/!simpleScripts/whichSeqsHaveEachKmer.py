@@ -1,7 +1,7 @@
 from TAMO.MotifTools import top_nmers,Motif
 from TAMO import MotifTools
 from TAMO.seq import Fasta
-from bioDefs import revComp
+from gusPyCode.defs.bioDefs import revComp
 
 seqFile     = '/Users/biggus/Documents/James/Collaborations/Campbell/data/mainTwoGenes.fas'
 kmerFile    = '/Users/biggus/Documents/James/Collaborations/Campbell/data/mainTwoGenes.7mersInAll.tamoVers.txt'

@@ -1,4 +1,4 @@
-from MDAP_defs import genRandClusters
+from gusPyCode.MDAP_proj.MDAP_defs import genRandClusters
 from TAMO.seq import Fasta
 from numpy import average
 import pprint

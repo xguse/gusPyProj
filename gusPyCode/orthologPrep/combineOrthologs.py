@@ -1,5 +1,5 @@
 from Bio import SeqIO
-import JamesDefs
+from gusPyCode.defs import JamesDefs
 
 
 

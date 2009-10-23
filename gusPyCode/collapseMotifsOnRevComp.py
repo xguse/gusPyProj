@@ -1,4 +1,4 @@
-import JamesDefs
+from gusPyCode.defs import JamesDefs
 import re
 
 #--------- Script Specific Function Definitions ---------------------

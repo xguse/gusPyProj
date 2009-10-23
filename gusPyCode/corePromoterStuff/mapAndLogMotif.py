@@ -2,7 +2,7 @@
 
 from Bio.Alphabet.IUPAC import IUPACAmbiguousDNA
 from Bio import SeqIO
-import JamesDefs
+from gusPyCode.defs import JamesDefs
 import re
 import string
 from time import time

@@ -1,5 +1,5 @@
 import sys
-from doug_hypergeometric import hyperGeoPvalue
+from gusPyCode.defs.doug_hypergeometric import hyperGeoPvalue
 from time import time
 
 #========================= User Defined Variables =========================

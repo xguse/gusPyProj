@@ -1,4 +1,4 @@
-from MDAP_defs import loadMotifsFromOutFile
+from gusPyCode.MDAP_proj.MDAP_defs import loadMotifsFromOutFile
 from TAMO import MotifTools
 
 
