@@ -1,8 +1,8 @@
-from gusPyCode.MDAP_proj.MDAP_defs import shuffleSeqDict
+from MDAP_defs import shuffleSeqDict
 from TAMO.seq import Fasta
-from gusPyCode.defs.bioDefs import softMaskDict2HardMask
+from bioDefs import softMaskDict2HardMask
 from time import time
-from gusPyCode.defs.mosqData import promoterSeqPaths
+import promoterSeqPaths
 
 # User Variables:
 inFile   = promoterSeqPaths.Aa_2000bpUp_softMasked

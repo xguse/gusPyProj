@@ -1,4 +1,4 @@
-from gusPyCode.defs.bioDefs import revComp
+from bioDefs import revComp
 
 # To convert Aa putative TSS seqs into +1 Ori based on gene's Ori
 

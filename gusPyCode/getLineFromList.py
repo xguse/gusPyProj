@@ -1,4 +1,4 @@
-from gusPyCode.defs import JamesDefs
+import JamesDefs
 
 
 

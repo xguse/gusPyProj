@@ -1,6 +1,6 @@
 from Bio import SeqIO
 import string
-from gusPyCode.defs import JamesDefs
+import JamesDefs
 
 
 

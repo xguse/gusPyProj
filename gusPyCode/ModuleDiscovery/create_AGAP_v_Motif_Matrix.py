@@ -1,6 +1,6 @@
 from Bio.Alphabet.IUPAC import IUPACAmbiguousDNA
 from Bio import SeqIO
-from gusPyCode.defs import JamesDefs
+import JamesDefs
 import re
 import string
 from defs_moduleByTableLookUp import findAllMotifsInAGAP

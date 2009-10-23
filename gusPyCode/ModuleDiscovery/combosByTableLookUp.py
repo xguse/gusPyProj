@@ -1,6 +1,6 @@
 from defs_moduleByTableLookUp import *
-from gusPyCode.defs.JamesDefs import groupByField
-from gusPyCode.defs.doug_hypergeometric import hyperGeoPvalue
+from JamesDefs import groupByField
+from doug_hypergeometric import hyperGeoPvalue
 from time import time
 from sets import Set
 

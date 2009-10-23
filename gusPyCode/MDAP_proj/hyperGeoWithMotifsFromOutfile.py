@@ -1,8 +1,8 @@
 # get hypergeo pVal from motifs from MD output files
 
-from gusPyCode.MDAP_proj.MDAP_defs import loadMotifsFromOutFile
+from MDAP_defs import loadMotifsFromOutFile
 from TAMO.MotifMetrics import ProbeSet
-from gusPyCode.defs.mosqData import promoterSeqPaths
+import promoterSeqPaths
 
 outFile   = '/Users/biggus/Documents/James/Data/ReClustering/PrelimData_Grant_Feb09/Clus2_kmerSearch.6-8mers.FDR_lessThan0.01.analysis.txt'
 

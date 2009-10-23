@@ -5,8 +5,8 @@ from TAMO import MotifTools
 from TAMO.MotifTools import Motif
 from TAMO.MD.Meme import Meme
 from TAMO.MD.AlignAce import AlignAce
-from gusPyCode.defs.JamesDefs import randFromList_noReplace
-from gusPyCode.defs import xpermutations
+from JamesDefs import randFromList_noReplace
+import xpermutations
 import random
 
 def alignPairWithOffSet(motif1, motif2, offset):

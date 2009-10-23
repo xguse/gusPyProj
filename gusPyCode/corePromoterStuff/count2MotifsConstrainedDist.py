@@ -1,8 +1,8 @@
 print 'loding modules...'
 import re
 from gSeqClasses import DNAseq
-from gusPyCode.defs.JamesDefs import overlapRegEx
-from gusPyCode.defs.bioDefs import iupac2regex
+from JamesDefs import overlapRegEx
+from bioDefs import iupac2regex
 
 print 'loading fastaFile...'
 seqFile     = map(lambda line: line.strip(), open('/Users/biggus/Documents/James/Data/AedesCorePromoterWork/output/Aa_Ensbl49_AaegL1.1.plus50minus100._InrDPE_Hits_.fas','rU').readlines())

@@ -3,7 +3,8 @@ import numpy
 from TAMO.MotifTools import Motif
 from TAMO import MotifTools
 from TAMO.Clustering import MotifCompare
-from gusPyCode.MDAP_proj.MDAP_defs import getMinDiffOri,getKmersWithOneMisMtch,alignSimilarMotifs,trimPaddedMotif
+from MDAP_defs import getMinDiffOri,getKmersWithOneMisMtch,alignSimilarMotifs,trimPaddedMotif
+
 ## NOTE: defs moved to MDAP_defs
 #def getKmersWithOneMisMtch(motif1, motifListWithMetrics):
     #"""

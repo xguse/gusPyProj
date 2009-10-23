@@ -1,4 +1,4 @@
-from gusPyCode.defs import JamesDefs
+import JamesDefs
 import string
 
 delimitedList = open('/Users/biggus/Documents/MBGB/Rotations/James/Data/Sequence/Culex/Culex_Exon_Location.txt', 'r').readlines()

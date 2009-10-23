@@ -1,4 +1,4 @@
-from gusPyCode.defs.JamesDefs import combineOrthoTabs
+from JamesDefs import combineOrthoTabs
 from pprint import pprint
 from time import time
 

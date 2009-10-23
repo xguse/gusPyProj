@@ -1,7 +1,7 @@
 from __future__ import division
 import sys
 import supportVars 
-from gusPyCode.defs import JamesDefs
+import JamesDefs
 import sets
 import re
 from decimal import Decimal
@@ -138,7 +138,7 @@ class gSeq:
 class DNAseq(gSeq):
     """homemade class to deal with everyday DNA seq needs
     """
-    from gusPyCode.defs import JamesDefs
+    import JamesDefs
     
     
     # declare that I am DNA
@@ -203,7 +203,7 @@ class DNAseq(gSeq):
 class PROTseq(gSeq):
     """homemade class to deal with everyday Protein seq needs
     """
-    from gusPyCode.defs import JamesDefs
+    import JamesDefs
     
     
     # declare that I am AA

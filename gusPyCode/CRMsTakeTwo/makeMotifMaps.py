@@ -1,7 +1,7 @@
 from time import time
 import cPickle
 from TAMO.MotifTools import load as loadTMOs
-from gusPyCode.defs.crmClasses import *
+from crmClasses import *
 
 mapPickle = '/Users/biggus/Desktop/testMap.pkl'
 pValOut   = '/Users/biggus/Desktop/testPvals.txt'

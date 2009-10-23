@@ -1,5 +1,5 @@
-from gusPyCode.defs.JamesDefs import loadXXmiRNAs
-from gusPyCode.defs.JamesDefs import revComp
+from JamesDefs import loadXXmiRNAs
+from JamesDefs import revComp
 
 
 kMersFile     = '/Users/biggus/Documents/James/Data/Tu_miRNA/MDOSoutPut/AaAgAndAgCq_7mers_orthosForMDOS_500afterCoding.mdos.allMotifsNoAmbig.txt'

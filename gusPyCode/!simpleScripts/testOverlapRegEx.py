@@ -1,4 +1,4 @@
-###from gusPyCode.defs.JamesDefs import overlapRegEx
+###from JamesDefs import overlapRegEx
 ###import re
 ###from pprint import pprint
 

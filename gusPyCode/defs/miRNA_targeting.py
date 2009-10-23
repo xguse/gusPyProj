@@ -2,9 +2,9 @@ import numpy
 import re
 from TAMO.seq import Fasta
 import xpermutations
-from gusPyCode.defs import JamesDefs
-from gusPyCode.defs import bioDefs
-from gusPyCode.defs import mathDefs
+import JamesDefs
+import bioDefs
+import mathDefs
 from pprint import pprint
 
 

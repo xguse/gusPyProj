@@ -1,6 +1,6 @@
 import cPickle
 from TAMO.MotifTools import load as loadTMOs
-from gusPyCode.defs.bioDefs import convertTAMOs2MOPATs
+from bioDefs import convertTAMOs2MOPATs
 
 outFile  = '/Users/biggus/Documents/James/Data/ReClustering/PrelimData_Grant_Feb09/Clus2_247genes.Ace_gGEMS_MEME.mopat.motifs.txt'
 tPkls    = None #['',]

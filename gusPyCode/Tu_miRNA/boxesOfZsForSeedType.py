@@ -1,5 +1,5 @@
 from matplotlib import pylab as plb
-from gusPyCode.defs.miRNA_targeting import _seedModels
+from miRNA_targeting import _seedModels
 """BoxPlots of 'z-scores' for each seedType"""
 
 

@@ -1,5 +1,5 @@
 from TAMO.MotifMetrics import Fasta
-from gusPyCode.defs.JamesDefs import revComp
+from JamesDefs import revComp
 
 seedsFile = '/Users/biggus/Documents/James/Data/Tu_miRNA/miRNAs/testSeeds.fas'
 kMersFile = '/Users/biggus/Documents/James/Data/Tu_miRNA/MDOSoutPut/CqAg_7mers_orthosForMDOS_500afterCoding.mdos.motifzSgte3.txt'

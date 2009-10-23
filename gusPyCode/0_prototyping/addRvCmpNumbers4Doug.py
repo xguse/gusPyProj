@@ -1,4 +1,4 @@
-from gusPyCode.defs.JamesDefs import revComp
+from JamesDefs import revComp
 from sets import Set
 
 KmerCounts = {'AA':3,'TT':3,'GC':3,'CG':3,'CC':3,'TA':3,'AT':3}

@@ -1,6 +1,6 @@
 from TAMO.seq import Fasta
-from gusPyCode.defs.bioDefs import geneList2FastaDict
-from gusPyCode.defs.mosqData import promoterSeqPaths
+from bioDefs import geneList2FastaDict
+import promoterSeqPaths
 
 
 geneList = map(lambda l: l.strip(), open('/Users/biggus/Documents/James/Collaborations/Campbell/data/CCupAt4Days.genes.txt', 'rU'))

@@ -1,6 +1,6 @@
 # get hypergeo pVal from motifs from TAMO motifs pickles
 
-from gusPyCode.MDAP_proj.MDAP_defs import loadMotifsFromOutFile
+from MDAP_defs import loadMotifsFromOutFile
 from TAMO.MotifMetrics import ProbeSet
 import pickle
 import pprint

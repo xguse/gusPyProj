@@ -1,4 +1,4 @@
-from gusPyCode.defs import bioDefs
+import bioDefs
 import re
 
 

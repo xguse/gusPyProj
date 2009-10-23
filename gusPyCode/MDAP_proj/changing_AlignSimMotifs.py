@@ -1,5 +1,5 @@
-from gusPyCode.MDAP_proj.MDAP_defs import findBestPairAlignments
-from gusPyCode.MDAP_proj.MDAP_defs import alignAndCombineMotifs
+from MDAP_defs import findBestPairAlignments
+from MDAP_defs import alignAndCombineMotifs
 from TAMO import MotifTools
 Motif = MotifTools.Motif
 

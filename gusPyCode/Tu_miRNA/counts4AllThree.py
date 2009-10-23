@@ -1,4 +1,4 @@
-from gusPyCode.defs.JamesDefs import odd_or_even
+from JamesDefs import odd_or_even
 import re
 
 noteToSelf = \

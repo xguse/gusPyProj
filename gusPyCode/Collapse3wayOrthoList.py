@@ -1,5 +1,5 @@
-from gusPyCode.defs.doug_hypergeometric import hyperGeoPvalue
-from gusPyCode.defs import JamesDefs
+from doug_hypergeometric import hyperGeoPvalue
+import JamesDefs
 
 
 #========================= User Defined Variables =========================
