@@ -6,12 +6,12 @@ from time import time
 
 #test
 
-outFile = '/home/dunnw/data/tempPush/results/testOnBDUC.seedMatches.100mvCtrls.storeEvents.pkl'
+outFile = '/home/dunnw/data/tempPush/results/2009_10_26/2009_10_26.AGAP.seedMatches.100psCtrls.storeEvents.pkl'
      #'/Users/biggus/Documents/James/Data/Tu_miRNA/ResultsMiRNA_Targeting/DATE.seedMatches.NUMandTYPEofCTRLS.pkl'
 
-initCtrlsWith = 'matchVersion' # 'proSeed' or 'matchVersion'     
+initCtrlsWith = 'proSeed' # 'proSeed' or 'matchVersion'     
 ctrlIter      = 100 
-refGenome     = None #'AGAP'
+refGenome     = 'AGAP'
 
 
 print '-- -- -- -- --\n\nLoading files...'
@@ -26,11 +26,11 @@ seqDict        = miTrgt.loadSeqs(seqPaths)
 orthoRelations = miTrgt.loadOrthos(orthoPath, seqDict)
 miRNAs         = miTrgt.loadMiRNAs(miRNA_Path)
 
-randGroup = ['aga-miR-12','aga-miR-263b']
-d = {}
-for i in randGroup:
-    d[i] = miRNAs[i]
-miRNAs = d
+# randGroup = ['aga-miR-12','aga-miR-263b']
+# d = {}
+# for i in randGroup:
+#     d[i] = miRNAs[i]
+# miRNAs = d
 
 print 'Getting ortho seqs...'
 orthoSeqs  = miTrgt.filterOrthoSeqs(seqDict,orthoRelations)
