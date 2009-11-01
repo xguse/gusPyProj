@@ -6,18 +6,15 @@ from gusPyCode.defs import xpermutations
 
 #=========================================================================
 # 10/29/09
-class Kimchi:
+class DotDict(dict):
     """
     Class to package multiple objects with before pickling to make them callable
     with the "unPickledObj.subObj" convention instead of using a dictionary.
     """
-    def __init__(self,dictOfObjects):
-        """
-        Takes Dict and uses each key to name a self.keyInfo attribute.
-        """
-        for key in dictOfObjects:
-            keyStr = str(key)
-            self.keyStr = dictOfObjects[key]
+    def __getattr__(self, attr):
+        return self.get(attr, None)
+    __setattr__= dict.__setitem__
+    __delattr__= dict.__delitem__
 
 
 #=========================================================================
