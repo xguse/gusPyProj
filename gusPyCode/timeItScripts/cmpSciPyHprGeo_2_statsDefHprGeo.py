@@ -3,7 +3,7 @@ from time import time
 from gusPyCode.defs.statsDefs import hypergeoP
 from scipy.stats import hypergeom
 
-Out = '/Users/biggus/Documents/James/Data/PythonTimeTrials/20091028_scipyVsGusHprGeo_10000.txt'
+Out = '/Users/biggus/Documents/James/Data/PythonTimeTrials/20091031_scipyVsGusHprGeo_100.psyco.txt'
 
 
 runs = 100
@@ -19,8 +19,8 @@ gusTimeIt =\
 """
 
 
-sciTimer = timeit.Timer(sciTimeIt,"from __main__ import hypergeom")
-gusTimer = timeit.Timer(gusTimeIt,"from __main__ import hypergeoP")
+sciTimer = timeit.Timer(sciTimeIt,"from __main__ import hypergeom\nimport psyco\npsyco.full()")
+gusTimer = timeit.Timer(gusTimeIt,"from __main__ import hypergeoP\nimport psyco\npsyco.profile()")
 
 sciTimes = sciTimer.repeat(repeat=runs,number=1)
 gusTimes = gusTimer.repeat(repeat=runs,number=1)
