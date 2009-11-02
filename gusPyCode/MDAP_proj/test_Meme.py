@@ -1,7 +1,7 @@
 """This is a short script that runs MDAP's AceWrap wapper.  Can be used to show that the
 system is correctly set up to run AlignAce."""
 
-from MD_wrappers import MemeWrap
+from gusPyCode.MDAP_proj.MD_wrappers import MemeWrap
 import sys
 
 # AceWrap -> def __init__(self, optionsObj, posArgs):

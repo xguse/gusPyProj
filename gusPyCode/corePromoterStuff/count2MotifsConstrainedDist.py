@@ -1,6 +1,6 @@
 print 'loding modules...'
 import re
-from gSeqClasses import DNAseq
+from gusPyCode.gClasses.gSeqClasses import DNAseq
 from gusPyCode.defs.JamesDefs import overlapRegEx
 from gusPyCode.defs.bioDefs import iupac2regex
 

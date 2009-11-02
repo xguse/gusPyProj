@@ -1,4 +1,4 @@
-from MDOSX_defs.defs import buildCoRegdOrthoGroups
+from gusPyCode.MDOSX_proj.MDOSX_defs.defs import buildCoRegdOrthoGroups
 
 
 nWayOrthoList = [['A1','B3','C5'],

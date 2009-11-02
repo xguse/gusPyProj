@@ -2,7 +2,7 @@ from Bio.Alphabet.IUPAC import IUPACAmbiguousDNA
 from Bio import SeqIO
 from gusPyCode.defs.doug_hypergeometric import hyperGeoPvalue
 from gusPyCode.defs import JamesDefs
-from defs_moduleClusterHyperGeo import *
+from gusPyCode.defs.defs_moduleClusterHyperGeo import *
 import re
 import string
 from time import time

@@ -1,6 +1,6 @@
 print 'loading modules...'
 import motility
-from gSeqClasses import DNAseq
+from gusPyCode.gClasses.gSeqClasses import DNAseq
 
 print 'loading seq file...'
 seqFile    = map(lambda line: line.strip(), open('/Users/biggus/Documents/James/Data/AedesCorePromoterWork/output/TATA_Inr/Aa_Ensbl49_AaegL1.1.plus50minus100._TataInr_seqSlices_.fas','rU').readlines())

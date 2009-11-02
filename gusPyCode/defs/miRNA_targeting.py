@@ -1,7 +1,7 @@
 import numpy
 import re
 from TAMO.seq import Fasta
-import xpermutations
+from gusPyCode.defs import xpermutations
 from gusPyCode.defs import JamesDefs
 from gusPyCode.defs import bioDefs
 from gusPyCode.defs import mathDefs
@@ -401,16 +401,16 @@ class miRNA:
                 elif genesInMatchD == 2:
                     if ''.join(geneNames).find(genomeToken) != -1:
                         ##self.matchCounts[seedType][0] += 1
-                        self.matchCounts[seedType][1] += 1 # self.matchCounts[seedType][1] += 2
-                        self.matchCounts[seedType][2] += 1
+                        ##self.matchCounts[seedType][1] += 1 # self.matchCounts[seedType][1] += 2
+                        ##self.matchCounts[seedType][2] += 1
                         if returnGenes:
                             rGeneNames[seedType][1].extend([x for x in geneNames if x.find(genomeToken) != -1])
                             rGeneNames[seedType][2].append(tuple(sorted(geneNames)))
                 elif genesInMatchD == 3:
                     if ''.join(geneNames).find(genomeToken) != -1:
-                        self.matchCounts[seedType][1] += 1 # self.matchCounts[seedType][1] += 3
-                        self.matchCounts[seedType][2] += 2 # self.matchCounts[seedType][2] += 3
-                        self.matchCounts[seedType][3] += 1
+                        ##self.matchCounts[seedType][1] += 1 # self.matchCounts[seedType][1] += 3
+                        ##self.matchCounts[seedType][2] += 2 # self.matchCounts[seedType][2] += 3
+                        ##self.matchCounts[seedType][3] += 1
                         if returnGenes:
                             rGeneNames[seedType][1].extend([x for x in geneNames if x.find(genomeToken) != -1])
                             type2 = [tuple(sorted(x)) for x in xpermutations.xuniqueCombinations(geneNames,2) if ''.join(x).find(genomeToken) != -1]
@@ -424,21 +424,21 @@ class miRNA:
                         pass
                     elif genesInCtrlD[i] == 1:
                         if ''.join(ctrlNames[i]).find(genomeToken) != -1:
-                            self.ctrlCounts[seedType][i][1] += 1
+                            ##self.ctrlCounts[seedType][i][1] += 1
                             if returnGenes:
                                 rCtrlNames[seedType][i][1].extend(ctrlNames[i])
                     elif genesInCtrlD[i] == 2:
                         if ''.join(ctrlNames[i]).find(genomeToken) != -1:
-                            self.ctrlCounts[seedType][i][1] += 1 # self.ctrlCounts[seedType][i][1] += 2
-                            self.ctrlCounts[seedType][i][2] += 1
+                            ##self.ctrlCounts[seedType][i][1] += 1 # self.ctrlCounts[seedType][i][1] += 2
+                            ##self.ctrlCounts[seedType][i][2] += 1
                             if returnGenes:
                                 rCtrlNames[seedType][i][1].extend([x for x in ctrlNames[i] if x.find(genomeToken) != -1])
                                 rCtrlNames[seedType][i][2].append(tuple(sorted(ctrlNames[i])))
                     elif genesInCtrlD[i] == 3:
                         if ''.join(ctrlNames[i]).find(genomeToken) != -1:
-                            self.ctrlCounts[seedType][i][1] += 1 # self.ctrlCounts[seedType][i][1] += 3
-                            self.ctrlCounts[seedType][i][2] += 2
-                            self.ctrlCounts[seedType][i][3] += 1
+                            ##self.ctrlCounts[seedType][i][1] += 1 # self.ctrlCounts[seedType][i][1] += 3
+                            ##self.ctrlCounts[seedType][i][2] += 2
+                            ##self.ctrlCounts[seedType][i][3] += 1
                             if returnGenes:
                                 rCtrlNames[seedType][i][1].extend([x for x in ctrlNames[i] if x.find(genomeToken) != -1])
                                 type2 = [tuple(sorted(x)) for x in xpermutations.xuniqueCombinations(ctrlNames[i],2) if ''.join(x).find(genomeToken) != -1]
@@ -613,8 +613,8 @@ class miRNA:
             # Populate rDict
             for seedType in _seedModels:
                 for orthoType in range(1,4):
-                    realMatches    =  len(geneNames[0][seedType][orthoType])
-                    ctrlMatches    =  [len(x[orthoType]) for x in geneNames[1][seedType]]
+                    realMatches    =  len(filterToken(geneNames[0][seedType][orthoType],'AGAP'))
+                    ctrlMatches    =  [len(filterToken(x[orthoType],'AGAP')) for x in geneNames[1][seedType]]
                     
                     ctlrFDRstdv,ctlrFDRmed     =  calcFDRStats(realMatches,ctrlMatches) # <-returns(stdv,median)
                     
@@ -745,7 +745,13 @@ def getTokenFromNames(geneNames):
         
     return sorted(list(toks))
     
-    
+def filterToken(twoDList,token):
+    rList =[]
+    for i in range(len(twoDList)):
+        for j in range(len(twoDList[i])):
+            if twoDList[i][j].startswith(token):
+                rList.append(twoDList[i][j])
+    return list(set(rList))    
     
 
 

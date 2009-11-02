@@ -1,7 +1,7 @@
 from time import time
 from TAMO.MotifTools import Motif
 from TAMO.seq import Fasta
-from statsDefs import cumHypergeoP
+from gusPyCode.defs.statsDefs import cumHypergeoP
 
 
 

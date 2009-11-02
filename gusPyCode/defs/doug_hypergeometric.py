@@ -1,6 +1,8 @@
 #!/usr/bin/python
 
 
+print 'DEPRECIATION WARNING: gusPyCode.defs.statsDefs has better hyperGeo version.'
+
 # Binomial coefficients. Found on interwebz.
 """binc(n, k): Computes n choose k. Defines the number of k objects that can be chosen from 
 n objects. For example, k could be "ki" and n "no" as specified below"""
@@ -31,10 +33,7 @@ def hypergeo(ki,n,ko,no):
 	return returnThis
 
 
-# ki is number of appearances in "promoters" of a specific cluster
-# n is number of "promoters" in the specific cluster
-# ko is number of appearances in all "promoters"
-# no is total number of "promoters"
+
 
 #ki=5
 #n=10
@@ -43,6 +42,13 @@ def hypergeo(ki,n,ko,no):
 
 
 def hyperGeoPvalue(no,n,ko,ki):
+	"""
+	ki is number of successes in sample
+	n is size of sample
+	ko is successes in population
+	no is size of population
+	"""
+	
 	tot = 0
 	for i in range(ki,n+1):
 		hypGeo = hypergeo(i,n,ko,no)
@@ -52,9 +58,10 @@ def hyperGeoPvalue(no,n,ko,ki):
 
 
 
-
-
-
+# ki is number of appearances in "promoters" of a specific cluster
+# n is number of "promoters" in the specific cluster
+# ko is number of appearances in all "promoters"
+# no is total number of "promoters"
 
 
 #print "the discrete hypergeometric probability:", hypergeo(ki, n, ko, no)

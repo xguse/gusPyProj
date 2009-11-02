@@ -1,6 +1,6 @@
 from TAMO.MD.AlignAce import MetaAce
 from TAMO.seq import Fasta
-from seqStats import calcStats
+from gusPyCode.defs.seqStats import calcStats
 import glob
 import sys
 import pickle

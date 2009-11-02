@@ -1,5 +1,5 @@
 print 'loading modules...'
-from gSeqClasses import DNAseq
+from gusPyCode.gClasses.gSeqClasses import DNAseq
 import motility
 from matplotlib import pyplot
 from pprint import pprint

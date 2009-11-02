@@ -1,4 +1,4 @@
-from gSeqClasses import DNAseq
+from gusPyCode.gClasses.gSeqClasses import DNAseq
 from Bio.Seq import Seq
 
 q = Seq('kjhas')

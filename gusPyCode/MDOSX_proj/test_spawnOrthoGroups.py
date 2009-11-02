@@ -1,4 +1,4 @@
-from MDOSX_defs.defs import spawnOrthoGroups
+from gusPyCode.MDOSX_proj.MDOSX_defs.defs import spawnOrthoGroups
 
 
 nWayOrthoList = [['AAEL1','AGAP1','CPJI1'],

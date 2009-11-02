@@ -1,4 +1,4 @@
-from MD_wrappers import TamoWrap
+from gusPyCode.MDAP_proj.MD_wrappers import TamoWrap
 import glob
 
 
