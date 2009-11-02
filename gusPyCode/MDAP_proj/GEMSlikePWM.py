@@ -78,10 +78,13 @@ from gusPyCode.MDAP_proj.MDAP_defs import getMinDiffOri,getKmersWithOneMisMtch,a
 #mo = Motif(Motif('....WGATAAR').bogus_kmers())
 #print mo.print_textlogo()
 
-aedes2kbUpMasked_BK = bg = {'A':0.305529164513397,'C':0.198238231979233,'G':0.191435953593021,'T':0.30479664991435}
+
+# # # Background INFO to use for respective genomes  # # #
+aedes2kbUpMasked_BK = {'A':0.305529164513397,'C':0.198238231979233,'G':0.191435953593021,'T':0.30479664991435}
+
 
 BK2USE = aedes2kbUpMasked_BK
-
+# # # # # # # # # # # # # # #
 t1 = time.time()
 testMotifs = '/Users/biggus/Documents/James/Collaborations/Campbell/data/Results_HyperGeoScreen/unMasked/CCupAt4Days.genes.6-9mers.UnMasked.txt'
 testMotifs = map(lambda l: l.strip().split('\t'), open(testMotifs, 'rU').readlines())
