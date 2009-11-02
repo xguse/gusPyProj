@@ -79,14 +79,9 @@ from gusPyCode.MDAP_proj.MDAP_defs import getMinDiffOri,getKmersWithOneMisMtch,a
 #print mo.print_textlogo()
 
 
-# # # Background INFO to use for respective genomes  # # #
-aedes2kbUpMasked_BK = {'A':0.305529164513397,'C':0.198238231979233,'G':0.191435953593021,'T':0.30479664991435}
 
-
-BK2USE = aedes2kbUpMasked_BK
-# # # # # # # # # # # # # # #
 t1 = time.time()
-testMotifs = '/Users/biggus/Documents/James/Collaborations/Campbell/data/Results_HyperGeoScreen/unMasked/CCupAt4Days.genes.6-9mers.UnMasked.txt'
+testMotifs = '/Users/biggus/Documents/James/Collaborations/Campbell/data/Results_HyperGeoScreen/masked/CCupAt4Days.gte2x.5-16mers.txt'
 testMotifs = map(lambda l: l.strip().split('\t'), open(testMotifs, 'rU').readlines())
 
 if testMotifs[0][0].startswith('#'): testMotifs.pop(0) # remove header if present
@@ -110,8 +105,8 @@ for i in range(0,int(len(testMotifs)*0.2)):
 
 t2 = time.time()    
 
-oFile = '/Users/biggus/Desktop/CCupAt4Days.genes.6-9mers.UnMasked.gGEMS.tmo'
-pFile = '/Users/biggus/Desktop/CCupAt4Days.genes.6-9mers.UnMasked.gGEMS.pkl'
+oFile = '/Users/biggus/Documents/James/Collaborations/Campbell/data/Results_HyperGeoScreen/masked/Results_gGEMS/CCupAt4Days.gte2x.5-16mers.gGEMS.tmo'
+pFile = '/Users/biggus/Documents/James/Collaborations/Campbell/data/Results_HyperGeoScreen/masked/Results_gGEMS/CCupAt4Days.gte2x.5-16mers.gGEMS.pkl'
 MotifTools.save_motifs(comboMotifs,oFile,kmer_count=60)
 
 pFile = open(pFile, 'w')
