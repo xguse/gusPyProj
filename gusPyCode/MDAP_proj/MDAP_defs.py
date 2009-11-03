@@ -5,8 +5,8 @@ from TAMO import MotifTools
 from TAMO.MotifTools import Motif
 from TAMO.MD.Meme import Meme
 from TAMO.MD.AlignAce import AlignAce
-from JamesDefs import randFromList_noReplace
-import xpermutations
+from gusPyCode.defs.JamesDefs import randFromList_noReplace
+from gusPyCode.defs import xpermutations
 import random
 
 def alignPairWithOffSet(motif1, motif2, offset):
@@ -138,7 +138,7 @@ def getKmersWithOneMisMtch(motif1, motifListWithMetrics):
     resultList = []
     
     for mWithMetric in motifListWithMetrics:
-        if (len(motif1)-1) <= mWithMetric <= (len(motif1)+1):
+        if len(motif1)-1 <= len(mWithMetric[0]) <= len(motif1)+1:
             # Determine what distanceResult == one misMatch.
             # Use length of shortest motif for misMatch Calc
             maxAlnLen   = min(len(motif1), len(mWithMetric[0]))
