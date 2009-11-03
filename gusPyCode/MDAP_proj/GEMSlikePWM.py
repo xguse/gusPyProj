@@ -82,7 +82,7 @@ from MDAP_defs import getMinDiffOri,getKmersWithOneMisMtch,alignSimilarMotifs,tr
 
 
 t1 = time.time()
-testMotifs = '/Users/biggus/Documents/James/Collaborations/Campbell/data/Results_HyperGeoScreen/masked/CCupAt4Days.gte2x.5-16mers.txt'
+testMotifs = '/Users/biggus/Documents/James/Collaborations/Campbell/data/Results_HyperGeoScreen/masked/CCupAt4Days.gte2x.5-16mers.shfSeq.3.txt'
 testMotifs = map(lambda l: l.strip().split('\t'), open(testMotifs, 'rU').readlines())
 
 if testMotifs[0][0].startswith('#'): testMotifs.pop(0) # remove header if present
@@ -97,17 +97,17 @@ testMotifs.sort(key=lambda x: x[1])
 comboMotifs = []
 
 for i in range(0,int(len(testMotifs)*0.2)):
-    simMotifs = getKmersWithOneMisMtch(testMotifs[i][0],testMotifs) 
-    simMotifs = alignSimilarMotifs([x[0] for x in simMotifs])
+    simMotifs  = getKmersWithOneMisMtch(testMotifs[i][0],testMotifs) 
+    alndMotifs = alignSimilarMotifs([x[0] for x in simMotifs])
     #for m in simMotifs:
         #print m[0].oneletter
-    comboMotifs.append(MotifTools.sum([x[0] for x in simMotifs],[-x[1] for x in simMotifs])) # -x[1] to convert neg logs to pos weights
+    comboMotifs.append(MotifTools.sum(alndMotifs,[-x[1] for x in simMotifs])) # -x[1] to convert neg logs to pos weights
     print len(comboMotifs)
 
 t2 = time.time()    
 
-oFile = '/Users/biggus/Documents/James/Collaborations/Campbell/data/Results_HyperGeoScreen/masked/Results_gGEMS/CCupAt4Days.gte2x.5-16mers.gGEMS.tmo'
-pFile = '/Users/biggus/Documents/James/Collaborations/Campbell/data/Results_HyperGeoScreen/masked/Results_gGEMS/CCupAt4Days.gte2x.5-16mers.gGEMS.pkl'
+oFile = '/Users/biggus/Documents/James/Collaborations/Campbell/data/Results_HyperGeoScreen/masked/Results_gGEMS/CCupAt4Days.gte2x.5-16mers.shfSeq.3.gGEMS.tmo'
+pFile = '/Users/biggus/Documents/James/Collaborations/Campbell/data/Results_HyperGeoScreen/masked/Results_gGEMS/CCupAt4Days.gte2x.5-16mers.shfSeq.3.gGEMS.pkl'
 MotifTools.save_motifs(comboMotifs,oFile,kmer_count=60)
 
 pFile = open(pFile, 'w')
