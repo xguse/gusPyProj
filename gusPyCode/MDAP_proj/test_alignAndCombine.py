@@ -1,4 +1,4 @@
-from MDAP_defs import alignAndCombineMotifs
+from gusPyCode.MDAP_proj.MDAP_defs import alignAndCombineMotifs
 from TAMO import MotifTools
 
 Motif = MotifTools.Motif

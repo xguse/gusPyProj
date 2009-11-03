@@ -1,4 +1,4 @@
-from MDAP_defs import findBestPairAlignments
+from gusPyCode.MDAP_proj.MDAP_defs import findBestPairAlignments
 from TAMO.MotifTools import Motif,load
 
 

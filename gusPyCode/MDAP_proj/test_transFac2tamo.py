@@ -1,4 +1,4 @@
-from MDAP_defs import transfacLike2tamoMotif
+from gusPyCode.MDAP_proj.MDAP_defs import transfacLike2tamoMotif
 from TAMO.MotifMetrics import ProbeSet
 import os
 
