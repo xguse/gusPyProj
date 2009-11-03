@@ -89,7 +89,7 @@ if testMotifs[0][0].startswith('#'): testMotifs.pop(0) # remove header if presen
 
 # TAMOify kmers and logify pVals
 for i in range(len(testMotifs)):
-    testMotifs[i] = (Motif(testMotifs[i][0],backgroundD=BK2USE),numpy.log10(float(testMotifs[i][1])))
+    testMotifs[i] = (Motif(testMotifs[i][0]),numpy.log10(float(testMotifs[i][1])))
     
 # Sort on log'd pVals
 testMotifs.sort(key=lambda x: x[1])
