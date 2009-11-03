@@ -22,7 +22,7 @@ for i in range(len(motifs)):
     motifs[i] = [pklFilePath.split('/')[-1],motifs[i]]
     
 # Adjust each motif to the species being looked at
-for i in motifs:
+for i in range(len(motifs)):
     motifs[i][1].new_bg(speciesBK)
 
 
