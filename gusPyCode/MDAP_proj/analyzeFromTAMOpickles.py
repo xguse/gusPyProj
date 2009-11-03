@@ -25,9 +25,12 @@ motifs = []
 for i in unPikls:
     for j in range(len(unPikls[i])):
         fastaSourceName = unPikls[i][j].lines[1].split()[2].split('/')[-1]
-        motifs.append([fastaSourceName,unPikls[i][j].results.new_bg(speciesBK)])
+        motifs.append([fastaSourceName,unPikls[i][j].results])
     
-
+# Adjust each motif to the species being looked at
+for m in motifs:
+    for i in
+    motifs[i][1].new_bg(speciesBK)
 
 
 probSet = ProbeSet('/Users/biggus/Documents/James/Data/2KB/2kb_Sequence/2kb_Anopheles/2KBupTSS_goodAffyAGAPsFastasOUT.masked.nr.fas')

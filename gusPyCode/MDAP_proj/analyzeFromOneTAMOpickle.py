@@ -5,26 +5,29 @@ from TAMO.MotifMetrics import ProbeSet
 import cPickle
 import pprint
 
-outFile   = '/Users/biggus/Documents/James/Data/ReClustering/PrelimData_Grant_Feb09/Clus2_247.kmerSearch.gGEM.analysis.txt'
+outFile   = '/Users/biggus/Documents/James/Collaborations/Campbell/data/Results_HyperGeoScreen/masked/Results_gGEMS/CCupAt4Days.gte2x.5-16mers.gGEMS.analysis70.txt'
 
-pklFilePath = '/Users/biggus/Documents/James/Data/ReClustering/PrelimData_Grant_Feb09/Clus2_247.kmerSearch.pkl'
+pklFilePath = '/Users/biggus/Documents/James/Collaborations/Campbell/data/Results_HyperGeoScreen/masked/Results_gGEMS/CCupAt4Days.gte2x.5-16mers.gGEMS.pkl'
 pklFile = open (pklFilePath, 'r')
 
-coRegSeqs = '/Users/biggus/Documents/James/Data/ReClustering/kmedsPear33Clus50x_2/Clus2_247genes.genes.txt'
+coRegSeqs = '/Users/biggus/Documents/James/Collaborations/Campbell/data/CCupAt4Days.gte2x.genes.txt'
 
-dfltFactor = 0.75
+dfltFactor = 0.70
 speciesBK  = nucFreqRepo.AaMasked_NucFreqs_2kUpPromo
 
 coRegSeqs = map(lambda l: l.strip(), open(coRegSeqs, 'rU').readlines())
 
 motifs = cPickle.load(pklFile) 
 for i in range(len(motifs)):
-    motifs[i] = [pklFilePath.split('/')[-1],motifs[i].new_bg(speciesBK)]
+    motifs[i] = [pklFilePath.split('/')[-1],motifs[i]]
     
+# Adjust each motif to the species being looked at
+for i in motifs:
+    motifs[i][1].new_bg(speciesBK)
 
 
 
-probSet = ProbeSet('/Users/biggus/Documents/James/Data/2KB/2kb_Sequence/2kb_Anopheles/2KBupTSS_goodAffyAGAPsFastasOUT.masked.nr.fas')
+probSet = ProbeSet('/Users/biggus/Documents/James/Data/2KB/2kb_Sequence/2kb_Aedes/aedes2KBupStreamTSS.hardMasked.geneStrand.fas')
 
 # get and print motif and pVal(s)
 out = '#outFile\tMotif\tHyperGeoPval (%s)\tfrac (%s)\tBestHG (pval)\tfrac (bestHG_ScoreThresh)\tBestHG (scoreThresh)\tbinoPval (%s)\tbinoPval (bestHG_scoreThresh)' \
