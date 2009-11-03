@@ -1,5 +1,5 @@
 # get hypergeo pVal from motifs from TAMO motifs pickles
-
+from gusPyCode.defs import nucFreqRepo
 from gusPyCode.MDAP_proj.MDAP_defs import loadMotifsFromOutFile
 from TAMO.MotifMetrics import ProbeSet
 import pickle
@@ -12,6 +12,7 @@ pklFiles = ['/Users/biggus/Documents/James/Data/ReClustering/kmedsPear33Clus50x_
 coRegSeqs = '/Users/biggus/Documents/James/Data/ReClustering/kmedsPear33Clus50x_2/Clus2_247genes.genes.txt'
 
 dfltFactor = 0.75
+speciesBK  = nucFreqRepo.AaMasked_NucFreqs_2kUpPromo
 
 coRegSeqs = map(lambda l: l.strip(), open(coRegSeqs, 'rU').readlines())
 
@@ -24,7 +25,7 @@ motifs = []
 for i in unPikls:
     for j in range(len(unPikls[i])):
         fastaSourceName = unPikls[i][j].lines[1].split()[2].split('/')[-1]
-        motifs.append([fastaSourceName,unPikls[i][j].results])
+        motifs.append([fastaSourceName,unPikls[i][j].results.new_bg(speciesBK)])
     
 
 
