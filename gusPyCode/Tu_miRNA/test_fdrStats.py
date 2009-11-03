@@ -1,6 +1,6 @@
 import cPickle
-import miRNA_targeting as miRT
-from mathDefs import mean
+from gusPyCode.defs import miRNA_targeting as miRT
+from gusPyCode.defs.mathDefs import mean
 
 print '\n\n'
 

@@ -4,30 +4,33 @@ import sys
 import cPickle
 from time import time
 
-outFile = '/Users/biggus/Documents/James/Data/Tu_miRNA/ResultsMiRNA_Targeting/test.seedMatches.100mvCtrls.storeEvents.pkl'
+#test
+
+outFile = '/home/dunnw/data/tempPush/results/2009_10_26/2009_10_26.AGAP.seedMatches.100psCtrls.storeEvents.pkl'
      #'/Users/biggus/Documents/James/Data/Tu_miRNA/ResultsMiRNA_Targeting/DATE.seedMatches.NUMandTYPEofCTRLS.pkl'
 
-initCtrlsWith = 'matchVersion' # 'proSeed' or 'matchVersion'     
+initCtrlsWith = 'proSeed' # 'proSeed' or 'matchVersion'     
 ctrlIter      = 100 
 refGenome     = 'AGAP'
 
+
 print '-- -- -- -- --\n\nLoading files...'
-orthoPath  = '/Users/biggus/Documents/James/Data/OrthologDefs/nrOrthos/!nrOrthoDefs/3wayOrthos.combineOrthosJamesDefs.out.filtered.noInfers.txt'
-seqPaths   = ['/Users/biggus/Documents/James/Data/Tu_miRNA/Fastas/Aa_500afterCoding.usuable.stpCdn.fas',
-              '/Users/biggus/Documents/James/Data/Tu_miRNA/Fastas/Ag_500afterCoding.usuable.stpCdn.fas',
-              '/Users/biggus/Documents/James/Data/Tu_miRNA/Fastas/Cq_500afterCoding.newCoords.usuable.stpCdn.fas']          
-miRNA_Path = '/Users/biggus/Documents/James/Data/Tu_miRNA/miRNAs/miRBase/mature.aga.fa'
+orthoPath  = '/home/dunnw/data/tempPush/3wayOrthos.combineOrthosJamesDefs.out.filtered.noInfers.txt'
+seqPaths   = ['/home/dunnw/data/tempPush/Aa_500afterCoding.usuable.stpCdn.fas',
+              '/home/dunnw/data/tempPush/Ag_500afterCoding.usuable.stpCdn.fas',
+              '/home/dunnw/data/tempPush/Cq_500afterCoding.newCoords.usuable.stpCdn.fas']          
+miRNA_Path = '/home/dunnw/data/tempPush/mature.aga.fa'
 
           
 seqDict        = miTrgt.loadSeqs(seqPaths)
 orthoRelations = miTrgt.loadOrthos(orthoPath, seqDict)
 miRNAs         = miTrgt.loadMiRNAs(miRNA_Path)
 
-randGroup = ['aga-miR-12','aga-miR-263b']
-d = {}
-for i in randGroup:
-    d[i] = miRNAs[i]
-miRNAs = d
+# randGroup = ['aga-miR-12','aga-miR-263b']
+# d = {}
+# for i in randGroup:
+#     d[i] = miRNAs[i]
+# miRNAs = d
 
 print 'Getting ortho seqs...'
 orthoSeqs  = miTrgt.filterOrthoSeqs(seqDict,orthoRelations)

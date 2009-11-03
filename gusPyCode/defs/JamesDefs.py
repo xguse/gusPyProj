@@ -1,7 +1,21 @@
 import re
 import random
 import copy
-import xpermutations
+from gusPyCode.defs import xpermutations
+
+
+#=========================================================================
+# 10/29/09
+class DotDict(dict):
+    """
+    Class to package multiple objects with before pickling to make them callable
+    with the "unPickledObj.subObj" convention instead of using a dictionary.
+    """
+    def __getattr__(self, attr):
+        return self.get(attr, None)
+    __setattr__= dict.__setitem__
+    __delattr__= dict.__delitem__
+
 
 #=========================================================================
 # 10/08/09

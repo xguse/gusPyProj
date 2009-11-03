@@ -1,4 +1,4 @@
-AaMasked_NucFreqs_2kUpPromo = {'A':,'C':,'G':,'T':}
+AaMasked_NucFreqs_2kUpPromo = {'A':0.305529164513397,'C':0.198238231979233,'G':0.191435953593021,'T':0.30479664991435}
 AaUnMasked_NucFreqs_2kUpPromo = {'A':,'C':,'G':,'T':}
 AgMasked_NucFreqs_2kUpPromo = {'A':,'C':,'G':,'T':}
 CqMasked_NucFreqs_2kUpPromo = {'A':,'C':,'G':,'T':}

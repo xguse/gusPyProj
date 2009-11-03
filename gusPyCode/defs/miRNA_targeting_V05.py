@@ -1,10 +1,10 @@
 import numpy
 import re
 from TAMO.seq import Fasta
-import xpermutations
-import JamesDefs
-import bioDefs
-import mathDefs
+from gusPyCode.defs import xpermutations
+from gusPyCode.defs import JamesDefs
+from gusPyCode.defs import bioDefs
+from gusPyCode.defs import mathDefs
 from pprint import pprint
 
 

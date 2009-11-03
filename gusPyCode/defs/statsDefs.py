@@ -3,14 +3,44 @@ from decimal import Decimal
 
 
 
+
+def benjHochFDR(pVals,FDR=0.05):
+    """
+    pVals  = 2D list(hypothesis,p-value) hypothesis could = geneName tested for enrichment
+    FDR    = threshold above which FDR is unacceptable
+    usrTot = total number of hypotheses if more than in pVals.
+    
+    Returns, for all acceptable p-values: hypothesis,origPval,adjustedPval
+    """
+    # Sort pVals from highest to lowest
+    pVals.sort(key=lambda x: x[1])
+    pVals.reverse()
+    
+    n = len(pVals)
+    
+    lastPval = pVals[0][1]
+    for i in range(len(pVals)):
+        p    = pVals[i][1]
+        adj  = (float(n)/(n-i))
+        adjP = p*adj
+        miN  = min(adjP,lastPval)
+        pVals[i].append(miN)
+        lastPval = pVals[i][2]
+    
+    pVals.reverse()
+    return pVals
+
+    
+
+
 def setChoose():
     try:
-	from gmpy import comb
-    
+        from gmpy import comb
+
     except ImportError:
-	return binComb
+        return binComb
     else:
-	return comb
+        return comb
 
 
 def binComb(n, k):
@@ -21,18 +51,18 @@ def binComb(n, k):
     if (k > n): return 0
     if (k < 0): return 0
     if (k > int(n/2)):
-	    k = n - k
+        k = n - k
     rv = 1
     for j in range(0, k):
-	    rv *= n - j
-	    rv /= j + 1
+        rv *= n - j
+        rv /= j + 1
     return rv
 
 
 def binom(n, m):
     """
     Calulates n-choose-k.
-    
+
     def binom(n, m) is from "Data Structures and Algorithms
     with Object-Oriented Design Patterns in Python"
     by Bruno R. Preiss.
@@ -66,15 +96,15 @@ def hypergeoP(n,i,m,N):
     i = # of positives in sample
     m = # of negatives in population
     N = sample size
-    
+
     P(x=i) = (choose(n,i)choose(m,N-i))/choose(n+m,N)
-    
+
     For more details -> http://mathworld.wolfram.com/HypergeometricDistribution.html
     """
     return (bestChoose(n,i)*bestChoose(m,N-i))/float(bestChoose(n+m,N))
 
 
-    
+
 
 def cumHypergeoP(n,i,m,N):
     """
@@ -83,17 +113,17 @@ def cumHypergeoP(n,i,m,N):
     i = # of positives in sample
     m = # of negatives in population
     N = sample size
-    
+
     P(i) = sum([as i->N] (choose(n,i)choose(m,N-i))/choose(n+m,N))
-    
+
     For more details -> http://mathworld.wolfram.com/HypergeometricDistribution.html
     """
-    
+
     cumPVal = 0
-    
+
     for x in range(i,N+1):
-	cumPVal = cumPVal + hypergeoP(n,x,m,N)
-    
+        cumPVal = cumPVal + hypergeoP(n,x,m,N)
+
     return cumPVal
 
 

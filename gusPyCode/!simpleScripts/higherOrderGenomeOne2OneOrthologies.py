@@ -1,4 +1,4 @@
-from xpermutations import *
+from gusPyCode.defs.xpermutations import *
 
 
 

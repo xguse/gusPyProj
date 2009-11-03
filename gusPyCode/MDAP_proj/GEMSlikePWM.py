@@ -79,15 +79,17 @@ from MDAP_defs import getMinDiffOri,getKmersWithOneMisMtch,alignSimilarMotifs,tr
 #mo = Motif(Motif('....WGATAAR').bogus_kmers())
 #print mo.print_textlogo()
 
+
+
 t1 = time.time()
-testMotifs = '/Users/biggus/Documents/James/Collaborations/Campbell/data/Results_HyperGeoScreen/unMasked/CCupAt4Days.genes.6-9mers.UnMasked.txt'
+testMotifs = '/Users/biggus/Documents/James/Collaborations/Campbell/data/Results_HyperGeoScreen/masked/CCupAt4Days.gte2x.5-16mers.txt'
 testMotifs = map(lambda l: l.strip().split('\t'), open(testMotifs, 'rU').readlines())
 
 if testMotifs[0][0].startswith('#'): testMotifs.pop(0) # remove header if present
 
 # TAMOify kmers and logify pVals
 for i in range(len(testMotifs)):
-    testMotifs[i] = (Motif(testMotifs[i][0]),numpy.log10(float(testMotifs[i][1])))
+    testMotifs[i] = (Motif(testMotifs[i][0],backgroundD=BK2USE),numpy.log10(float(testMotifs[i][1])))
     
 # Sort on log'd pVals
 testMotifs.sort(key=lambda x: x[1])
@@ -104,8 +106,8 @@ for i in range(0,int(len(testMotifs)*0.2)):
 
 t2 = time.time()    
 
-oFile = '/Users/biggus/Desktop/CCupAt4Days.genes.6-9mers.UnMasked.gGEMS.tmo'
-pFile = '/Users/biggus/Desktop/CCupAt4Days.genes.6-9mers.UnMasked.gGEMS.pkl'
+oFile = '/Users/biggus/Documents/James/Collaborations/Campbell/data/Results_HyperGeoScreen/masked/Results_gGEMS/CCupAt4Days.gte2x.5-16mers.gGEMS.tmo'
+pFile = '/Users/biggus/Documents/James/Collaborations/Campbell/data/Results_HyperGeoScreen/masked/Results_gGEMS/CCupAt4Days.gte2x.5-16mers.gGEMS.pkl'
 MotifTools.save_motifs(comboMotifs,oFile,kmer_count=60)
 
 pFile = open(pFile, 'w')

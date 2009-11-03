@@ -5,6 +5,34 @@ from TAMO.MotifTools import Motif
 from TAMO.seq import Fasta
 
 
+
+from gusPyCode.defs.statsDefs import hypergeoP
+
+
+
+def goEnrichment(geneCluster,GOgenes,popSize):
+    """
+    goEnrichment(geneCluster,GOgenes,popSize):
+    geneCluster = set(genesGroupedBySomeQuality)
+    GOgenes     = set(genesInGOgroup)
+    popSize     = int(numberOfGenesConsideredAsPopulation)
+    
+    Returns cumulative hypergeometric enrichment P-value.
+    """
+    #n = # of positives in population
+    #i = # of positives in sample
+    #m = # of negatives in population
+    #N = sample size
+    #P(x=i) = (choose(n,i)choose(m,N-i))/choose(n+m,N)
+    #For more details -> http://mathworld.wolfram.com/HypergeometricDistribution.html
+    n = len(GOgenes)
+    i = len(GOgenes.intersection(geneCluster))
+    m = popSize-len(GOgenes)
+    N = len(geneCluster)
+    
+    return sum([hypergeoP(n,x,m,N) for x in range(i,N+1)])
+
+
 def makeRandomSeq(length):
     alpha = ['A','C','G','T']
     seq   = '' 

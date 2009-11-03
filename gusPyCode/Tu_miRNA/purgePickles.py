@@ -3,9 +3,9 @@ import miRNA_targeting as miRT
 
 print '\n\n'
 
-outFile = '/Users/biggus/Documents/James/Data/Tu_miRNA/ResultsMiRNA_Targeting/2009_10_09.seedMatches.100psCtrls.storeEvents.purged.pkl'
+outFile = '/home/dunnw/data/tempPush/results/2009_10_26/2009_10_26.AGAP.seedMatches.100psCtrls.storeEvents.purged.pkl'
 outFile = open(outFile,'w')
-pklPath = '/Users/biggus/Documents/James/Data/Tu_miRNA/ResultsMiRNA_Targeting/2009_10_09.seedMatches.100psCtrls.storeEvents.pkl'
+pklPath = '/home/dunnw/data/tempPush/results/2009_10_26/2009_10_26.AGAP.seedMatches.100psCtrls.storeEvents.pkl'
 data    = cPickle.load(open(pklPath,'rU'))
 
 miRs = data['miR_matches']

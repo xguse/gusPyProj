@@ -1,4 +1,4 @@
-from MDOSX_defs.defs import combineOrthoTabs
+from gusPyCode.MDOSX_proj.MDOSX_defs.defs import combineOrthoTabs
 from pprint import pprint
 from time import time
 

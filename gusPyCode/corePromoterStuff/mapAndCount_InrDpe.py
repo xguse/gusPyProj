@@ -1,5 +1,5 @@
 import motility
-from gSeqClasses import DNAseq
+from gusPyCode.gClasses.gSeqClasses import DNAseq
 
 
 class HitList:

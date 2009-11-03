@@ -132,19 +132,22 @@ def getKmersWithOneMisMtch(motif1, motifListWithMetrics):
     Takes a TAMO motif and a list of lists: [TAMOmotif, weightMetric].
     Returns listOfLists in same form, if a revComp in motifListWithMetrics
     matches better, _IT_ is returned instead of the original motif.
+    
+    Restricts motif1 from collecting any motifs that are not of leng +/- 1 of itself.
     """
     resultList = []
     
     for mWithMetric in motifListWithMetrics:
-        # Determine what distanceResult == one misMatch.
-        # Use length of shortest motif for misMatch Calc
-        maxAlnLen   = min(len(motif1), len(mWithMetric[0]))
-        kMer        = Motif('%s' %('A'*maxAlnLen))
-        kMer1mis    = Motif('%s%s' %('A'*(maxAlnLen-1),'T'))  # whether at end or in middle the 'T gives same align score'
-        oneMisMatch = MotifCompare.minshortestoverhangdiff(kMer,kMer1mis)
-        bestOri = getMinDiffOri(motif1,mWithMetric[0])
-        if bestOri[1] <= oneMisMatch:
-            resultList.append([bestOri[0],mWithMetric[1]]) # keep [bestOriTAMOmotif, weightMetric]
+        if (len(motif1)-1) <= mWithMetric <= (len(motif1)+1):
+            # Determine what distanceResult == one misMatch.
+            # Use length of shortest motif for misMatch Calc
+            maxAlnLen   = min(len(motif1), len(mWithMetric[0]))
+            kMer        = Motif('%s' %('A'*maxAlnLen))
+            kMer1mis    = Motif('%s%s' %('A'*(maxAlnLen-1),'T'))  # whether at end or in middle the 'T gives same align score'
+            oneMisMatch = MotifCompare.minshortestoverhangdiff(kMer,kMer1mis)
+            bestOri = getMinDiffOri(motif1,mWithMetric[0])
+            if bestOri[1] <= oneMisMatch:
+                resultList.append([bestOri[0],mWithMetric[1]]) # keep [bestOriTAMOmotif, weightMetric]
             
     return resultList
 
