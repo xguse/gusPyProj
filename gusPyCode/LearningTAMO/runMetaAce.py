@@ -6,9 +6,15 @@ import sys
 import pickle
 
 
-assert len(sys.argv[1:]) == 3, 'usage: python %s fastaDir iterations runName' % (sys.argv[0].split('/')[-1])
+assert 4 >= len(sys.argv[1:]) >= 3, 'usage: python %s fastaDir iterations runName [globPatern]' \
+       % (sys.argv[0].split('/')[-1])
 
-fastaPaths = glob.glob(sys.argv[1]+'*.shuffled.fas')
+if len(sys.argv[1:]) > 3:
+    globPattern = sys.argv[4]
+else:
+    globPattern = '*.fas'
+    
+fastaPaths = glob.glob(sys.argv[1]+globPattern)
 
 gcBacks = []
 for path in fastaPaths:
