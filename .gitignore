@@ -9,7 +9,7 @@ gusPyCode/.static/.svn/entries
 gusPyCode/.static/.svn/format
 gusPyCode/.templates/.svn/entries
 gusPyCode/.templates/.svn/format
-gusPyCode/gusPyCode.wpr
+*.wpr
 gusPyCode/MDAP_proj/MDAP_Results/.svn/entries
 gusPyCode/MDAP_proj/MDAP_Results/.svn/format
 config
