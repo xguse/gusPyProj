@@ -61,4 +61,6 @@ def permute(depth, letters=['A','C','G','T'], seqs=[''],curdepth=0):
 
 
 if __name__ == '__main__': 
+    assert len(sys.argv[1:]) == 2, \
+           "\n\nUSAGE: python MarkovBackground.py fastafile outDirectory"
     main(sys.argv[1])
