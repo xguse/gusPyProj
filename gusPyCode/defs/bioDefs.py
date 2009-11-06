@@ -9,6 +9,25 @@ from TAMO.seq import Fasta
 from gusPyCode.defs.statsDefs import hypergeoP
 
 
+class MASTmotif:
+    """Represents MAST type motifs."""
+    def __init__(self,TAMOmotif):
+        self.alpha = 'ACGT'
+        self.alen  = 4
+        self.w     = len(TAMOmotif)
+        self.mat   = []
+        
+        for pos in TAMOmotif.logP:
+            self.mat.append([pos['A'],pos['C'],pos['G'],pos['T']])
+    
+    def toText(self):
+        """Returns string form of the motif in MAST format."""
+        
+        out = 'log-odds matrix: alength= 4 w= %s\n' % (self.w)
+        for pos in self.mat:
+            out+='%s\t%s\t%s\t%s\n' % (pos[0],pos[1],pos[2],pos[3])
+        return out
+
 
 def goEnrichment(geneCluster,GOgenes,popSize):
     """
