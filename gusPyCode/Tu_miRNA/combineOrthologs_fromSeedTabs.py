@@ -1,5 +1,5 @@
 import sys
-import JamesDefs
+from gusPyCode.defs import JamesDefs
 
 
 #print 'sys args = %s' % (len(sys.argv))

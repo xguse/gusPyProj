@@ -1,4 +1,4 @@
-import JamesDefs
+from gusPyCode.defs import JamesDefs
 ## better version in defs_moduleByTableLoopUp
 #def makeFwdAndRevCompRegExObj(fwdAndRevCompRegExStrings):
     #import re

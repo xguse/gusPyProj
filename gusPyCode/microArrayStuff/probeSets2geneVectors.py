@@ -3,7 +3,7 @@ print "loading modules..."
 from scipy.stats.stats import pearsonr
 #from scipy.spatial.distance import pdist
 from defs_microArray import geneVectors
-from JamesDefs import removeCommentLines
+from gusPyCode.defs.JamesDefs import removeCommentLines
 
 
 def pairwiseMetric

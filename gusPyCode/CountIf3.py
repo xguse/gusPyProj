@@ -1,5 +1,5 @@
 from doug_hypergeometric import hyperGeoPvalue
-import JamesDefs
+from gusPyCode.defs import JamesDefs
 
 
 

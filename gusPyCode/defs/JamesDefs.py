@@ -3,6 +3,10 @@ import random
 import copy
 from gusPyCode.defs import xpermutations
 
+#=========================================================================
+# 11/07/09
+def readDelimFile(filePath,delimiter='\t'):
+    return map(lambda l: l.strip('\n').split(delimiter), open(filePath, 'rU').readlines())
 
 #=========================================================================
 # 10/29/09

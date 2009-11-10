@@ -1,5 +1,5 @@
 from TAMO.seq import Fasta
-#from JamesDefs import revComp
+#from gusPyCode.defs.JamesDefs import revComp
 
 fFile = '/Users/biggus/Documents/James/Data/Tu_miRNA/Fastas/Aa_500afterCoding.usuable.stpCdn.fas'
 sFile = '/Users/biggus/Documents/James/Data/Tu_miRNA/miRNAs/miRBase/mature.aga.seeds.ctrl.fa'

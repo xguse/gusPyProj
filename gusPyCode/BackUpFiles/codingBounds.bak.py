@@ -1,6 +1,6 @@
 import sys
 import time
-import JamesDefs
+from gusPyCode.defs import JamesDefs
 from fjoin import FJoin
 
 #--------- Script Specific Function Definitions ---------------------
