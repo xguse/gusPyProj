@@ -6,7 +6,7 @@ from time import time
 
 #test
 
-outFile = '/home/dunnw/data/tempPush/results/2009_10_26/2009_10_26.AGAP.seedMatches.100psCtrls.storeEvents.pkl'
+outFile = '/home/dunnw/data/tempPush/results/2009_10_26/2009_10_26.bantam.AGAP.seedMatches.100psCtrls.storeEvents.pkl'
      #'/Users/biggus/Documents/James/Data/Tu_miRNA/ResultsMiRNA_Targeting/DATE.seedMatches.NUMandTYPEofCTRLS.pkl'
 
 initCtrlsWith = 'proSeed' # 'proSeed' or 'matchVersion'     
@@ -26,11 +26,11 @@ seqDict        = miTrgt.loadSeqs(seqPaths)
 orthoRelations = miTrgt.loadOrthos(orthoPath, seqDict)
 miRNAs         = miTrgt.loadMiRNAs(miRNA_Path)
 
-# randGroup = ['aga-miR-12','aga-miR-263b']
-# d = {}
-# for i in randGroup:
-#     d[i] = miRNAs[i]
-# miRNAs = d
+randGroup = ['aga-bantam']
+d = {}
+for i in randGroup:
+    d[i] = miRNAs[i]
+miRNAs = d
 
 print 'Getting ortho seqs...'
 orthoSeqs  = miTrgt.filterOrthoSeqs(seqDict,orthoRelations)
@@ -40,9 +40,7 @@ orthoSeqs  = miTrgt.filterOrthoSeqs(seqDict,orthoRelations)
 seenSeeds = set()
 miR_matches = {}
 
-saveObj = {'orthoRelations':orthoRelations,
-           'seenSeeds':seenSeeds,
-           'miR_matches':miR_matches}
+saveObj = miR_matches
 
 
 print 'Initializing matchVersions...'
@@ -77,6 +75,10 @@ for m in miR_matches:
 t2=time()
 print 'Tallying and counting took %.2f min.' % ((t2-t1)/60.0)
 
+print 'Purging extra data...'
+for m in miR_matches:
+    miR_matches[m].purgeData()
+    
 print 'Pickling saveObj...'
 outFile = open(outFile, 'w')
 cPickle.dump(saveObj,outFile, protocol=2)
