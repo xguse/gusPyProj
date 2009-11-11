@@ -2,7 +2,7 @@ from random import choice
 from scipy.stats import normaltest
 from numpy import log10, mean, median
 import cPickle
-import miRNA_targeting as miRT
+from gusPyCode.defs import miRNA_targeting as miRT
 
 
 print '\n\n'

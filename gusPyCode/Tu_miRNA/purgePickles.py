@@ -1,5 +1,5 @@
 import cPickle
-import miRNA_targeting as miRT
+from gusPyCode.defs import miRNA_targeting as miRT
 
 print '\n\n'
 

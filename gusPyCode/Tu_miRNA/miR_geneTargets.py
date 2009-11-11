@@ -6,12 +6,12 @@ import gusPyCode.defs.miRNA_targeting as miRT
 
 print '\n\n'
 
-outFile = '/home/dunnw/data/tempPush/results/2009_10_26/2009_10_26.AGAP.100bothCtrls.stats.events.medFDRmeth.txt'#'/Users/biggus/Documents/James/Data/Tu_miRNA/ResultsMiRNA_Targeting/2009_08_31run.100permCtrls.stats.events.indSeeds.medFDRmeth.txt'
+outFile = '/Users/biggus/Documents/James/Data/Tu_miRNA/ResultsMiRNA_Targeting/2009_11_09run/2009_11_09.AGAP.stats.events.medFDRmeth.txt'#'/Users/biggus/Documents/James/Data/Tu_miRNA/ResultsMiRNA_Targeting/2009_08_31run.100permCtrls.stats.events.indSeeds.medFDRmeth.txt'
 outFile = open(outFile, 'w')
 
-pklPath_Ca = '/home/dunnw/data/tempPush/results/2009_10_26/2009_10_26.AGAP.seedMatches.100mvCtrls.storeEvents.purged.pkl'#'/Users/biggus/Documents/James/Data/Tu_miRNA/ResultsMiRNA_Targeting/2009_08_31.seedMatches.100permCtrls.pkl' #2009_09_29.seedMatches.100psCtrls.pkl'
+pklPath_Ca = '/Users/biggus/Documents/James/Data/Tu_miRNA/ResultsMiRNA_Targeting/2009_11_09run/2009_11_09.AGAP.seedMatches.100mvCtrls.storeEvents.pkl'#'/Users/biggus/Documents/James/Data/Tu_miRNA/ResultsMiRNA_Targeting/2009_08_31.seedMatches.100permCtrls.pkl' #2009_09_29.seedMatches.100psCtrls.pkl'
 data_Ca    = cPickle.load(open(pklPath_Ca,'rU'))
-pklPath_Cb = '/home/dunnw/data/tempPush/results/2009_10_26/2009_10_26.AGAP.seedMatches.100psCtrls.storeEvents.purged.pkl'#'/Users/biggus/Documents/James/Data/Tu_miRNA/ResultsMiRNA_Targeting/2009_08_31.seedMatches.100permCtrls.pkl' #2009_09_29.seedMatches.100psCtrls.pkl'
+pklPath_Cb = '/Users/biggus/Documents/James/Data/Tu_miRNA/ResultsMiRNA_Targeting/2009_11_09run/2009_11_09.AGAP.seedMatches.100psCtrls.storeEvents.pkl'#'/Users/biggus/Documents/James/Data/Tu_miRNA/ResultsMiRNA_Targeting/2009_08_31.seedMatches.100permCtrls.pkl' #2009_09_29.seedMatches.100psCtrls.pkl'
 data_Cb    = cPickle.load(open(pklPath_Cb,'rU'))
 
 consFdrThreshold = 0.25

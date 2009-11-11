@@ -1,6 +1,6 @@
 from Bio.Alphabet.IUPAC import IUPACAmbiguousDNA
 from Bio import SeqIO
-from doug_hypergeometric import hyperGeoPvalue
+from gusPyCode.defs.doug_hypergeometric import hyperGeoPvalue
 from gusPyCode.defs import JamesDefs
 import re
 import string

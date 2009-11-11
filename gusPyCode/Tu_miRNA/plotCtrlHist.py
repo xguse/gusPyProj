@@ -1,6 +1,6 @@
 from random import choice
 import cPickle
-import miRNA_targeting as miRT
+from gusPyCode.defs import miRNA_targeting as miRT
 from matplotlib import pylab
 
 

@@ -1,5 +1,5 @@
-from MDOSX_classes import *
-from MDOSX_defs import *
+from gusPyCode.MDOSX_proj.MDOSX_defs.MDOSX_classes import *
+from gusPyCode.MDOSX_proj.MDOSX_defs import *
 
 
 

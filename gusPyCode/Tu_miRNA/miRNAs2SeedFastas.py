@@ -1,5 +1,5 @@
 from TAMO.seq import Fasta
-import bioDefs
+from gusPyCode.defs import bioDefs
 
 miRNAFile = '/Users/biggus/Documents/James/Data/Tu_miRNA/miRNAs/miRBase/mature.aga.fa'
 seedFile  = '/Users/biggus/Documents/James/Data/Tu_miRNA/miRNAs/miRBase/mature.aga.seeds.ctrl.fa'

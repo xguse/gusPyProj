@@ -1,7 +1,7 @@
 from TAMO.MotifTools import top_nmers,Motif
 from TAMO import MotifTools
 from TAMO.seq import Fasta
-from bioDefs import ifKmerInAll
+from gusPyCode.defs.bioDefs import ifKmerInAll
 
 seqFile     = '/Users/biggus/Documents/James/Collaborations/Campbell/data/mainTwoGenes.fas'
 outFile     = '/Users/biggus/Documents/James/Collaborations/Campbell/data/mainTwoGenes.8mersInAll.txt'

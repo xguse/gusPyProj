@@ -1,7 +1,7 @@
 import sys
 import time
 from gusPyCode.defs import JamesDefs
-from fjoin import FJoin
+from gusPyCode.defs.fjoin import FJoin
 
 #--------- Script Specific Function Definitions ---------------------
 def combineExons(groupedList, BdryLen):

@@ -1,6 +1,6 @@
 from matplotlib import pylab as plb
 from gusPyCode.defs import JamesDefs
-import miRNA_targeting as miTrgt
+from gusPyCode.defs import miRNA_targeting as miTrgt
 import sys
 
 

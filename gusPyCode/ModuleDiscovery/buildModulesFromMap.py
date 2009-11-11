@@ -1,7 +1,7 @@
 from sets import Set
 from time import time
 from gusPyCode.defs.JamesDefs import *
-from moduleMapDefs import *
+gusPyCode.ModuleDiscovery.moduleMapDefs import *
 from probstat import Combination
 import sys
 

@@ -1,4 +1,4 @@
-from defs_moduleByTableLookUp import makeFwdAndRevCompRegExObj
+from gusPyCode.defs.defs_moduleByTableLookUp import makeFwdAndRevCompRegExObj
 from time import time
 
 #--------- Script Specific Function Definitions ---------------------

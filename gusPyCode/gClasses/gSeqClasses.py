@@ -1,6 +1,6 @@
 from __future__ import division
 import sys
-import supportVars 
+from gusPyCode.gClasses import supportVars 
 from gusPyCode.defs import JamesDefs
 import sets
 import re

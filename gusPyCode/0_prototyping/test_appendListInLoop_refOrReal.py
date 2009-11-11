@@ -1,4 +1,4 @@
-import bioDefs
+from gusPyCode.defs import bioDefs
 
 l = []
 

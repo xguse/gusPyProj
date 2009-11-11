@@ -1,4 +1,4 @@
-from fjoin import FJoin
+from gusPyCode.defs.fjoin import FJoin
 
 
 #========================= User Defined Variables =========================
