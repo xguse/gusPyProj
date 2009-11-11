@@ -1,6 +1,6 @@
 import cPickle
 from gusPyCode.defs.JamesDefs import initList
-import gusPyCode.defs.mathDefs
+from gusPyCode.defs import mathDefs
 import gusPyCode.defs.miRNA_targeting as miRT
 #from mathDefs import mean
 
