@@ -4,11 +4,14 @@ from gusPyCode.defs import miRNA_targeting as miRT
 
 print '\n\n'
 
-outFile = '/Users/biggus/Documents/James/Data/Tu_miRNA/ResultsMiRNA_Targeting/2009_09_29run.100psCtrls.stats.txt'
+outFile = '/Users/biggus/Documents/James/Data/Tu_miRNA/ResultsMiRNA_Targeting/2009_11_11/2009_11_11.AGAP.seedMatches.300mvCtrls.stats.txt'
 outFile = open(outFile, 'w')
 
-pklPath = '/Users/biggus/Documents/James/Data/Tu_miRNA/ResultsMiRNA_Targeting/2009_09_29.seedMatches.100psCtrls.pkl'
+pklPath = '/Users/biggus/Documents/James/Data/Tu_miRNA/ResultsMiRNA_Targeting/2009_11_11/2009_11_11.AGAP.seedMatches.300mvCtrls.storeEvents.pkl'
 data    = cPickle.load(open(pklPath,'rU'))
+
+dirPath = '/Users/biggus/Documents/James/Data/Tu_miRNA/ResultsMiRNA_Targeting/2009_11_11/barBoxes/'
+genome  = 'AGAP'
 
 # calc the various centers and spreads
 items = ['aga-miR-1890',
@@ -20,10 +23,11 @@ items = ['aga-miR-1890',
          'aga-miR-278',
          'aga-miR-965',]
 
-miR_matches = {}
-for i in items:
-    miR_matches[i] = data['miR_matches'][i]
+#miR_matches = {}
+#for i in items:
+    #miR_matches[i] = data[i]
 
+miR_matches = data
     
 print 'Drawing BoxPlots...'
 
@@ -32,26 +36,26 @@ print 'Drawing BoxPlots...'
 
 seedTypes = sorted(miRT._seedModels)
 
-for m in items: 
+for m in miR_matches: 
     
     # Figure options
     xlabel = 'matchType'
     ylabel = 'counts'
-    title ='%s in all orthoRelations (100 psCtrls)' % (m)
-    saveToFile = '2009_09_29countData.%s.boxPlot.100psctrls.pdf' % (m)
+    title ='%s (300 mvCtrls)' % (m)
+    saveToFile = dirPath+'2009_11_11.AGAP.%s.boxPlot.300mvCtrls.pdf' % (m)
     dpi = 1200
     
     boxData = []
     labelTexts = []
     for seedType in seedTypes:
-        for i in range(1,len(miR_matches[m].ctrlCounts[seedType][0])):
-            boxData.append([x[i] for x in miR_matches[m].ctrlCounts[seedType]])
+        for i in range(1,len(miR_matches[m].ctrlEvents[seedType][0])):
+            boxData.append([len(miRT.filterToken(x[i],'AGAP')) for x in miR_matches[m].ctrlEvents[seedType]])
             labelTexts.append('%s : %s' % (seedType,i))
 
     realData = []
     rLabels  = []
     for seedType in seedTypes:
-        realData.extend(miR_matches[m].matchCounts[seedType][1:])
+        realData.extend([len(miRT.filterToken(x,'AGAP')) for x in miR_matches[m].matchEvents[seedType][2:]])
         for i in range(1,4):
             rLabels.append('%s : %s' % (seedType,i))
     
@@ -84,7 +88,7 @@ for m in items:
     #plt.legend(loc=4)
     if saveToFile:
         plb.savefig(saveToFile,dpi=dpi)
-plb.show()
+#plb.show()
 
 
 print 'Im Done.'
