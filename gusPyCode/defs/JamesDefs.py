@@ -440,20 +440,20 @@ def explodeDelimitedList(listOfDelimStrings, Delimiter):
 
 #=========================================================================
 
-def groupByField (listOfTabbedStrings, fieldGroupedBy): 
-    """ WARNING!! listOfTabbedStrings will be destroyed!!
+def groupByField (listOfDelimdStrings, fieldGroupedBy, sep='\t'): 
+    """ WARNING!! listOfDelimdStrings will be destroyed!!
     Example:
     fieldGroupedBy = 0
-    listOfTabbedStrings = ['a\t1','a\t2','b\t1']
+    listOfDelimdStrings = ['a\t1','a\t2','b\t1']
     result-> [[['a','1'],['a','2']],[['b','1']] ]
     """
 
-    # Convert listOfTabbedStrings to a list of lists with 'lowest' list
+    # Convert listOfDelimdStrings to a list of lists with 'lowest' list
     # representing a list of original tab seperated fields
     listOfListsByTab = []
-    while listOfTabbedStrings:
+    while listOfDelimdStrings:
         #  Remove newLine and explode string on \t then append to listOfListsByTab
-        listOfListsByTab.append(listOfTabbedStrings.pop(0).rstrip('\n').split('\t'))
+        listOfListsByTab.append(listOfDelimdStrings.pop(0).rstrip('\n').split(sep))
 
     exonList = []
 
@@ -503,21 +503,21 @@ def groupByField (listOfTabbedStrings, fieldGroupedBy):
     return listOfExonLists
 
 
-def groupByField_silent(listOfTabbedStrings, fieldGroupedBy): 
-    """ WARNING!! listOfTabbedStrings will be destroyed!!
+def groupByField_silent(listOfDelimdStrings, fieldGroupedBy, sep='\t'): 
+    """ WARNING!! listOfDelimdStrings will be destroyed!!
     Example:
     fieldGroupedBy = 0
-    listOfTabbedStrings = ['a\t1','a\t2','b\t1']
+    listOfDelimdStrings = ['a\t1','a\t2','b\t1']
     result-> [[['a','1'],['a','2']],[['b','1']] ]
     """
 
-    # Convert listOfTabbedStrings to a list of lists with 'lowest' list
+    # Convert listOfDelimdStrings to a list of lists with 'lowest' list
     # representing a list of original tab seperated fields
     listOfListsByTab = []
 
-    while listOfTabbedStrings != []:
+    while listOfDelimdStrings != []:
         #  Remove newLine and explode sting on \t then append to listOfListsByTab
-        listOfListsByTab.append(listOfTabbedStrings.pop(0).rstrip('\n').split('\t'))
+        listOfListsByTab.append(listOfDelimdStrings.pop(0).rstrip('\n').split(sep))
         lenListOfListsByTab = len(listOfListsByTab)
     exonList = []
 
@@ -559,7 +559,7 @@ def groupByField_silent(listOfTabbedStrings, fieldGroupedBy):
         else:
             listOfExonLists.append(exonList)
             #print len(listOfExonLists), '\n'
-            #print exonList[0][fieldGroupedBy]
+            print exonList[0][fieldGroupedBy]
             exonList = []
 
     print 'The groupByField function produced ',len(listOfExonLists),' groups.\n\n'

@@ -591,8 +591,6 @@ class miRNA:
         **Eventually, this will allow the separate return of the grouped
         culicinae and Ag2Culic results based on the [divide] option.
         
-        WARNING: as of now, this method COMPLETLY reRuns miRNA.countHitsInOrthos() with 
-        returnGenes=True.  Do not run this over and over right now.
         """
         
         if divide:

@@ -67,25 +67,26 @@ for m in miR_matches:
     
     fig = plb.figure()
     fig.suptitle(title)
-    ax = fig.add_subplot(1,1,1)
-    
-    bpInfo = ax.boxplot(boxData, notch=0, sym='x', vert=1, whis=1.5,positions=None, widths=None,)
-    
-    ax2 = fig.add_subplot(1,1,1)
-    barInfo = ax2.bar(pos,realData,color='g',align='center')
-    
+    for orthType in range(1,4):
+        ax = fig.add_subplot(1,3,1)
         
-    ax.set_ylabel(ylabel)
-    ax2.set_xlabel(xlabel)
-    
-    ax2.set_xticks(pos)
-    ax2.set_xticklabels(labelTexts)
-    fig.autofmt_xdate()
-    
-    
-    #plt.axis([0, pos[-1], 0, max(max(max(boxData)))])
-    plb.grid(False)
-    #plt.legend(loc=4)
+        bpInfo = ax.boxplot(boxData, notch=0, sym='x', vert=1, whis=1.5,positions=None, widths=None,)
+        
+        ax2 = fig.add_subplot(1,1,1)
+        barInfo = ax2.bar(pos,realData,color='g',align='center')
+        
+            
+        ax.set_ylabel(ylabel)
+        ax2.set_xlabel(xlabel)
+        
+        ax2.set_xticks(pos)
+        ax2.set_xticklabels(labelTexts)
+        fig.autofmt_xdate()
+        
+        
+        #plt.axis([0, pos[-1], 0, max(max(max(boxData)))])
+        plb.grid(False)
+        #plt.legend(loc=4)
     if saveToFile:
         plb.savefig(saveToFile,dpi=dpi)
 #plb.show()
