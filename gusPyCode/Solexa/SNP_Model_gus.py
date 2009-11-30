@@ -109,14 +109,17 @@ class SNP_Assess:
         info=str(self.Coordi)+"  "+str(self.NumCover)+"  "+str(self.NumVarCover)+"  "+str(self.VarRatio)+'\n'
         file.write(info)
     def cout(self):
-        print self.Coordi,self.NumCover,self.NumVarCover,self.VarRatio
-
-def BufferUpdate(read,file):
+        print self.Coordi,self.NumCover,self.NumVarCover,self.VarRatiodef BufferUpdate(read,file):
     #if the buffer is empty when entering this function, it 
     #should be at the begining of the scan
     if Buffer==[]:
         for i0 in range(40):
-            baseTmp1=SNP_Assess(read.Coordi+i0,1,0,0)
+            #-----Gus: THIS IS THE 1st PLACE WHERE YOU WANT TO USE QUALITY SCORE---
+            if read.Vari_Offset.count(i0)>0:
+                baseTmp1=SNP_Assess(read.Coordi+i0,1,1,0)
+            else:
+                baseTmp1=SNP_Assess(read.Coordi+i0,1,0,0)
+            #----------------------------------------------------------------------
             Buffer.append(baseTmp1)
         return Buffer
     
@@ -140,7 +143,12 @@ def BufferUpdate(read,file):
             gapIndex=gapIndex+1
         #rebuild the buffer
         for i1 in range(40):
-            baseTmp2=SNP_Assess(read.Coordi+i1,1,0,0)
+            #-----Gus: THIS IS THE 2nd PLACE WHERE YOU WANT TO USE QUALITY SCORE---
+            if read.Vari_Offset.count(i1)>0:
+                baseTmp2=SNP_Assess(read.Coordi+i1,1,1,0)
+            else:
+                baseTmp2=SNP_Assess(read.Coordi+i1,1,0,0)
+            #----------------------------------------------------------------------
             Buffer.append(baseTmp2)
         return Buffer
 
@@ -149,9 +157,18 @@ def BufferUpdate(read,file):
     if Buffer[0].Coordi==read.Coordi:
         for i in range(40):
             if i<len(Buffer):
+                #-----Gus: THIS IS THE 3rd PLACE WHERE YOU WANT TO USE QUALITY SCORE---
                 Buffer[i].NumCover=Buffer[i].NumCover+1
+                if read.Vari_Offset.count(i)>0:
+                    Buffer[i].NumVarCover=Buffer[i].NumVarCover+1
+                #----------------------------------------------------------------------
             else:
-                baseAppen=SNP_Assess(read.Coordi+i,1,0,0)
+                #-----Gus: THIS IS THE 4th PLACE WHERE YOU WANT TO USE QUALITY SCORE---
+                if read.Vari_Offset.count(i)>0:
+                    baseAppen=SNP_Assess(read.Coordi+i,1,1,0)
+                else:
+                    baseAppen=SNP_Assess(read.Coordi+i,1,0,0)
+                #----------------------------------------------------------------------
                 Buffer.append(baseAppen)
         return Buffer
 
