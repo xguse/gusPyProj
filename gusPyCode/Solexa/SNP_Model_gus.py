@@ -1,8 +1,35 @@
-class ReadsFeature:
-    Coordi=0
-    Vari_Offset=[]
+import sys
+import math
 
-class Window:
+
+
+class ReadsFeature(object):
+    def __init__(self, Coordi, Vari_Offset, QualStr):
+            
+        self.Coordi      = Coordi
+        self.Vari_Offset = Vari_Offset
+        self.Quals       = []
+        
+        # initialize self.Quals:
+        self._qualStr2probList(QualStr)
+    
+    def _qualStr2probList(self, QualStr):
+        """Internal method to initialize self.Quals as list of probabilities (that
+        the nucleotide was miscalled due to machine error) from the QualStr
+        
+        QualStr => abaa_b`bab`abaaaa`aaaaaaaaaaa^``aY`aaba`
+        """
+        for char in QualStr:
+            self.Quals.append(qual2prob(char))
+            
+    def qualTest(self,index,thresh=0.001):
+        """Decide whether supplied nucleotide index in read passes quality threshold.
+        """
+        
+        pass
+
+
+class Window(object):
     startPoint=0
     endPoint=39
     numReads=1
@@ -10,30 +37,24 @@ class Window:
 
 def lineScan(lineStr):
     #print "Hello!"
-    Coordi=''
-    Dire=''
-    Varia=''
-    Index=0
-    for x in line:
-        if x=='\t':
-            Index=Index+1
-        if Index==12 and x!='\t':
-            Coordi=Coordi+x
-        if Index==13 and x!='\t':
-            Dire=Dire+x
-        if Index==14 and x!='\t':
-            Varia=Varia+x
-        if Index==15:
-            break
-
+    lineList = lineStr.strip('\n').split('\t')  # strip trailing NewLine and split on tabs
+    
+    Coordi  = lineList[12]
+    Dire    = lineList[13]
+    Varia   = lineList[14]
+    QualStr = lineList[9]  # example => abaa_b`bab`abaaaa`aaaaaaaaaaa^``aY`aaba`
+    
     #print line
     #print Coordi,Dire,Varia
-    return Coordi,Dire,Varia
+    return Coordi,Dire,Varia,QualStr
 
 
 
 
-def FeatureExtract(Coordi,Dire,Varia):
+def FeatureExtract(Coordi,Dire,Varia,QualStr):
+    """Converts string vals in call signature to correct python data types
+    and constructs the ReadsFeature obj.
+    """
     #1st step: to cut the feature into int & letter list
     CutSet=[]
     frag=''
@@ -63,14 +84,15 @@ def FeatureExtract(Coordi,Dire,Varia):
     #return Offset  #debug test: OK!
 
     #3rd step: to construct the ReadsFeature data structure
-    read=ReadsFeature()
+    ##read=ReadsFeature()
     #print Coordi,Coordi.isdigit()
-    read.Coordi=int(Coordi)
+    Coordi=int(Coordi)
     if Dire!="F":
         for index in range(len(Offset)):
             Offset[index]=39-Offset[index]
         Offset.reverse()
-    read.Vari_Offset=Offset
+    ##read.Vari_Offset=Offset
+    read = ReadsFeature(Coordi,Offset,QualStr) # I changed ReadsFeature class to include a constructor to handle the QualStr conversion.
     return read
 
 class SNP_Assess:
@@ -141,22 +163,42 @@ def BufferClear(Buffer,file):
         Buffer.pop(0)
     return Buffer
 
-if __name__=="__main__":
+def qual2prob(qualChar):
+    """Takes a single Phred quality score character and returns a the probability
+    that the corresponding base was called incorrectly.
+    Q_phred = -10 * log10(p)
+    p = 10^(Q_phred/-10)
+    """
+    q = ord(qualChar)-64
+    return pow(10,(float(q)/-10))
 
-    file=open('../Data/RSA_CH477270.AAEL003396.sorted.txt','r')
-    landscape=open('Seq_Depth.txt','w')
+if __name__=="__main__":
+    
+    # Soft test of command line input
+    usage = 'python %s inFile outFile [qualThresh]\nDefault qualThresh = 0.001' % (sys.argv[0].split('\t')[-1])
+    if len(sys.argv) < 3:
+        print usage
+        exit(1)
+        
+    file=open(sys.argv[1],'r')
+    landscape=open(sys.argv[2],'w')
+    
+    if sys.argv[3]:
+        qualThresh = float(sys.argv[3])
+    else:
+        qualThresh = 0.001  # Should find out what best defualt value should be here!
 
     Buffer=[]
 
-    Coordi=''
-    Dire=''
-    Varia=''
-    read=ReadsFeature()
+    #Coordi=''
+    #Dire=''
+    #Varia=''
+    #read=ReadsFeature()
 
     line=file.readline()
     while line!='' and line!='\n':
-        [Coordi,Dire,Varia]=lineScan(line)
-        read=FeatureExtract(Coordi,Dire,Varia)
+        Coordi,Dire,Varia,QualStr=lineScan(line)
+        read=FeatureExtract(Coordi,Dire,Varia,QualStr)
         Buffer=BufferUpdate(read,landscape)
         line=file.readline()
     Buffer=BufferClear(Buffer,landscape)
