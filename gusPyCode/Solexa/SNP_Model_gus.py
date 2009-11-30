@@ -109,7 +109,9 @@ class SNP_Assess:
         info=str(self.Coordi)+"  "+str(self.NumCover)+"  "+str(self.NumVarCover)+"  "+str(self.VarRatio)+'\n'
         file.write(info)
     def cout(self):
-        print self.Coordi,self.NumCover,self.NumVarCover,self.VarRatiodef BufferUpdate(read,file):
+        print self.Coordi,self.NumCover,self.NumVarCover,self.VarRatio
+
+def BufferUpdate(read,file):
     #if the buffer is empty when entering this function, it 
     #should be at the begining of the scan
     if Buffer==[]:
@@ -171,6 +173,7 @@ class SNP_Assess:
                 #----------------------------------------------------------------------
                 Buffer.append(baseAppen)
         return Buffer
+
 
 def BufferClear(Buffer,file):
     while Buffer!=[]:
