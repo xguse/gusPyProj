@@ -6,9 +6,9 @@ import math
 class ReadsFeature(object):
     def __init__(self, Coordi, Vari_Offset, QualStr):
             
-        self.Coordi      = Coordi
-        self.Vari_Offset = Vari_Offset
-        self.Quals       = []
+        self.Coordi      = Coordi      # int
+        self.Vari_Offset = Vari_Offset # list
+        self.Quals       = []          # list
         
         # initialize self.Quals:
         self._qualStr2probList(QualStr)
@@ -118,9 +118,15 @@ def BufferUpdate(read,file):
         for i0 in range(40):
             #-----Gus: THIS IS THE 1st PLACE WHERE YOU WANT TO USE QUALITY SCORE---
             if read.Vari_Offset.count(i0)>0:
-                baseTmp1=SNP_Assess(read.Coordi+i0,1,1,0)
+                if read.Quals[i0] < qualThresh: # if position passes qualThresh include data, else do not increment
+                    baseTmp1=SNP_Assess(read.Coordi+i0,1,1,0)
+                else:
+                    baseTmp1=SNP_Assess(read.Coordi+i0,0,0,0)
             else:
-                baseTmp1=SNP_Assess(read.Coordi+i0,1,0,0)
+                if read.Quals[i0] < qualThresh: # if position passes qualThresh include data, else do not increment
+                    baseTmp1=SNP_Assess(read.Coordi+i0,1,0,0)
+                else:
+                    baseTmp1=SNP_Assess(read.Coordi+i0,0,0,0)
             #----------------------------------------------------------------------
             Buffer.append(baseTmp1)
         return Buffer
@@ -147,9 +153,15 @@ def BufferUpdate(read,file):
         for i1 in range(40):
             #-----Gus: THIS IS THE 2nd PLACE WHERE YOU WANT TO USE QUALITY SCORE---
             if read.Vari_Offset.count(i1)>0:
-                baseTmp2=SNP_Assess(read.Coordi+i1,1,1,0)
+                if read.Quals[i1] < qualThresh: # if position passes qualThresh include data, else ignore
+                    baseTmp2=SNP_Assess(read.Coordi+i1,1,1,0)
+                else:
+                    baseTmp2=SNP_Assess(read.Coordi+i1,0,0,0)
             else:
-                baseTmp2=SNP_Assess(read.Coordi+i1,1,0,0)
+                if read.Quals[i1] < qualThresh: # if position passes qualThresh include data, else ignore
+                    baseTmp2=SNP_Assess(read.Coordi+i1,1,0,0)
+                else:
+                    baseTmp2=SNP_Assess(read.Coordi+i1,0,0,0)
             #----------------------------------------------------------------------
             Buffer.append(baseTmp2)
         return Buffer
@@ -160,16 +172,25 @@ def BufferUpdate(read,file):
         for i in range(40):
             if i<len(Buffer):
                 #-----Gus: THIS IS THE 3rd PLACE WHERE YOU WANT TO USE QUALITY SCORE---
-                Buffer[i].NumCover=Buffer[i].NumCover+1
-                if read.Vari_Offset.count(i)>0:
-                    Buffer[i].NumVarCover=Buffer[i].NumVarCover+1
+                if read.Quals[i] < qualThresh: # if position passes qualThresh include data, else ignore
+                    Buffer[i].NumCover=Buffer[i].NumCover+1
+                    if read.Vari_Offset.count(i)>0:
+                        Buffer[i].NumVarCover=Buffer[i].NumVarCover+1
+                else:
+                    pass # explicitly shows that we do nothing here but pass on to next block
                 #----------------------------------------------------------------------
             else:
                 #-----Gus: THIS IS THE 4th PLACE WHERE YOU WANT TO USE QUALITY SCORE---
                 if read.Vari_Offset.count(i)>0:
-                    baseAppen=SNP_Assess(read.Coordi+i,1,1,0)
+                    if read.Quals[i] < qualThresh: # if position passes qualThresh include data, else ignore
+                        baseAppen=SNP_Assess(read.Coordi+i,1,1,0)
+                    else:
+                        baseAppen=SNP_Assess(read.Coordi+i,0,0,0)
                 else:
-                    baseAppen=SNP_Assess(read.Coordi+i,1,0,0)
+                    if read.Quals[i] < qualThresh: # if position passes qualThresh include data, else ignore
+                        baseAppen=SNP_Assess(read.Coordi+i,1,0,0)
+                    else:
+                        baseAppen=SNP_Assess(read.Coordi+i,0,0,0)
                 #----------------------------------------------------------------------
                 Buffer.append(baseAppen)
         return Buffer
@@ -195,7 +216,7 @@ def qual2prob(qualChar):
 if __name__=="__main__":
     
     # Soft test of command line input
-    usage = 'python %s inFile outFile [qualThresh]\nDefault qualThresh = 0.001' % (sys.argv[0].split('\t')[-1])
+    usage = 'USAGE: python %s inFile outFile [qualThresh]\nDefault qualThresh = 0.001' % (sys.argv[0].split('/')[-1])
     if len(sys.argv) < 3:
         print usage
         exit(1)
@@ -203,7 +224,7 @@ if __name__=="__main__":
     file=open(sys.argv[1],'r')
     landscape=open(sys.argv[2],'w')
     
-    if sys.argv[3]:
+    if len(sys.argv) == 4:
         qualThresh = float(sys.argv[3])
     else:
         qualThresh = 0.001  # Should find out what best defualt value should be here!
