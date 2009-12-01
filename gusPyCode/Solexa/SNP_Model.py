@@ -164,8 +164,8 @@ if __name__=="__main__":
     #read=FeatureExtract('12345','R','38A1')
     #print read.Coordi,read.Vari_Offset
     
-    file=open('../Data/RSB_CH477270.AAEL003396.sorted.txt','r')
-    landscape=open('Seq_Depth.txt','w')
+    file=open('/Users/biggus/Documents/James/Data/Solexa/LSA/CH477270.AAEL003396.sorted.txt','r')
+    landscape=open('/Users/biggus/Documents/James/Data/Solexa/LSA/CH477270.AAEL003396.sorted.Seq_Depth.txt','w')
 
     Buffer=[]
 
