@@ -4,28 +4,32 @@ from decimal import Decimal
 
 
 
-def benjHochFDR(pVals,FDR=0.05):
+def benjHochFDR(pVals,pValColumn=1,FDR=0.05):
     """
-    pVals  = 2D list(hypothesis,p-value) hypothesis could = geneName tested for enrichment
-    FDR    = threshold above which FDR is unacceptable
-    usrTot = total number of hypotheses if more than in pVals.
+    pVals      = 2D list(hypothesis,p-value) hypothesis could = geneName tested for enrichment
+    pValColumn = integer of column index containing the p-value.
+    FDR        = threshold above which FDR is unacceptable
+    !*! not implemented-> usrTot = total number of hypotheses if more than in pVals. !*!
     
-    Returns, for all acceptable p-values: hypothesis,origPval,adjustedPval
+    Returns, for all *acceptable q-values: hypothesis,origPval,adjustedPval 
+    *NOTE:  Seems to return _ALL_ items passed to it with no filtering at the moment.
     """
+    assert type(pValColumn) == type(1),\
+           "ERROR: pValColumn must be int type!"
     # Sort pVals from highest to lowest
-    pVals.sort(key=lambda x: x[1])
+    pVals.sort(key=lambda x: x[pValColumn])
     pVals.reverse()
     
     n = len(pVals)
     
-    lastPval = pVals[0][1]
+    lastPval = pVals[0][pValColumn]
     for i in range(len(pVals)):
-        p    = pVals[i][1]
+        p    = pVals[i][pValColumn]
         adj  = (float(n)/(n-i))
         adjP = p*adj
         miN  = min(adjP,lastPval)
         pVals[i].append(miN)
-        lastPval = pVals[i][2]
+        lastPval = pVals[i][-1]
     
     pVals.reverse()
     return pVals
