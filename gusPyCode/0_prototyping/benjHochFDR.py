@@ -1,3 +1,6 @@
+from gusPyCode.defs import statsDefs # to test new versions against this known correct version.
+
+
 def benjHoch(pVals,FDR=0.05):
     """
     pVals  = 2D list(hypothesis,p-value) hyopthesis exp = geneName
@@ -83,5 +86,7 @@ ps = [['H01',0.11472102930908400000],
 
 
 
-rVals = benjHoch(ps,)
+rVals  = benjHoch(ps,)
+nrVals = statsDefs.benjHochFDR(ps,pValColumn=1)
+test = rVals == nrVals
 None
