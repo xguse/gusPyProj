@@ -106,10 +106,11 @@ class SNP_Assess:
         self.NumVarCover=Var
         self.VarRatio=Ratio
     def fout(self,file):
-        info=str(self.Coordi)+"  "+str(self.NumCover)+"  "+str(self.NumVarCover)+"  "+str(self.VarRatio)+'\n'
+        info=str(self.Coordi)+"\t"+str(self.NumCover)+"\t"+str(self.NumVarCover)+"\t"+str(self.VarRatio)+'\n'
         file.write(info)
     def cout(self):
-        print self.Coordi,self.NumCover,self.NumVarCover,self.VarRatio
+        if verbose:
+            print self.Coordi,self.NumCover,self.NumVarCover,self.VarRatio
 
 def BufferUpdate(read,file):
     #if the buffer is empty when entering this function, it 
@@ -134,7 +135,8 @@ def BufferUpdate(read,file):
     CurrentBase=SNP_Assess(0,0,0,0)
     while Buffer!=[] and Buffer[0].Coordi<read.Coordi:
         #>>>>>>>>>>>>>>>>>>>>>>>>><<<<<<<<<<<<<<<<<<<<<<
-        print Buffer[0].Coordi,Buffer[0].NumCover,Buffer[0].NumVarCover,Buffer[0].VarRatio
+        if verbose:
+            print Buffer[0].Coordi,Buffer[0].NumCover,Buffer[0].NumVarCover,Buffer[0].VarRatio
         Buffer[0].fout(file)
         CurrentBase=Buffer.pop(0)
     
@@ -145,7 +147,8 @@ def BufferUpdate(read,file):
         gapIndex=CurrentBase.Coordi+1
         while gapIndex<read.Coordi:
             #>>>>>>>>>>>>>>>>>>>>>>>>>><<<<<<<<<<<<<<<<<<<<<
-            print gapIndex,0,0,0
+            if verbose:
+                print gapIndex,0,0,0
             baseTmp3=SNP_Assess(gapIndex,0,0,0)
             baseTmp3.fout(file)
             gapIndex=gapIndex+1
@@ -199,7 +202,8 @@ def BufferUpdate(read,file):
 def BufferClear(Buffer,file):
     while Buffer!=[]:
         #>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>><<<<<<<<<<<<<<<<<<<<<
-        print Buffer[0].Coordi,Buffer[0].NumCover,Buffer[0].NumVarCover,Buffer[0].VarRatio
+        if verbose:
+            print Buffer[0].Coordi,Buffer[0].NumCover,Buffer[0].NumVarCover,Buffer[0].VarRatio
         Buffer[0].fout(file)
         Buffer.pop(0)
     return Buffer
@@ -216,7 +220,7 @@ def qual2prob(qualChar):
 if __name__=="__main__":
     
     # Soft test of command line input
-    usage = 'USAGE: python %s inFile outFile [qualThresh]\nDefault qualThresh = 0.001' % (sys.argv[0].split('/')[-1])
+    usage = 'USAGE: python %s inFile outFile [qualThresh] [verboseOrNot]\nDefault qualThresh = 0.001\nDefault verboseOrNot = "False"' % (sys.argv[0].split('/')[-1])
     if len(sys.argv) < 3:
         print usage
         exit(1)
@@ -224,10 +228,17 @@ if __name__=="__main__":
     file=open(sys.argv[1],'r')
     landscape=open(sys.argv[2],'w')
     
-    if len(sys.argv) == 4:
+    if len(sys.argv) >= 4:
         qualThresh = float(sys.argv[3])
     else:
         qualThresh = 0.001  # Should find out what best defualt value should be here!
+    if len(sys.argv) == 5:
+        if sys.argv[4] == 'True':
+            verbose = True
+        else:
+            verbose = False
+    else:
+        verbose = False
 
     Buffer=[]
 
