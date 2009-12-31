@@ -616,7 +616,7 @@ class miRNA:
                     
                     ctlrFDRstdv,ctlrFDRmed     =  calcFDRStats(realMatches,ctrlMatches) # <-returns(stdv,median)
                     
-                    if (ctlrFDRstdv or ctlrFDRmed) == None:
+                    if (ctlrFDRstdv == None or ctlrFDRmed == None):
                         consSeedFDR = None
                     else:
                         consSeedFDR =  ctlrFDRmed+(stdvLimit*ctlrFDRstdv)
