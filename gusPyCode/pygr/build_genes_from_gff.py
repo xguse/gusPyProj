@@ -10,8 +10,12 @@ from pygr import worldbase
 from pygr import annotation
 from pygr import cnestedlist
 from pygr import metabase
+import sqlite3
 
-from gffparser import read_for_pygr
+from gusPyCode.pygr.gffparser import read_for_pygr
+from gusPyCode.pygr.gPygr import simpleGFF2PygrSQLite,getTableNames
+from BCBio.GFF import GFFParser
+
 
 def main():
     """Build an annotation from the given gff file
@@ -23,11 +27,14 @@ def main():
     parser = optparse.OptionParser("%prog [options] data1.gff [data2.gff ...]\n"+usage)
     parser.add_option("--genome_resource", '-g', dest="genome_resource", type="string",
                       help="""The pygr resource for the genome, eg, 'Bio.Seq.Genome.TRICA.triCas3'""")
-    parser.add_option("--annotationDB_resource", '-a', dest="annotationDB_resource", type="string",
-                      help="""Where to save the created annotationDB. eg, 
-                      Bio.Annotation.TRICA.triCas3.officialGenes""")
+    #parser.add_option("--annotationDB_resource", '-a', dest="annotationDB_resource", type="string",
+                      #help="""Where to save the created annotationDB. eg, 
+                      #Bio.Annotation.TRICA.triCas3.officialGenes""")
+    parser.add_option("--sqlDB_resource", '-s', dest="sqlDB_resource", type="string",
+                      help="""Where to save the created sqlDB and a unique file name eg, 
+                      Bio.Annotation.TRICA.triCas3.features_sqlDB,gffDB_v1""")
     parser.add_option("--save_pathstem", '-p', dest="pathstem", type="string", 
-                      help="""The file to save the exon resource to, eg,
+                      help="""The file to save the resource to, eg,
                     '/home/baldig/projects/genomics/pygrdata/annotations/fly/triCas3_official_genes'""")
     parser.add_option("--map_resource", '-m', dest="map_resource", type="string",
                       help="""the resource to save the annotationDB->Genome map,
@@ -45,26 +52,48 @@ def main():
         parser.print_help()
         print 'Please specify at least one gff file to read'
         sys.exit(-1)
-    if None in [opts.genome_resource, opts.annotationDB_resource, opts.pathstem, opts.map_resource]:
+    if None in [opts.genome_resource, opts.pathstem, opts.map_resource]:
         parser.print_help()
-        print 'Required options: genome_resource, annotationDB_resource, pathstem, map_resource'
+        print 'Required options: genome_resource, sqlDB_resource, pathstem, map_resource'
         sys.exit(-1)
+    if opts.sqlDB_resource.count(',') != 1:
+        parser.print_help()
+        print 'Error: sqlDB_resource must be comma separated string with exactly one comma.'
+    else:
+        opts.sqlDB_resource = opts.sqlDB_resource.split(',')
+    try :
+        w = worldbase(opts.sqlDB_resource[0])
+        parser.print_help()
+        print "Warning: sqlDB_resource already exists.  Please select a new name."
+        exit(-1)
+    except WorldbaseNotFoundError:
+        pass
+    
     
     print '# Loading original genome db'
     genome = worldbase(opts.genome_resource)
-    annotDB = annotation.AnnotationDB(None, genome, opts.bind_attribute, 
-                                        filename=opts.pathstem + '_annotDB', mode='c', verbose=False)
-    nlmsa = cnestedlist.NLMSA(opts.pathstem, 'w', pairwiseMode=True, bidirectional=False)
-
-    index = 0  # unique ID used in annotationD
+    #annotDB = annotation.AnnotationDB(None, genome, opts.bind_attribute, 
+                                        #filename=opts.pathstem + '_annotDB', mode='c', verbose=False)
+    sqlDB    = sqlgraph.SQLiteServerInfo('%s/%s.sqlite' %(opts.pathstem,opts.sqlDB_resource[1]))
+    gff2lite = simpleGFF2PygrSQLite(sqlDB)
+    nlmsa    = cnestedlist.NLMSA(opts.pathstem, 'w', pairwiseMode=True, bidirectional=False)
+    
+    
     for filename in args:
-        print '# adding to annotationDB from %s' % filename
-        fileIn = open(filename)
-        for row in read_for_pygr(fileIn):
-            curAnnot = annotDB.new_annotation(index, row)
-            nlmsa.addAnnotation(curAnnot)
-            index += 1
-    annotDB.close() # Flush annotation data to disk
+        print '# adding to sqlDB from %s' % filename
+        gff2lite.update(filename)
+    
+    tableNames = gff2lite.getTableNames()
+    for table in tableNames:
+        
+    
+    
+        
+    #for row in read_for_pygr(fileIn):
+        #curAnnot = annotDB.new_annotation(index, row)
+        #nlmsa.addAnnotation(curAnnot)
+        #index += 1
+    #annotDB.close() # Flush annotation data to disk
     
     print '# building NLMSA from all gff files'
     nlmsa.build(saveSeqDict=True)

@@ -1,7 +1,58 @@
 import re
 import random
 import copy
+import os
+import collections
 from gusPyCode.defs import xpermutations
+
+
+
+#=========================================================================
+# 01/06/10
+def tbl2nmdTup(filePath, name):
+    data = map(lambda l: l.strip('\n').split('\t'), open(filePath).readlines())
+
+    if data[0][0].startswith('#'):
+        data[0][0] = data[0][0][1:]
+        header = data.pop(0)
+    else:
+        print 'ERROR:  The first line of table file must be the header and begin with a "#".'
+        exit(1)
+    # ---- Replace ' ' with '_' in header ----
+    for i in range(len(header)):
+        header[i] = header[i].replace(' ','_')
+        
+    namedTab = collections.namedtuple(name,' '.join(header))
+    return [namedTab._make(x) for x in data]
+
+#=========================================================================
+# 12/21/09
+
+def mkdirp(path):
+    """Create new dir while creating any parent dirs in the path as needed.
+    """
+    if not os.path.isdir(path):
+        os.makedirs(path)
+#=========================================================================
+# 11/23/09
+# From Titus Brown's gff parser:
+class Bag(dict):
+    """dict-like class that supports attribute access as well as getitem.
+
+    >>> x = Bag()
+    >>> x['foo'] = 'bar'
+    >>> x.foo
+    'bar'
+    
+    """
+    def __init__(self, *args, **kw):
+        dict.__init__(self, *args, **kw)
+        for k in self.keys():
+            self.__dict__[k] = self.__getitem__(k)
+
+    def __setitem__(self, k, v):
+        dict.__setitem__(self, k, v)
+        self.__dict__[k] = v
 
 #=========================================================================
 # 11/07/09
@@ -25,12 +76,13 @@ class DotDict(dict):
 # 10/08/09
 def initList(numOfIndices,initVal):
     """
-    Returns a list of length len(numOfIndices) initialized with initVal.
+    Returns a list of length len(numOfIndices) initialized with fresh invocations of the
+    empty(or initialized) data type supplied with initVal.
     """
-
+    
     rList = []
     for i in range(numOfIndices):
-        if (type(initVal) == type([])) or (type(initVal) == type({})):
+        if (type(initVal) == type([])) or (type(initVal) == type({})) or (type(initVal) == type(set())):
             rList.append(eval(repr(initVal)))  # prevent init'ing all indices with ref to same obj.
         else:
             rList.append(initVal)

@@ -19,7 +19,7 @@ varPos = []
 # Calculate and record >= x pVals
 for line in open(inFile,'rU'):
     l = [int(x) for x in line.strip('\n').split('\t')]
-    if l[2] > 0:
+    if (l[2] > 0) and (l[1] >= 5):
         # I think that we want cumulative p-val for x or GREATER mismatches
         #   so we use binom.cdf(x-1,n,prob) <-- need to confirm this.  
         #   *** Harsha suggests x or LESS.  I am using that untill I can ask XX.

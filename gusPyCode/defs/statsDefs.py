@@ -8,11 +8,10 @@ def benjHochFDR(pVals,pValColumn=1,FDR=0.05):
     """
     pVals      = 2D list(hypothesis,p-value) hypothesis could = geneName tested for enrichment
     pValColumn = integer of column index containing the p-value.
-    FDR        = threshold above which FDR is unacceptable
-    !*! not implemented-> usrTot = total number of hypotheses if more than in pVals. !*!
+    !*! FDR        = threshold above which FDR is unacceptable [not yet implemented]!*! 
     
     Returns, for all *acceptable q-values: hypothesis,origPval,adjustedPval 
-    *NOTE:  Seems to return _ALL_ items passed to it with no filtering at the moment.
+    *NOTE:  For now, returns _ALL_ items passed to it with no filtering at the moment.
     """
     assert type(pValColumn) == type(1),\
            "ERROR: pValColumn must be int type!"

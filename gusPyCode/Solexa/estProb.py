@@ -18,6 +18,6 @@ for line in open(sys.argv[1],'rU'):
     varNucs+=int(l[2])
 
 prob = float(varNucs)/totNucs
-print prob
+print '%s\t%s\t%s\t%s' %(sys.argv[1].split('\t')[-1],totNucs,varNucs,prob)
 out = open('%s.prob' % (sys.argv[1]),'w')
-out.write(str(prob))
+out.write('%s\t%s\t%s' %(totNucs,varNucs,prob))
