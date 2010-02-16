@@ -1,0 +1,86 @@
+Hello Harsha,
+The following is a summary of what Yifei and I talked about and accomplished today.
+Yifei: feel free to correct or add to anything here.
+
+I am almost done modifying Yifei's script to ignore read positions that do not pass a user defined score cut-off.  This will both ignore positions where there is a variation and where the nucleotide agrees with the reference genome.  This will "clean" our data of less reliable information.
+
+At this point we will have a file in this format:
+
+SuperContigCoordinate; totalNucleotidesAbovePosition; nucleotidesThatVary
+
+From here all data has passed quality filtering and we will "Trust" all nucleotide calls (our data "Population" at this point is treated as free of sequencing errors).  We plan to treat each SuperContigCoordinate as a set of samplings where totalNucleotidesAbovePosition is the number of trials and nucleotidesThatVary represent the number of successes.
+
+IF we make the assumptions that (1) we can derive the "probability" of any one trail resulting in a success from the ratio of all successes in the population of the data to the sum of all nucleotides in the population,
+and (2) that the result of any one trial at a position is independent of the others at that position, I believe we can use the binomial distribution to do a first pass at assigning a p-value to each position that reflects the probability that we would get the number of successes or more (can you suggest whether "or more" or "or less" would be most appropriate?) if the trial results where indeed randomly produced.  
+
+Binomial may not be the best distribution and to be truthful I think that perhaps a multinomial dist accounting for what the disagreeing nucleotides actually encode is better but not possible within the time constraints we have due to the necessary re-coding.  However, if you can think of a better statistical representation by around noon tomorrow we can consider it.  I think as long as we are clear about our assumptions we can discuss other options that might improve things, while actually using the binomial at first.
+
+We will apply this method to both the RSA and RSB data sets that represent two independent but identical experiments where mRNA from the novel strain "R" is isolated ~ 6hr after being given a sugar meal.  These experiments as far as I know represent complete duplication of the entire experiment as will serve to allow us to correlate our results.  High correlation suggests that the individual SNP detections in each run are not due to random coordination of sequencing errors.
+
+This is our idea at this point.  We propose the following possible figures for the presentation:
+
+For our test region:
+Fig1A: 'landscape' plot of the read coverage at our locus.
+Fig1B: corresponding variation plot with a given p-val threshold
+
+Fig2: ScatterPlot of positional correlation between RSA and RSB to illustrate reproducibility.
+
+Fig3: perhaps a histogram to better illustrate the distribution of p-values or similar.
+
+
+Table1:  Number of SNPs at chosen confidence
+Data to include: 
+total SNPs for RSA
+total for RSB
+proportion that agree (intersection) 
+
+
+
+You may notice that we are ignoring Liverpool.  We do this because we do not believe that comparing individual strain "R" positions to corresponding experimental liverpool experimental positions has meaning since we fully expect there to be differences between the two and because we have incorporated the quality score info into the analysis.  The main benefit that comparing R to Liverpool yielded was an estimation of "bad sequencing."  The required assuming that all differences between Liverpool experiments and the published genome were "errors."  This would probably not be true.  For these reasons the comparison has been supplanted by the direct comparison to published genome with the incorporation of single nucleotide quality information.
+
+I still think that we might be able to use more math/statistics in this if we nail it down SOON, so take a stab at what me might add if you feel like it.
+
+Please ask for clarification if things are not clear.
+Hello Harsha,
+The following is a summary of what Yifei and I talked about and accomplished today.
+Yifei: feel free to correct or add to anything here.
+
+I am almost done modifying Yifei's script to ignore read positions that do not pass a user defined score cut-off.  This will both ignore positions where there is a variation and where the nucleotide agrees with the reference genome.  This will "clean" our data of less reliable information.
+
+At this point we will have a file in this format:
+
+SuperContigCoordinate; totalNucleotidesAbovePosition; nucleotidesThatVary
+
+From here all data has passed quality filtering and we will "Trust" all nucleotide calls (our data "Population" at this point is treated as free of sequencing errors).  We plan to treat each SuperContigCoordinate as a set of samplings where totalNucleotidesAbovePosition is the number of trials and nucleotidesThatVary represent the number of successes.
+
+IF we make the assumptions that (1) we can derive the "probability" of any one trail resulting in a success from the ratio of all successes in the population of the data to the sum of all nucleotides in the population,
+and (2) that the result of any one trial at a position is independent of the others at that position, I believe we can use the binomial distribution to do a first pass at assigning a p-value to each position that reflects the probability that we would get the number of successes or more (can you suggest whether "or more" or "or less" would be most appropriate?) if the trial results where indeed randomly produced.  
+
+Binomial may not be the best distribution and to be truthful I think that perhaps a multinomial dist accounting for what the disagreeing nucleotides actually encode is better but not possible within the time constraints we have due to the necessary re-coding.  However, if you can think of a better statistical representation by around noon tomorrow we can consider it.  I think as long as we are clear about our assumptions we can discuss other options that might improve things, while actually using the binomial at first.
+
+We will apply this method to both the RSA and RSB data sets that represent two independent but identical experiments where mRNA from the novel strain "R" is isolated ~ 6hr after being given a sugar meal.  These experiments as far as I know represent complete duplication of the entire experiment as will serve to allow us to correlate our results.  High correlation suggests that the individual SNP detections in each run are not due to random coordination of sequencing errors.
+
+This is our idea at this point.  We propose the following possible figures for the presentation:
+
+For our test region:
+Fig1A: 'landscape' plot of the read coverage at our locus.
+Fig1B: corresponding variation plot with a given p-val threshold
+
+Fig2: ScatterPlot of positional correlation between RSA and RSB to illustrate reproducibility.
+
+Fig3: perhaps a histogram to better illustrate the distribution of p-values or similar.
+
+
+Table1:  Number of SNPs at chosen confidence
+Data to include: 
+total SNPs for RSA
+total for RSB
+proportion that agree (intersection) 
+
+
+
+You may notice that we are ignoring Liverpool.  We do this because we do not believe that comparing individual strain "R" positions to corresponding experimental liverpool experimental positions has meaning since we fully expect there to be differences between the two and because we have incorporated the quality score info into the analysis.  The main benefit that comparing R to Liverpool yielded was an estimation of "bad sequencing."  The required assuming that all differences between Liverpool experiments and the published genome were "errors."  This would probably not be true.  For these reasons the comparison has been supplanted by the direct comparison to published genome with the incorporation of single nucleotide quality information.
+
+I still think that we might be able to use more math/statistics in this if we nail it down SOON, so take a stab at what me might add if you feel like it.
+
+Please ask for clarification if things are not clear.
