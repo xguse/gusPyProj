@@ -60,7 +60,7 @@ def writeOut(line,newReadsFile,inType="bowtie",outType="DEGseq"):
     cvrtFrom   = ("sorted", 
                   "bowtie")
     
-    cvrtnTable = {"bowtie":{"DEGseq":'''[line[2],line[3],str(len(line[4])+int(line[3])-1),line[0],line[6],line[1]]''',
+    cvrtnTable = {"bowtie":{"DEGseq":'''[line[2],line[3],str(len(line[4])+int(line[3])-1),line[0]+'_'+line[4],line[6],line[1]]''',
                             "no_change":'''line''',},
                   "sorted":{"DEGseq":'''exit('\n\n** ERROR: this conversion has not been defined yet. **\n** See def writeOut. **')''',
                             "no_change":'''line''',},
