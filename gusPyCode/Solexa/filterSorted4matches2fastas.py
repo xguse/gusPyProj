@@ -1,3 +1,4 @@
+from time import time
 import optparse
 import sys
 import motility
@@ -128,6 +129,7 @@ if __name__ == '__main__':
         hitDict[name] = 0
         
     # ++++++++++ Its Bidness Time! ++++++++
+    t1 = time() ## Start timer
     while 1:
         readsFileLine = readsFile.readline().strip('\n')
         if readsFileLine:
@@ -139,7 +141,9 @@ if __name__ == '__main__':
     for seqName in sorted(hitDict):
         if hitDict[seqName] > 0:
             outTable.write('%s\t%s\n' % (seqName, hitDict[seqName]))
-        
+    
+    t2 = time() ## End timer    
+    print 'This run took %s min.' % ((t2-float(t1))/60)
     
     # ++++++++++ Close Up Shop ++++++++
     readsFile.close()
