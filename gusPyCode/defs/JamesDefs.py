@@ -8,6 +8,30 @@ from gusPyCode.defs import xpermutations
 
 
 #=========================================================================
+# 02/20/10
+def detect_1D_overlap(coords1,coords2):
+    """Returns TRUE if coords1 overlaps with coords2.
+    """
+    # +++ Validate Usr Input +++
+    if (len(coords1)!=2) or (len(coords2)!=2):
+        exit("** ERROR: coords1 and coords2 must be lists of length 2! **")
+    # +++ Sort Coords +++
+    coords1.sort()
+    coords2.sort()
+    # +++ Classify Coords +++
+    if (coords1[1]-coords1[0]) <= (coords2[1]-coords2[0]):
+        shorter = coords1
+        longer  = coords2
+    else:
+        shorter = coords2
+        longer  = coords1
+    # +++  +++
+    lEdge = (shorter[0]-longer[0] >= 0) and (shorter[0]-longer[1] <= 0)
+    rEdge = (shorter[1]-longer[0] >= 0) and (shorter[1]-longer[1] <= 0)
+    # -- did we get a hit? --
+    return (lEdge or rEdge)
+
+#=========================================================================
 # 01/06/10
 def tbl2nmdTup(filePath, name):
     data = map(lambda l: l.strip('\n').split('\t'), open(filePath).readlines())
