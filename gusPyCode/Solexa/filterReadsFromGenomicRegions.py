@@ -3,19 +3,18 @@ import optparse
 import sys
 import motility
 from TAMO.seq import Fasta
+from gusPyCode.defs.JamesDefs import Bag
 
-def fastas2Dict(listOfPaths):
+def getCoords(filePath):
     """ """
-    rFastaDict = {}
-    for path in listOfPaths:
-        tempDict = Fasta.file2dict(path)
-        rFastaDict.update(tempDict)
-    return rFastaDict
+    return map(lambda l: l.strip('\n').split('\t'), open(filePath,'rU'))
 
-def iterReadsLine(readsFileLine,newReadsFile,fastaDict,hitDict,fileType):
+def iterReadsLine(readsFileLine,newReadsFile,coordsList,hitDict,fileType):
     """ """
-    fileTypes = {"sorted":8,
-                 "bowtie":4}
+    fileTypes = {"sorted":{},
+                 "bowtie":Bag({'seqName':'line[2]',
+                               'start':'int(line[3])',
+                               'end':'int(line[3])+len(line[4])-1'})}
     if not fileType == "bowtie":
         print "** ERROR: At this time only 'bowtie' fileType is supported **"
         exit(1)  
@@ -23,13 +22,14 @@ def iterReadsLine(readsFileLine,newReadsFile,fastaDict,hitDict,fileType):
         parser.print_help()
         print "** ERROR: %s is not a valid fileType: %s **" % (opts.file_type, fileTypes.keys())
         exit(1)       
-    line = readsFileLine
-    read = line.split('\t')[fileTypes[opts.file_type]]
-    searchResult = searchFastas(read,fastaDict)
+    line = readsFileLine.split('\t')
+    fileStats = fileTypes[opts.file_type]
+    readCoords = [eval(fileStats.seqName), eval(fileStats.start), eval(fileStats.end)]
+    searchResult = checkCoords(readCoords,coordsList)
     if len(searchResult) == 0:
-        writeOut(line.split('\t'),newReadsFile,inType=opts.file_type,outType=opts.out_type)
+        writeOut(line,newReadsFile,inType=opts.file_type,outType=opts.out_type)
     else:
-        for result in list(searchResult):
+        for result in searchResult:
             hitDict[result] += 1
             
 #def iterBowtie(readsFileLine,newReadsFile,fastaDict,hitDict):
@@ -44,14 +44,21 @@ def iterReadsLine(readsFileLine,newReadsFile,fastaDict,hitDict,fileType):
             #hitDict[result] += 1
     
 
-def searchFastas(read,fastaDict):
+def checkCoords(readCoords,coordsList):
     """ """
-    tmpSeqNames = set()
-    for seqName in fastaDict:
-        matches = motility.find_iupac(fastaDict[seqName], read, mismatches=2)
-        if not len(matches) == 0:
-            tmpSeqNames.add(seqName)
-    return tmpSeqNames
+    indexHits = []
+    for i in range(len(coordsList)):
+        # -- on right seqName? --
+        if not readCoords[0] == coordsList[i][0]:
+            continue
+        # -- coords overlap with nixCoords? --
+        lEdge = (int(readCoords[1])-int(coordsList[i][1]) > 0) and (int(readCoords[1])-int(coordsList[i][2]) < 0)
+        rEdge = (int(readCoords[2])-int(coordsList[i][1]) > 0) and (int(readCoords[2])-int(coordsList[i][2]) < 0)
+        # -- did we get a hit? --
+        if lEdge or rEdge:
+            indexHits.append(i)
+            break
+    return indexHits
     
 def writeOut(line,newReadsFile,inType="bowtie",outType="DEGseq"):
     """ """
@@ -88,8 +95,8 @@ if __name__ == '__main__':
         
     usage = """python %prog readsFile -f fasta1,fasta2,..fastaN -r runName """
     parser = optparse.OptionParser(usage)
-    parser.add_option('-f',dest="fasta_files",type="string",default=False,
-                      help="""<required> Comma separated list (no spaces) of fasta files to use as search material.""")
+    parser.add_option('-g',dest="genomic_coords",type="string",default=False,
+                      help="""<required> A filter file containing lines of form:\nseqName<tab>start<tab>stop""")
     parser.add_option('-r',dest="run_name",type="string",default=False,
                       help="""<required> Base name to give result files.""")
     parser.add_option('-t',dest="file_type",type="string",default="bowtie",
@@ -109,41 +116,44 @@ if __name__ == '__main__':
         parser.print_help()
         print "\n\n** ERROR: Please supply readsFile. **"
         exit(1)
-    if not opts.fasta_files:
+    if not opts.genomic_coords:
         parser.print_help()
         print "\n\n** ERROR: Please supply at least one fasta file. **"
     if not opts.run_name:
         parser.print_help()
         print "\n\n** ERROR: You must supply a run name. **"
         
-    opts.fasta_files = opts.fasta_files.split(',')
+
 
     # ++++++++++ Open Files And Get Variables Set up ++++++++
     readsFile    = open(args[0],'rU')
     newReadsFile = open("%s_filtered.txt" % (opts.run_name),'w')
-    fastaDict    = fastas2Dict(opts.fasta_files)
+    coordsList   = getCoords(opts.genomic_coords)
     hitDict      = {} ## to collect reads that match the fasta
     
     # -- init hitDict --
-    for name in fastaDict:
-        hitDict[name] = 0
+    for i in range(len(coordsList)):
+        hitDict[i] = 0
         
     # ++++++++++ Its Bidness Time! ++++++++
     t1 = time() ## Start timer
     while 1:
         readsFileLine = readsFile.readline().strip('\n')
         if readsFileLine:
-            iterReadsLine(readsFileLine,newReadsFile,fastaDict,hitDict,opts.file_type)
+            iterReadsLine(readsFileLine,newReadsFile,coordsList,hitDict,opts.file_type)
         else: break
     
     # ++++++++++ Write OutTable ++++++++
     outTable = open("%s_hitTable.txt" % (opts.run_name), 'w')
-    for seqName in sorted(hitDict):
-        if hitDict[seqName] > 0:
-            outTable.write('%s\t%s\n' % (seqName, hitDict[seqName]))
+    for key in sorted(hitDict):
+        if hitDict[key] > 0:
+            outTable.write('%s\t%s\t%s\t%s\t%s\n' % (coordsList[key][0],
+                                                     coordsList[key][1],
+                                                     coordsList[key][2],
+                                                     hitDict[key]))
     
     t2 = time() ## End timer    
-    print 'This run took %s min.' % ((t2-float(t1))/60)
+    print 'This run took %s sec.' % (t2-float(t1))
     
     # ++++++++++ Close Up Shop ++++++++
     readsFile.close()
