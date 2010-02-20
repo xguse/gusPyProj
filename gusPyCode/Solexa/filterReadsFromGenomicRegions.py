@@ -1,7 +1,6 @@
 from time import time
 import optparse
 import sys
-import motility
 from TAMO.seq import Fasta
 from gusPyCode.defs.JamesDefs import Bag
 
