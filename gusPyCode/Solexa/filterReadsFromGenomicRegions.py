@@ -146,7 +146,7 @@ if __name__ == '__main__':
     outTable = open("%s_hitTable.txt" % (opts.run_name), 'w')
     for key in sorted(hitDict):
         if hitDict[key] > 0:
-            outTable.write('%s\t%s\t%s\t%s\t%s\n' % (coordsList[key][0],
+            outTable.write('%s\t%s\t%s\t%s\t\n' % (coordsList[key][0],
                                                      coordsList[key][1],
                                                      coordsList[key][2],
                                                      hitDict[key]))
