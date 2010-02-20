@@ -13,8 +13,8 @@ def detect_1D_overlap(coords1,coords2):
     """Returns TRUE if coords1 overlaps with coords2.
     """
     # +++ Validate Usr Input +++
-    if (len(coords1)!=2) or (len(coords2)!=2):
-        exit("** ERROR: coords1 and coords2 must be lists of length 2! **")
+    assert (len(coords1)==2) and (len(coords2)==2), \
+           "** ERROR: coords1 and coords2 must be lists of length 2! **"
     # +++ Sort Coords +++
     coords1.sort()
     coords2.sort()
