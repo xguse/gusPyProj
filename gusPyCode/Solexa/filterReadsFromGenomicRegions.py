@@ -51,10 +51,7 @@ def checkCoords(readCoords,coordsList):
         if not readCoords[0] == coordsList[i][0]:
             continue
         # -- coords overlap with nixCoords? --
-        lEdge = (int(readCoords[1])-int(coordsList[i][1]) > 0) and (int(readCoords[1])-int(coordsList[i][2]) < 0)
-        rEdge = (int(readCoords[2])-int(coordsList[i][1]) > 0) and (int(readCoords[2])-int(coordsList[i][2]) < 0)
-        # -- did we get a hit? --
-        if lEdge or rEdge:
+        if detect_1D_overlap(readCoords[1:3],coordsList[i][1:3]):
             indexHits.append(i)
             break
     return indexHits
