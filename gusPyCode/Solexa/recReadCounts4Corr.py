@@ -120,24 +120,16 @@ if __name__ == '__main__':
     
     print 'Calculating Pearson... %s' % (ctime())
     pearson  = stats.pearsonr(vector0,vector1)
+    print pearson
     print 'Calculating Spearman... %s' % (ctime())
     spearman = stats.spearmanr(vector0,vector1)
+    print spearman
     
-    # ++++++++++ Plot the scatter plot ++++++++ 
-    print "Drawing..."
-    fig = pl.figure()
-    ax  = fig.add_subplot(111)
-    
-    ax.plot(vector0,vector1, 'bo')
-    ax.set_xlabel(parser0._file.name)
-    ax.set_ylabel(parser1._file.name)
-    pl.text(0,1,'Pearson: (%s,%s)\nSpearman: (%s,%s)' % (pearson[0],pearson[1],spearman[0],spearman[1]),
-            bbox=dict(facecolor='grey', alpha=1),
-            horizontalalignment='left',
-            verticalalignment='top',
-            transform = ax.transAxes)
-    pl.savefig(opts.out_name)
-    print 'Show?  %s' % (opts.show)
-    if opts.show:
-        pl.show()
-    
+    # ++++++++++ write labeled vectors to file ++++++++ 
+    print 'Writing labeled vectors to file....'
+    oFile = open(opts.out_file,'w')
+    oFile.write('%s\t%s\n' % (readsFile0.split('/')[-1],readsFile1.split('/')[-1])) # label columns
+    for i in range(len(vector0)):
+        oFile.write('%s\t%s\n' % (vector0[i],vector1[i]))
+    oFile.flush()
+    oFile.close()
