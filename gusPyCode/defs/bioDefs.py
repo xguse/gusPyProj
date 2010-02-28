@@ -3,11 +3,72 @@ import random
 from scipy import mat, transpose
 from TAMO.MotifTools import Motif
 from TAMO.seq import Fasta
-
-
-
-
 from gusPyCode.defs.statsDefs import hypergeoP
+
+class ParseBowtieBed(object):
+    """Class to parse and return a single read entry from bowtie_bed file type."""
+    def __init__(self,filePath):
+        """Returns a readSeq-by-readSeq bowtie_bed parser analogous to file.readline().
+        Exmpl: parser.getNext() """
+        self._file = open(filePath, 'rU')
+        
+    def getNext(self):
+        """Reads in next line, parses fields, returns fieldTuple or None (eof)."""
+        line = self._file.readline()
+        if line:
+            return tuple(line.strip('\n').split('\t'))
+        else: 
+            return None
+    
+    def getNextReadSeq(self):
+        """Calls self.getNext and returns only the readSeq."""
+        line = self.getNext()
+        if line:
+            return line[3].split('_')[-1]
+
+
+class ParseFastQ(object):
+    """Returns a read-by-read fastQ parser analogous to file.readline()"""
+    def __init__(self,filePath):
+        """Returns a read-by-read fastQ parser analogous to file.readline().
+        Exmpl: parser.getNext()"""
+        self._file = open(filePath, 'rU')
+        self._currentLineNumber = 0
+    
+    def getNext(self):
+        """Reads in next element, parses, and does minimal verification.
+        Returns: tuple: (seqHeader,seqStr,qualHeader,qualStr)"""
+        # ++++ Get Next Four Lines ++++
+        elemList = []
+        for i in range(4):
+            line = self._file.readline()
+            self._currentLineNumber += 1 ## increment file position
+            if line:
+                elemList.append(line.strip('\n'))
+            else: return None
+        
+        # ++++ Check Lines For Expected Form ++++
+        # -- Make sure we got 4 full lines of data --
+        assert "" not in elemList,\
+               "** ERROR: It looks like I encountered a premature EOF or empty line.\n\
+               Please check FastQ file near line #%s (plus or minus ~4 lines) and try again**" % (self._currentLineNumber)
+        # -- Make sure we are in the correct "register" --
+        assert elemList[0].startswith('@'),\
+               "** ERROR: The 1st line in fastq element does not start with '@'.\n\
+               Please check FastQ file and try again**"
+        assert elemList[2].startswith('+'),\
+               "** ERROR: The 3rd line in fastq element does not start with '+'.\n\
+               Please check FastQ file and try again**"
+        
+        # ++++ Return fatsQ data as tuple ++++
+        return tuple(elemList)
+    
+    def getNextReadSeq(self):
+        """Calls self.getNext and returns only the readSeq."""
+        record = self.getNext()
+        if record:
+            return record[1]
+        else:return None
 
 
 class MASTmotif:
