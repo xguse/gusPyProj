@@ -4,9 +4,7 @@ import optparse
 import sys
 import os
 import scipy.stats as stats
-import matplotlib as mpl
-if os.environ['USER'] == 'biggus':
-    mpl.use('TkAgg')
+
 try:
     import gusPyCode
 except:
