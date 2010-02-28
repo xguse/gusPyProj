@@ -106,7 +106,7 @@ if __name__ == '__main__':
     # ++++++++++ Calculate The Correlations ++++++++ 
     print 'Getting vectors... %s' % (ctime())
     vector0 = tuple([x[0] for x in readDict.values()])
-    vector1 = tuple([x[0] for x in readDict.values()])
+    vector1 = tuple([x[1] for x in readDict.values()])
     print ctime()
     
     print 'Deleting readDict...'
