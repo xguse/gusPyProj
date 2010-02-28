@@ -2,9 +2,11 @@ from time import time
 from time import ctime
 import optparse
 import sys
+import os
 import scipy.stats as stats
 import matplotlib as mpl
-mpl.use('TkAgg')
+if os.environ['USER'] == 'biggus':
+    mpl.use('TkAgg')
 try:
     import gusPyCode
 except:
@@ -50,9 +52,9 @@ if __name__ == '__main__':
     parser.add_option('-o',dest="out_name",type="string",default=False,
                       help="""<required> Name to give result files.""")
     parser.add_option('-f',dest="file_type",type="string",default='fastq',
-                      help="""File format of readsFiles.""")
+                      help="""File format of readsFiles. (default=%default)""")
     parser.add_option('--show',dest="show",action="store_true",default=False,
-                      help="""Show plot in window.""")
+                      help="""Show plot in window. (default=%default)""")
 
 
     
