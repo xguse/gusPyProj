@@ -18,7 +18,16 @@ pl.rcParams['figure.figsize'] = 11, 8.5
 
 #+++++++++++ Definitions +++++++++++
 
-colors = ['#1D7373', '#269926', '#FF7373', '#5CCCCC', '#FF0000', '#009999', '#00CC00', '#67E667', '#FFB273', '#FF7400', '#BF3030', '#BF7130']
+colors = ['#FDFF00',
+          '#222222',
+          '#00FF00',
+          '#78006F',
+          '#00FFFF',
+          '#FF0000',
+          '#FFC300',
+          '#808080',
+          '#1B00FF',
+          '#FF00AE',]
 
 def loadMotifs(args,sigLvl,filterMotifs):
     """load and store motifs from XML files giving each a unique ID and culling out the ones we want."""
@@ -73,7 +82,8 @@ def loadGenes(geneListPath):
     """load and sort genes to be plotted alphabetically. """
     if not geneListPath:
         return None
-    gList = sorted(map(lambda l: l.strip(), open(geneListPath, 'rU')))
+    gList = map(lambda l: l.strip(), open(geneListPath, 'rU'))
+    #gList.sort()
     gList.reverse()
     return gList
 
@@ -116,7 +126,7 @@ def plotMotifs4Gene(axes,patchDict,gene,motifsInGene,yVal,zorder):
     
 def setMotifColors(motifDict,colors):
     """Assign colors to the filtered motifs in motifDict.  Adds
-    "self.color"attrib to the motif object directly."""
+    "self.color" attrib to the motif object directly."""
     for m in motifDict:
         motifDict[m].color = colors.pop()
         
