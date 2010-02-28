@@ -124,7 +124,7 @@ if __name__ == '__main__':
     
     # ++++++++++ write labeled vectors to file ++++++++ 
     print 'Writing labeled vectors to file....'
-    oFile = open(opts.out_file,'w')
+    oFile = open(opts.out_name,'w')
     oFile.write('%s\t%s\n' % (readsFile0.split('/')[-1],readsFile1.split('/')[-1])) # label columns
     for i in range(len(vector0)):
         oFile.write('%s\t%s\n' % (vector0[i],vector1[i]))
