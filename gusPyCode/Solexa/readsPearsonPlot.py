@@ -51,6 +51,9 @@ if __name__ == '__main__':
                       help="""<required> Name to give result files.""")
     parser.add_option('-f',dest="file_type",type="string",default='fastq',
                       help="""File format of readsFiles.""")
+    parser.add_option('--show',dest="show",action="store_true",default=False,
+                      help="""Show plot in window.""")
+
 
     
     
@@ -119,6 +122,7 @@ if __name__ == '__main__':
     spearman = stats.spearmanr(vector0,vector1)
     
     # ++++++++++ Plot the scatter plot ++++++++ 
+    print "Drawing..."
     fig = pl.figure()
     ax  = fig.add_subplot(111)
     
@@ -131,5 +135,7 @@ if __name__ == '__main__':
             verticalalignment='top',
             transform = ax.transAxes)
     pl.savefig(opts.out_name)
-    pl.show()
+    print 'Show?  %s' % (opts.no_show)
+    if opts.show:
+        pl.show()
     
