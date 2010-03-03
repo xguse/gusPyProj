@@ -5,10 +5,41 @@ from TAMO.MotifTools import Motif
 from TAMO.seq import Fasta
 from gusPyCode.defs.statsDefs import hypergeoP
 
+class ParseSolSorted(object):
+    """Class to parse and return a single read entry from solexa x_sorted.txt file type."""
+    def __init__(self,filePath):
+        """Returns a line-by-line solexa x_sorted.txt parser analogous to file.readline().
+        Exmpl: parser.getNext() """
+        self._file = open(filePath, 'rU')
+        
+    def getNext(self):
+        """Reads in next line, parses fields, returns fieldTuple or None (eof)."""
+        line = self._file.readline()
+        if line:
+            return tuple(line.strip('\n').split('\t'))
+        else: 
+            return None
+    
+    def getNextReadSeq(self):
+        """Calls self.getNext and returns only the readSeq."""
+        line = self.getNext()
+        if line:
+            return line[8]
+        
+    def getNextReadCoords():
+        """Calls self.getNext and returns only the readCoords t(str(contig),int(start),int(stop))."""
+        line = self.getNext()
+        if line:
+            contig = line[11]
+            start  = int(line[12])
+            stop   = int(line[12])+int(line[14])-1 # start+len-1
+            return tuple([contig,start,stop])
+
+
 class ParseBowtieBed(object):
     """Class to parse and return a single read entry from bowtie_bed file type."""
     def __init__(self,filePath):
-        """Returns a readSeq-by-readSeq bowtie_bed parser analogous to file.readline().
+        """Returns a line-by-line bowtie_bed parser analogous to file.readline().
         Exmpl: parser.getNext() """
         self._file = open(filePath, 'rU')
         
