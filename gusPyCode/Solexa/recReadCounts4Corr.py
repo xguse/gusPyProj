@@ -28,15 +28,15 @@ def setParser(filePath,fileType):
     return supportedFileTypes[fileType](filePath)
 
     
-def addRead(readSeq,readDict,whichFile):
+def addRead(readEntry,readDict,whichFile):
     """Increment count for read in correct file count. If not in dict,
     initialize entry and increment correct file's count."""
     
-    if readSeq in readDict:
-        readDict[readSeq][whichFile] += 1
+    if readEntry in readDict:
+        readDict[readEntry][whichFile] += 1
     else:
-        readDict[readSeq] = [0,0]
-        readDict[readSeq][whichFile] += 1
+        readDict[readEntry] = [0,0]
+        readDict[readEntry][whichFile] += 1
 
 
 if __name__ == '__main__':
@@ -48,10 +48,13 @@ if __name__ == '__main__':
     parser = optparse.OptionParser(usage)
     parser.add_option('-o',dest="out_name",type="string",default=False,
                       help="""<required> Name to give result files.""")
+    parser.add_option('-t',dest="compare_type",type="string",default='readSeq',
+                      help="""Type of data to compare [readSeq,readCoords] (default=%default)""")
     parser.add_option('-f',dest="file_type",type="string",default='fastq',
                       help="""File format of readsFiles. (default=%default)""")
     parser.add_option('--show',dest="show",action="store_true",default=False,
                       help="""Show plot in window. (default=%default)""")
+    
 
 
     
@@ -68,6 +71,14 @@ if __name__ == '__main__':
     if not opts.out_name:
         parser.print_help()
         print "\n\n** ERROR: You must supply an out name. **"
+    if opts.compare_type not in ['readSeq','readCoords']:
+        parser.print_help()
+        print "\n\n** ERROR: compare_type can only be %s **" % (['readSeq','readCoords'])
+    
+    readCoordIncompatibles = ['fastq',]
+    if (opts.compare_type  == 'readCoords') and (opts.file_type in readCoordIncompatibles):
+        parser.print_help()
+        print "\n\n** ERROR: compare_type(%s) is not compatible with file_types(%s)**" % (opts.compare_type,readCoordIncompatibles)
         
 
     # ++++++++++ Open Files And Get Variables Set up ++++++++
@@ -76,6 +87,14 @@ if __name__ == '__main__':
     # -- set up correct parsers --
     parser0 = setParser(readsFile0,opts.file_type)
     parser1 = setParser(readsFile1,opts.file_type)
+    if opts.compare_type == 'readCoords':
+        parser0_getNext = parser0.getNextReadCoords
+        parser1_getNext = parser1.getNextReadCoords
+    elif opts.compare_type == 'readSeq':
+        parser0_getNext = parser0.getNextReadSeq
+        parser1_getNext = parser1.getNextReadSeq
+
+    
     
     readDict     = {} ## to collect read counts
     
@@ -85,9 +104,9 @@ if __name__ == '__main__':
     t1_0 = time()
     whichFile = 0
     while 1:
-        readSeq = parser0.getNextReadSeq()
-        if readSeq:
-            addRead(readSeq,readDict,whichFile)
+        readEntry = parser0_getNext() 
+        if readEntry:
+            addRead(readEntry,readDict,whichFile)
         else: break
     t2_0 = time()
     print 'Counting took %s min.' % ((t2_0-t1_0)/60)
@@ -96,9 +115,9 @@ if __name__ == '__main__':
     t1_1 = time()
     whichFile = 1
     while 1:
-        readSeq = parser1.getNextReadSeq()
-        if readSeq:
-            addRead(readSeq,readDict,whichFile)
+        readEntry = parser1_getNext()
+        if readEntry:
+            addRead(readEntry,readDict,whichFile)
         else: break
     t2_1 = time()
     print 'Counting took %s min.' % ((t2_1-t1_1)/60)
@@ -118,9 +137,7 @@ if __name__ == '__main__':
     print 'Calculating Pearson... %s' % (ctime())
     pearson  = stats.pearsonr(vector0,vector1)
     print pearson
-    print 'Calculating Spearman... %s' % (ctime())
-    spearman = stats.spearmanr(vector0,vector1)
-    print spearman
+
     
     # ++++++++++ write labeled vectors to file ++++++++ 
     print 'Writing labeled vectors to file....'
