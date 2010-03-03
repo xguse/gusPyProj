@@ -22,24 +22,37 @@ from gusPyCode.defs.bioDefs import ParseFastQ, ParseBowtieBed
 
 #+++++++++ Definitions ++++++++++ 
 
-supportedFileTypes = {"bowtie_bed":ParseBowtieBed,
-                      "fastq": ParseFastQ}
-def setParser(filePath,fileType):
-    """Return the correct parser initialized and ready for use."""
-    assert fileType in supportedFileTypes,\
-           "** ERROR: %s not supported file type: %s **" % (fileType,supportedFileTypes.keys())
-    return supportedFileTypes[fileType](filePath)
-
+def parseVecfiles(pathsList):
+    """Takes pathsList and returns a list of parsed vectorFile info objects.
+    vectorInfoObj format = tuple(t(header0,header1),t(vector0),t(vector1))"""
     
-def addRead(readSeq,readDict,whichFile):
-    """Increment count for read in correct file count. If not in dict,
-    initialize entry and increment correct file's count."""
+    rList  = []
     
-    if readSeq in readDict:
-        readDict[readSeq][whichFile] += 1
-    else:
-        readDict[readSeq] = [0,0]
-        readDict[readSeq][whichFile] += 1
+    for path in pathsList:
+        header = []
+        vec0   = []
+        vec1   = []
+        
+        vecFile = open(path,'rU')
+        
+        header.extend(vecFile.readline().strip('\n').split('\t'))
+        #dBugCnt = 0
+        while 1: #dBugCnt < 10000:
+            #dBugCnt+=1
+            line = vecFile.readline()
+            if not line:
+                break
+            line = line.strip('\n').split('\t')
+            vec0.append(int(line[0]))
+            vec1.append(int(line[1]))
+        rList.append(tuple([tuple(header),tuple(vec0),tuple(vec1)]))
+    
+    return tuple(rList)
+        
+            
+            
+        
+    
 
 
 if __name__ == '__main__':
@@ -47,14 +60,11 @@ if __name__ == '__main__':
     
     #+++++++++ Parse Command Line ++++++++++
         
-    usage = """python %prog -o outName readsFile1 readsFile2"""
+    usage = """python %prog [options] vectorFile0 [vectorFile1 vectorFile2 ...]"""
     parser = optparse.OptionParser(usage)
-    parser.add_option('-o',dest="out_name",type="string",default=False,
-                      help="""<required> Name to give result files.""")
-    parser.add_option('-f',dest="file_type",type="string",default='fastq',
-                      help="""File format of readsFiles. (default=%default)""")
+
     parser.add_option('--show',dest="show",action="store_true",default=False,
-                      help="""Show plot in window. (default=%default)""")
+                      help="""Show plot(s) in window. (default=%default)""")
 
 
     
@@ -64,80 +74,55 @@ if __name__ == '__main__':
     if len(sys.argv) == 1:
         parser.print_help()
         exit(1)
-    if len(args) != 2:
+    if len(args) < 1:
         parser.print_help()
-        print "\n\n** ERROR: Please supply exactly two readsFiles. **"
+        print "\n\n** ERROR: Please supply at least one vectorFile. **"
         exit(1)
-    if not opts.out_name:
-        parser.print_help()
-        print "\n\n** ERROR: You must supply an out name. **"
+
         
 
     # ++++++++++ Open Files And Get Variables Set up ++++++++
-    readsFile0   = args[0]
-    readsFile1   = args[1]
-    # -- set up correct parsers --
-    parser0 = setParser(readsFile0,opts.file_type)
-    parser1 = setParser(readsFile1,opts.file_type)
-    
-    readDict     = {} ## to collect read counts
-    
-    # ++++++++++ Execute the counting ++++++++
-    # --- readsFile0 ---
-    print 'Counting the first file...'
-    t1_0 = time()
-    whichFile = 0
-    while 1:
-        readSeq = parser0.getNextReadSeq()
-        if readSeq:
-            addRead(readSeq,readDict,whichFile)
-        else: break
-    t2_0 = time()
-    print 'Counting took %s min.' % ((t2_0-t1_0)/60)
-    # --- readsFile1 ---
-    print 'Counting the second file...'
-    t1_1 = time()
-    whichFile = 1
-    while 1:
-        readSeq = parser1.getNextReadSeq()
-        if readSeq:
-            addRead(readSeq,readDict,whichFile)
-        else: break
-    t2_1 = time()
-    print 'Counting took %s min.' % ((t2_1-t1_1)/60)
+    print 'Parsing vector files...' 
+    vectorFiles   = parseVecfiles(args)
+
+
+    # ++++++++++ plot each vector file ++++++++
+    for vecFile in vectorFiles:
         
-    # ++++++++++ Calculate The Correlations ++++++++ 
-    print 'Getting vectors... %s' % (ctime())
-    vector0 = tuple([x[0] for x in readDict.values()])
-    vector1 = tuple([x[0] for x in readDict.values()])
-    print ctime()
+        # ++++++++++ Calculate The Correlations ++++++++ 
+        
+        print 'Calculating Pearson... %s' % (ctime())
+        pearson  = stats.pearsonr(vecFile[1],vecFile[2])
+        print pearson
     
-    print 'Deleting readDict...'
-    t1_del = time()
-    del(readDict)
-    t2_del = time()
-    print '%s min.' % ((t2_del-t1_del)/60)
-    
-    print 'Calculating Pearson... %s' % (ctime())
-    pearson  = stats.pearsonr(vector0,vector1)
-    print 'Calculating Spearman... %s' % (ctime())
-    spearman = stats.spearmanr(vector0,vector1)
-    
-    # ++++++++++ Plot the scatter plot ++++++++ 
-    print "Drawing..."
-    fig = pl.figure()
-    ax  = fig.add_subplot(111)
-    
-    ax.plot(vector0,vector1, 'bo')
-    ax.set_xlabel(parser0._file.name)
-    ax.set_ylabel(parser1._file.name)
-    pl.text(0,1,'Pearson: (%s,%s)\nSpearman: (%s,%s)' % (pearson[0],pearson[1],spearman[0],spearman[1]),
-            bbox=dict(facecolor='grey', alpha=1),
-            horizontalalignment='left',
-            verticalalignment='top',
-            transform = ax.transAxes)
-    pl.savefig(opts.out_name)
-    print 'Show?  %s' % (opts.show)
-    if opts.show:
-        pl.show()
+        
+        # ++++++++++ Plot the scatter plot ++++++++ 
+        print "Drawing..."
+        fig = pl.figure()
+        ax  = fig.add_subplot(111)
+        ax.set_xscale('log')
+        ax.set_yscale('log')
+        
+        ax.scatter(vecFile[1],vecFile[2], s=15, c='b', marker='o', alpha=0.5)
+        ax.set_xlabel(vecFile[0][0])
+        ax.set_ylabel(vecFile[0][1])
+
+        
+        m,b  = pl.polyfit(vecFile[1],vecFile[2],1)
+        bfYs = pl.polyval([m,b], [1,max(vecFile[1])])
+        
+        ax.plot([1,max(vecFile[1])],bfYs,'r-')
+        
+        pl.text(0.01,0.99,'Pearson: %.4f, %s\nBest Fit: y=%.3f*x+%.3f' % (pearson[0],pearson[1],m,b),
+                bbox=dict(facecolor='#87AACD', alpha=1),
+                horizontalalignment='left',
+                verticalalignment='top',
+                transform = ax.transAxes)
+        
+        
+
+        pl.savefig('%s_vs_%s.png' % (vecFile[0][0],vecFile[0][1]))
+        print 'Show?  %s' % (opts.show)
+        if opts.show:
+            pl.show()
     
