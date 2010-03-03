@@ -22,9 +22,12 @@ def cleanData(inF,col):
     tmpData = []
     for i in range(1,len(inF)):
         try:
+            #datum = float(inF[i][col])
+            #if datum != 0:
+                #tmpData.append(datum)
             tmpData.append(float(inF[i][col]))
         except ValueError:
-            print "ValueError"
+            print "ValueError: %s" % (inF[i][col])
     return (header,tmpData)
 
 title,data = cleanData(inF,5)
