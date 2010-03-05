@@ -1,22 +1,64 @@
 from time import time
 import optparse
 import sys
-from TAMO.seq import Fasta
+from gusPyCode.defs.JamesDefs import detect_1D_overlap
 from gusPyCode.defs.JamesDefs import Bag
 
+def any2noChange(lineList):
+    """Returns the lineList as is."""
+    return lineList
+    
+def sorted2DEGseq(lineList):
+    """Code to convert sorted to DEGseq."""
+    rList = [str(lineList[11]),
+             str(lineList[12]),
+             str(int(lineList[12])+int(lineList[14])-1),
+             '|'.join(lineList[:8])+'_'+lineList[8],
+             str(0),
+             lineList[13]]
+    if   lineList[-1] == 'R':lineList[-1]='-'
+    elif lineList[-1] == 'F':lineList[-1]='+'
+    
+    return rList
+    
+def bowtie2DEGseq(lineList):
+    """Code to convert bowtie to DEGseq."""
+    return [lineList[2],
+            lineList[3],
+            str(len(lineList[4])+int(lineList[3])-1),
+            lineList[0]+'_'+lineList[4],
+            lineList[6],
+            lineList[1]]
+
 def getCoords(filePath):
-    """ """
+    """Get and parse list of "restricted" genomic alignment coords."""
     return map(lambda l: l.strip('\n').split('\t'), open(filePath,'rU'))
 
-def iterReadsLine(readsFileLine,newReadsFile,coordsList,hitDict,fileType):
-    """ """
-    fileTypes = {"sorted":{},
+def buildCoordsDict(coordsList):
+    """Kludge to build dict allowing for faster lookups while not breaking what "needs" coordsDict.
+    keys = contigName; values = listOfCoordsOnContig"""
+    
+    coordsDict = {}
+    for i in range(len(coordsList)):
+        if coordsDict.has_key(coordsList[i][0]):
+            coordsDict[coordsList[i][0]].append(coordsList[i][1:])
+        else:
+            coordsDict[coordsList[i][0]] = []
+            coordsDict[coordsList[i][0]].append(coordsList[i][1:])
+            
+    return coordsDict
+            
+    
+
+def iterReadsLine(readsFileLine,newReadsFile,coordsDict,hitDict,fileType):
+    """Call checkCoords() for overlap in coords and write to filtered file."""
+    fileTypes = {"sorted":Bag({'seqName':'line[11]',
+                               'start':'int(line[12])',
+                               'end':'int(line[12])+int(line[14])-1'}),
                  "bowtie":Bag({'seqName':'line[2]',
                                'start':'int(line[3])',
                                'end':'int(line[3])+len(line[4])-1'})}
-    if not fileType == "bowtie":
-        print "** ERROR: At this time only 'bowtie' fileType is supported **"
-        exit(1)  
+ 
     if not fileType in fileTypes:
         parser.print_help()
         print "** ERROR: %s is not a valid fileType: %s **" % (opts.file_type, fileTypes.keys())
@@ -24,50 +66,45 @@ def iterReadsLine(readsFileLine,newReadsFile,coordsList,hitDict,fileType):
     line = readsFileLine.split('\t')
     fileStats = fileTypes[opts.file_type]
     readCoords = [eval(fileStats.seqName), eval(fileStats.start), eval(fileStats.end)]
-    searchResult = checkCoords(readCoords,coordsList)
-    if len(searchResult) == 0:
+    searchResult = checkCoords(readCoords,coordsDict)
+    if not searchResult:
         writeOut(line,newReadsFile,inType=opts.file_type,outType=opts.out_type)
     else:
-        for result in searchResult:
-            hitDict[result] += 1
+        hitDict[searchResult] += 1
             
-#def iterBowtie(readsFileLine,newReadsFile,fastaDict,hitDict):
-    #""" """
-    #line = readsFileLine
-    #read = line.split('\t')[4]
-    #searchResult = searchFastas(read,newReadsFile,fastaDict)
-    #if len(searchResult) == 0:
-        #newReadsFile.write(line)
-    #else:
-        #for result in searchResult:
-            #hitDict[result] += 1
     
 
-def checkCoords(readCoords,coordsList):
-    """ """
-    indexHits = []
-    for i in range(len(coordsList)):
-        # -- on right seqName? --
-        if not readCoords[0] == coordsList[i][0]:
-            continue
-        # -- coords overlap with nixCoords? --
-        if detect_1D_overlap(readCoords[1:3],coordsList[i][1:3]):
-            indexHits.append(i)
+def checkCoords(readCoords,coordsDict):
+    """Check for overlap in coords"""
+    
+    hitDictKey = False
+    # -- get right contig data if exists --
+    if coordsDict.has_key(readCoords[0]):
+        cntgNixCoords = coordsDict[readCoords[0]]
+    else:
+        return hitDictKey
+    # -- cycle through nixCoords for overlap --
+    for i in range(len(cntgNixCoords)):
+        if detect_1D_overlap(readCoords[1:3],cntgNixCoords[i][0:2]):
+            # -- If hit, set hitDictKey and break --
+            hitDictKey = tuple([readCoords[0]]+cntgNixCoords[i]) # re-constructs a key in hitDict
             break
-    return indexHits
+    
+
+    return hitDictKey
     
 def writeOut(line,newReadsFile,inType="bowtie",outType="DEGseq"):
-    """ """
+    """Write line to new file in correct file format."""
     cvrtTo     = ("no_change", 
                   "DEGseq")
     
     cvrtFrom   = ("sorted", 
                   "bowtie")
     
-    cvrtnTable = {"bowtie":{"DEGseq":'''[line[2],line[3],str(len(line[4])+int(line[3])-1),line[0]+'_'+line[4],line[6],line[1]]''',
-                            "no_change":'''line''',},
-                  "sorted":{"DEGseq":'''exit('\n\n** ERROR: this conversion has not been defined yet. **\n** See def writeOut. **')''',
-                            "no_change":'''line''',},
+    cvrtnTable = {"bowtie":{"DEGseq"    : bowtie2DEGseq,
+                            "no_change" : any2noChange,},
+                  "sorted":{"DEGseq"    : sorted2DEGseq,
+                            "no_change" : any2noChange,},
                   }
     
     if not inType in cvrtFrom:
@@ -79,7 +116,7 @@ def writeOut(line,newReadsFile,inType="bowtie",outType="DEGseq"):
         print "** ERROR: %s is not a valid outType: %s **" % (outType, cvrtTo)
         exit(1)
         
-    toWrite = eval(cvrtnTable[inType][outType])
+    toWrite = cvrtnTable[inType][outType](line)
     newReadsFile.write('\t'.join(toWrite+['\n']))
     
 
@@ -89,7 +126,7 @@ if __name__ == '__main__':
     
     #+++++++++ Parse Command Line ++++++++++
         
-    usage = """python %prog readsFile -f fasta1,fasta2,..fastaN -r runName """
+    usage = """python %prog readsFile -g genomicCoordsFile -r runName [options]"""
     parser = optparse.OptionParser(usage)
     parser.add_option('-g',dest="genomic_coords",type="string",default=False,
                       help="""<required> A filter file containing lines of form:\nseqName<tab>start<tab>stop""")
@@ -125,27 +162,29 @@ if __name__ == '__main__':
     readsFile    = open(args[0],'rU')
     newReadsFile = open("%s_filtered.txt" % (opts.run_name),'w')
     coordsList   = getCoords(opts.genomic_coords)
+    coordsDict   = buildCoordsDict(coordsList)
     hitDict      = {} ## to collect reads that match the fasta
     
     # -- init hitDict --
     for i in range(len(coordsList)):
-        hitDict[i] = 0
+        hitDict[tuple(coordsList[i])] = 0
         
     # ++++++++++ Its Bidness Time! ++++++++
     t1 = time() ## Start timer
     while 1:
         readsFileLine = readsFile.readline().strip('\n')
         if readsFileLine:
-            iterReadsLine(readsFileLine,newReadsFile,coordsList,hitDict,opts.file_type)
+            iterReadsLine(readsFileLine,newReadsFile,coordsDict,hitDict,opts.file_type)
         else: break
     
     # ++++++++++ Write OutTable ++++++++
     outTable = open("%s_hitTable.txt" % (opts.run_name), 'w')
     for key in sorted(hitDict):
         if hitDict[key] > 0:
-            outTable.write('%s\t%s\t%s\t%s\t\n' % (coordsList[key][0],
-                                                     coordsList[key][1],
-                                                     coordsList[key][2],
+            outTable.write('%s\t%s\t%s\t%s\t%s\n' % (key[0],
+                                                     key[1],
+                                                     key[2],
+                                                     key[3],
                                                      hitDict[key]))
     
     t2 = time() ## End timer    
