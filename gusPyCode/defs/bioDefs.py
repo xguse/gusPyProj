@@ -11,6 +11,13 @@ class ParseSolexaSorted(object):
         """Returns a line-by-line solexa x_sorted.txt parser analogous to file.readline().
         Exmpl: parser.getNext() """
         self._file = open(filePath, 'rU')
+    
+    def _parseCoords(self,line):
+        """Takes solexa file line, returns t(contig,start,stop)"""
+        contig = line[11]
+        start  = int(line[12])
+        stop   = int(line[12])+int(line[14])-1 # start+len-1
+        return tuple([contig,start,stop])
         
     def getNext(self):
         """Reads in next line, parses fields, returns fieldTuple or None (eof)."""
@@ -30,21 +37,60 @@ class ParseSolexaSorted(object):
         """Calls self.getNext and returns only the readCoords t(str(contig),int(start),int(stop))."""
         line = self.getNext()
         if line:
-            contig = line[11]
-            start  = int(line[12])
-            stop   = int(line[12])+int(line[14])-1 # start+len-1
-            return tuple([contig,start,stop])
+            return self._parseCoords(line)
+            
 
 
-class ParseSolexaSorted(object):
-    """Class to parse and return a single read entry from solexa x_sorted.txt file type."""
+#class ParseSolexaSorted(object):
+    #"""Class to parse and return a single read entry from solexa x_sorted.txt file type."""
+    #def __init__(self,filePath):
+        #"""Returns a line-by-line solexa x_sorted.txt parser analogous to file.readline().
+        #Exmpl: parser.getNext() """
+        #self._file = open(filePath, 'rU')
+        
+    #def getNext(self):
+        #"""Reads in next line, parses fields, returns fieldTuple or None (eof)."""
+        #line = self._file.readline()
+        #if line:
+            #return tuple(line.strip('\n').split('\t'))
+        #else: 
+            #return None
+    
+    #def getNextReadSeq(self):
+        #"""Calls self.getNext and returns only the readSeq."""
+        #line = self.getNext()
+        #if line:
+            #return line[8]
+        
+    #def getNextReadCoords(self):
+        #"""Calls self.getNext and returns only the readCoords t(str(contig),int(start),int(stop))."""
+        #line = self.getNext()
+        #if line:
+            #contig = line[11]
+            #start  = int(line[12])
+            #stop   = int(line[12])+int(line[14])-1 # start+len-1
+            #return tuple([contig,start,stop])
+
+class ParseBowtieMap(object):
+    """Class to parse and return a single read entry from bowtie.map file type."""
     def __init__(self,filePath):
-        """Returns a line-by-line solexa x_sorted.txt parser analogous to file.readline().
+        """Returns a line-by-line bowtie.map parser analogous to file.readline().
         Exmpl: parser.getNext() """
         self._file = open(filePath, 'rU')
         
+    def _parseCoords(self,line):
+        """Returns coords info t(contig,start,stop) for a bowtie.map line tuple"""
+        contig = line[2]
+        start  = int(line[3])
+        stop   = int(line[3])+len(line[4])-1 # start+len-1
+        return tuple([contig,start,stop])
+    
+    def _parseReadSeq(self,line):
+        """Returns seq string bowtie.map line tuple"""
+        return line[4]
+    
     def getNext(self):
-        """Reads in next line, parses fields, returns fieldTuple or None (eof)."""
+        """Reads in next line, splits fields, returns fieldTuple or None (eof)."""
         line = self._file.readline()
         if line:
             return tuple(line.strip('\n').split('\t'))
@@ -55,17 +101,7 @@ class ParseSolexaSorted(object):
         """Calls self.getNext and returns only the readSeq."""
         line = self.getNext()
         if line:
-            return line[8]
-        
-    def getNextReadCoords(self):
-        """Calls self.getNext and returns only the readCoords t(str(contig),int(start),int(stop))."""
-        line = self.getNext()
-        if line:
-            contig = line[11]
-            start  = int(line[12])
-            stop   = int(line[12])+int(line[14])-1 # start+len-1
-            return tuple([contig,start,stop])
-
+            return self._parseReadSeq(line)
 
 class ParseBowtieBed(object):
     """Class to parse and return a single read entry from bowtie_bed file type."""
@@ -73,6 +109,9 @@ class ParseBowtieBed(object):
         """Returns a line-by-line bowtie_bed parser analogous to file.readline().
         Exmpl: parser.getNext() """
         self._file = open(filePath, 'rU')
+        
+    def _parseCoords(self,line):
+        """Returns coords info t(contig,start,stop) for a bowt"""
         
     def getNext(self):
         """Reads in next line, parses fields, returns fieldTuple or None (eof)."""
