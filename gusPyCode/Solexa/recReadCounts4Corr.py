@@ -12,15 +12,16 @@ except:
                      '/Library/Python/2.5/site-packages/',
                      '/Library/Frameworks/Python.framework/Versions/2.5/lib/python2.5/site-packages/'])
 from gusPyCode.defs.JamesDefs import Bag
-from gusPyCode.defs.bioDefs import ParseFastQ, ParseBowtieBed
+from gusPyCode.defs.bioDefs import ParseFastQ, ParseBowtieBed, ParseSolexaSorted
 
 
  
 
 #+++++++++ Definitions ++++++++++ 
 
-supportedFileTypes = {"bowtie_bed":ParseBowtieBed,
-                      "fastq": ParseFastQ}
+supportedFileTypes = {"bowtie_bed": ParseBowtieBed,
+                      "fastq"     : ParseFastQ,
+                      "sorted"    : ParseSolexaSorted,}
 def setParser(filePath,fileType):
     """Return the correct parser initialized and ready for use."""
     assert fileType in supportedFileTypes,\
@@ -51,7 +52,7 @@ if __name__ == '__main__':
     parser.add_option('-t',dest="compare_type",type="string",default='readSeq',
                       help="""Type of data to compare [readSeq,readCoords] (default=%default)""")
     parser.add_option('-f',dest="file_type",type="string",default='fastq',
-                      help="""File format of readsFiles. (default=%default)""")
+                      help="""File format of readsFiles %s (default=%s)""" % (supportedFileTypes.keys(),"%default"))
     parser.add_option('--show',dest="show",action="store_true",default=False,
                       help="""Show plot in window. (default=%default)""")
     

@@ -12,6 +12,8 @@ from gusPyCode.defs import xpermutations
 def detect_1D_overlap(coords1,coords2):
     """Returns TRUE if coords1 overlaps with coords2.
     """
+    coords1[0],coords1[1] = int(coords1[0]),int(coords1[1])
+    coords2[0],coords2[1] = int(coords2[0]),int(coords2[1])
     # +++ Validate Usr Input +++
     assert (len(coords1)==2) and (len(coords2)==2), \
            "** ERROR: coords1 and coords2 must be lists of length 2! **"
