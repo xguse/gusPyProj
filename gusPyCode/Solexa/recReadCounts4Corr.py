@@ -122,7 +122,7 @@ if __name__ == '__main__':
             if readLine == None:
                 break
             else:
-                if readLine[0].split(':')[:3] != lastLine[0].split(':')[:3]:
+                if readLine[0].split(':')[:2] != lastLine[0].split(':')[:2]:
                     whichRep += 1
                     assert whichRep <= 1, \
                            """** ERROR: It looks like your bowtie.map file has more than one dataset
