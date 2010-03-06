@@ -126,7 +126,7 @@ if __name__ == '__main__':
                     whichRep += 1
                     assert whichRep <= 1, \
                            """** ERROR: It looks like your bowtie.map file has more than one dataset
-                           based on the machine+lane criteria I use. **"""
+                           based on the machine+lane criteria I use.  [%s] vs [%s] **""" % (readLine[0].split(':')[:3], lastLine[0].split(':')[:3])
                         
                 
         t2_0 = time()
