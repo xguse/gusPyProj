@@ -103,7 +103,7 @@ if __name__ == '__main__':
         ax.set_xscale('log')
         ax.set_yscale('log')
         
-        ax.scatter(vecFile[1],vecFile[2], s=15, c='b', marker='o', alpha=0.5)
+        ax.scatter(vecFile[1],vecFile[2], s=15, c='b', marker='o', alpha=0.2)
         ax.set_xlabel(vecFile[0][0])
         ax.set_ylabel(vecFile[0][1])
 
