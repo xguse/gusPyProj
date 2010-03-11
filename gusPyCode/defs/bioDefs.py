@@ -5,6 +5,41 @@ from TAMO.MotifTools import Motif
 from TAMO.seq import Fasta
 from gusPyCode.defs.statsDefs import hypergeoP
 
+def vbGFF2BED(pathToIn,pathToOut,filterOnType=False):
+    """Iterates through GFF file line-by-line convertingthe line
+    to BED format and writing the new line out to the outFile. If
+    fileterOnType: only return lines whose type matches it."""
+    
+    print "** WARNING! vbGFF2BED does NOT convert the start stop coord systems! \nIf you need this use something else! **"
+    
+    inFile  = open(pathToIn, 'rU')
+    outFile = open(pathToOut, 'w')
+    
+    while 1:
+        line = inFile.readline()
+        if not line:
+            break
+        if line.startswith('#'):
+            continue
+        line = line.strip('\n').split('\t')
+        
+        # -- If filter, ignore those that dont match --
+        if filterOnType:
+            if line[2] != filterOnType:
+                continue
+        # -- Create/write new line --
+        chromName = line[0].split('|')[-1]
+        start     = line[3]
+        end       = line[4]
+        name      = '%s|%s' % (line[8].split(';')[0].split('|')[-1],line[2])
+        
+        newLine = [chromName,start,end,name]
+        outFile.write('%s\n' % ('\t'.join(newLine)))
+    
+    outFile.flush()
+    outFile.close()
+    print "%s converted to %s." % (pathToIn,pathToOut)
+
 class ParseSolexaSorted(object):
     """Class to parse and return a single read entry from solexa x_sorted.txt file type."""
     def __init__(self,filePath):
