@@ -6,6 +6,17 @@ import collections
 from gusPyCode.defs import xpermutations
 
 
+#=========================================================================
+# 03/11/10
+def filter2Dlist(data,index,srchTxt):
+    """
+    Returns list of data that contain <srchTxt> at position <index>.
+    """
+    rData = []
+    for each in data:
+        if each[index].find(srchTxt) != -1:
+            rData.append(each)
+    return rData
 
 #=========================================================================
 # 02/20/10
