@@ -5,12 +5,32 @@ from TAMO.MotifTools import Motif
 from TAMO.seq import Fasta
 from gusPyCode.defs.statsDefs import hypergeoP
 
+class ParseDEGseqOut(object):
+    """Class to parse and represent a DEGseq output file type."""
+    def __init__(self,filePath):
+        """Stores a list of tuples representing a DEGseq output file in self.data."""
+        self._file  = open(filePath, 'rU')
+        self.header = None  # will be converted to tuple later
+        self.data   = []    # contains a list of line tuples
+        while 1:
+            line = self._file.readline()
+            if line == '':
+                break
+            else:
+                if line.startswith('"'):
+                    self.header = tuple(line.replace('"','').strip('\n').split('\t'))
+                else:
+                    self.data.append(tuple(line.strip('\n').split('\t')))
+         
+    
+
+
+
 def vbGFF2BED(pathToIn,pathToOut,filterOnType=False):
     """Iterates through GFF file line-by-line convertingthe line
     to BED format and writing the new line out to the outFile. If
     fileterOnType: only return lines whose type matches it."""
     
-    print "** WARNING! vbGFF2BED does NOT convert the start stop coord systems! \nIf you need this use something else! **"
     
     inFile  = open(pathToIn, 'rU')
     outFile = open(pathToOut, 'w')
@@ -29,7 +49,7 @@ def vbGFF2BED(pathToIn,pathToOut,filterOnType=False):
                 continue
         # -- Create/write new line --
         chromName = line[0].split('|')[-1]
-        start     = line[3]
+        start     = str(int(line[3])-1)
         end       = line[4]
         name      = '%s|%s' % (line[8].split(';')[0].split('|')[-1],line[2])
         
