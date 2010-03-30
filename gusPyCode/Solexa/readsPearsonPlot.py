@@ -5,14 +5,7 @@ import sys
 import os
 import scipy.stats as stats
 import matplotlib as mpl
-if os.environ['USER'] == 'biggus':
-    mpl.use('TkAgg')
-try:
-    import gusPyCode
-except:
-    sys.path.extend(['/Users/biggus/lib/python/site-packages/',
-                     '/Library/Python/2.5/site-packages/',
-                     '/Library/Frameworks/Python.framework/Versions/2.5/lib/python2.5/site-packages/'])
+mpl.use('TkAgg')
 from matplotlib import pylab as pl
 from gusPyCode.defs.JamesDefs import Bag
 from gusPyCode.defs.bioDefs import ParseFastQ, ParseBowtieBed
