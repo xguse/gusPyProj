@@ -3,7 +3,44 @@ import random
 import copy
 import os
 import collections
+import subprocess
 from gusPyCode.defs import xpermutations
+
+
+def openTableFile(path,strip=None,split=None):
+	"""Performs map(lambda,fileHandle) on path using optional args.
+	Returns list."""
+	if not strip:
+		strip = '\n'
+	if not split:
+		split = '\t'
+	return map(lambda l: l.strip(strip).split(split), open(path, 'rU'))
+
+
+
+#=========================================================================
+# 04/05/10
+def pgrep(targetPath,pattern,options=None):
+    """
+    VERY simple wrapper to call grep and capture its stdout.
+    options = string like "-c -e" etc.
+    """
+    if options:
+        args = "%s '%s' %s" % (options,pattern,targetPath)
+    else:
+        args = "'%s' %s" % (pattern,targetPath)
+    cmd = 'grep %s' % (args)
+    
+    out = subprocess.Popen(cmd, shell=True,stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
+    if not out[1]:
+        rtrn = out[0].split('\n')
+        if not rtrn[-1]:
+            del(rtrn[-1])
+        return rtrn
+    else:
+        raise Exception('Error: "%s" returned by %s' % (out[1],cmd))
+    
+
 
 
 #=========================================================================
@@ -58,7 +95,7 @@ def tbl2nmdTup(filePath, name):
     # ---- Replace ' ' with '_' in header ----
     for i in range(len(header)):
         header[i] = header[i].replace(' ','_')
-        
+
     namedTab = collections.namedtuple(name,' '.join(header))
     return [namedTab._make(x) for x in data]
 
@@ -80,7 +117,7 @@ class Bag(dict):
     >>> x['foo'] = 'bar'
     >>> x.foo
     'bar'
-    
+
     """
     def __init__(self, *args, **kw):
         dict.__init__(self, *args, **kw)
@@ -116,7 +153,7 @@ def initList(numOfIndices,initVal):
     Returns a list of length len(numOfIndices) initialized with fresh invocations of the
     empty(or initialized) data type supplied with initVal.
     """
-    
+
     rList = []
     for i in range(numOfIndices):
         if (type(initVal) == type([])) or (type(initVal) == type({})) or (type(initVal) == type(set())):
@@ -140,17 +177,17 @@ def odd_or_even(integer):
 #=========================================================================
 # 06/05/09
 #def cmpListOfLists(a,b):
-    
+
 #=========================================================================
 # 08/26/09
 def randFromList_noRplcMulti(data, numToPull):
     assert numToPull <= len(data), \
            'ERROR in randFromList_noRplcMulti: numToPul > len(data)'
     data = data[:]
-    
+
     theChoosenOnes = []
     for i in range(numToPull):
-        
+
         if data != []:
             index = random.randint(0, len(data) - 1)
             elem = data[index]
@@ -159,7 +196,7 @@ def randFromList_noRplcMulti(data, numToPull):
             theChoosenOnes.append(elem)
         else:
             raise
-        
+
     return theChoosenOnes
 #=========================================================================
 # 06/04/09
@@ -178,14 +215,14 @@ def combineOrthoTabs(orthoTabsList, infer=False):
     """
     Take list of ortholog def lists in format:list[GeneIDspecies1,GeneIDspecies2]
     Return a list of orthologs found in all species.
-    
+
     If infer: allow inferences of N-way 1:1 orthos even if a members 1:1 pair is missing
     in a genomePair's list.  Else: require that the 1:1 relationship be explicitly defined
     in all genomes.
     """
-    
+
     orthoTabs = copy.deepcopy(orthoTabsList)
-    
+
     # If not infer: convert orthoTabsList to list of sets of sets
     # (since infer defualts to False this is default behavior)
     if infer == False:
@@ -193,11 +230,11 @@ def combineOrthoTabs(orthoTabsList, infer=False):
             for j in range(len(orthoTabsList[i])):
                 orthoTabsList[i][j] = frozenset(orthoTabsList[i][j])
             orthoTabsList[i] = frozenset(orthoTabsList[i]) 
-    
-    
+
+
     # Learn how many Genomes we are dealing with
     # and log the species prefixes
-    
+
     # Get representative geneNames
     geneNames = []
     for i in orthoTabs:
@@ -210,7 +247,7 @@ def combineOrthoTabs(orthoTabsList, infer=False):
         assert prefixRegEx.match(name) != None , 'geneNames(%s) do not seem to have form "PREFIX000000"' % (name)
         genomes.add(prefixRegEx.match(name).group())
     genomes = list(genomes)
-        
+
     # Move longest list to first position and use _IT_ as root list for merging
     orthoTabSizes = []
     for i in orthoTabs:
@@ -220,24 +257,24 @@ def combineOrthoTabs(orthoTabsList, infer=False):
         if len(orthoTabs[i]) == max(orthoTabSizes):
             biggest = orthoTabs.pop(i)
             orthoTabs.insert(0,biggest)
-    
+
     orthoTabSizes2 = []
     for i in orthoTabs:
         orthoTabSizes2.append(len(i))       
     ##print '%s' % (str(orthoTabSizes2))
-    
+
     # Set-ify all orthoPairs
     for i in range(len(orthoTabs)):
         for j in range(len(orthoTabs[i])):
             orthoTabs[i][j] = set(orthoTabs[i][j])
-    
+
     # Merge sets if any geneIDs are in common
     for i in range(1,len(orthoTabs)):                          # Start w/ 2nd orthoList and compare it and all after to 1st list
         for j in range(len(orthoTabs[i])):                     # For every j in 2nd or higher 
             for k in range(len(orthoTabs[0])):                 # Test every k in 1st orthoList for j
                 if orthoTabs[0][k]&orthoTabs[i][j]:            # If there is intersection bt k and ij,
                     orthoTabs[0][k].update(orthoTabs[i][j])    # merge k and ij
-                    
+
     # Remove redundancy and rename merged list for ease of use
     print 'len of mergedIDs list = %s' % (len(orthoTabs[0]))
     mergedIDs = orthoTabs[0]
@@ -245,15 +282,15 @@ def combineOrthoTabs(orthoTabsList, infer=False):
         mergedIDs[i] = frozenset(mergedIDs[i])
     mergedIDs = list(set(mergedIDs))
     print 'len of nr mergedIDs list = %s' % (len(mergedIDs))
-    
 
-    
-    
+
+
+
     # Sort each orthoSet
     for i in range(len(mergedIDs)):
         mergedIDs[i] = list(mergedIDs[i])
         mergedIDs[i].sort()
-        
+
     # Retain only those relationships that are the correct length
     # AND do not repeat Species prefixs ('AGAP')    
     filteredIDs = []
@@ -277,9 +314,9 @@ def combineOrthoTabs(orthoTabsList, infer=False):
                         else: orthoPairCount+=1
                 if orthoPairCount == len(orthoTabsList):
                     filteredIDs.append(orthoSet)
-                    
-    
-        
+
+
+
     # test for repeats in each genome's list of final names
     genomeNameLists = []
     for i in range(len(filteredIDs[0])):
@@ -294,8 +331,8 @@ def combineOrthoTabs(orthoTabsList, infer=False):
     for each in oneGenomeNRs:
         c1 += 1
         print '%s NRs in genome %s' % (each,c1)
-            
-            
+
+
     return filteredIDs
 
 #=========================================================================
@@ -303,16 +340,16 @@ def combineOrthoTabs(orthoTabsList, infer=False):
 def loadXXmiRNAs(filePath):
     f = open(filePath, 'rU').readlines()
     f = ''.join(f)
-    
+
     miRNAs = f.split('>')
     miRNAs.pop(0)
-    
+
     #split miRNA indexes into their own lists
     for i in range(0,len(miRNAs)):
         miRNAs[i] = miRNAs[i].strip('\n').split('\n')
-    
+
     return miRNAs
-        
+
 
 
 #=========================================================================
@@ -432,26 +469,26 @@ def iupacList_2_regExList(motifList):
 def iupac2fwdRevCmpTRegExObj(motif):
     """Takes motif in IUPAC form (WGATAR).  Returns a compiled python regular expression
     object recognizing either upper or lowercase of the fwd or revComp version of the motif."""
-    
+
     import re
-    
+
     # list of few and rev
     fwdAndRevCp = [motif,revComp(motif)]
-    
+
     # convert WGATAR to [AT]GATA[AG] for fwd and rev
     for i in range(2):
         fwdAndRevCp[i] = iupac2regex(fwdAndRevCp[i])
-    
+
     # create string to feed to re
     reString = '(%s|%s)' % (fwdAndRevCp[0],fwdAndRevCp[1])
-    
+
     # return compiled regEx Obj
     return re.compile(reString,re.IGNORECASE)
 
 
 def iupac2regex(motif):
     """Convert 'WGATAR' to '[AT]GATA[AG]'"""
-    
+
     iupacdict = {'A':'A',
                  'C':'C',
                  'G':'G',
@@ -480,12 +517,12 @@ def iupac2regex(motif):
 def reOrderDelimitedList(listOfDelimStrings, Delimiter, newOrderList):
     """
     Takes:	- one list delimited with a unique char and a list with new field indexes:
-	                reOrderDelimitedList(listOfDelimStrings, strToSplitOn, newOrderList)
-			- NOTE: any trailing newlines should be REMOVED
+    reOrderDelimitedList(listOfDelimStrings, strToSplitOn, newOrderList)
+    - NOTE: any trailing newlines should be REMOVED
 
     Does:	- explodes delimited list item into a list of its fields IN PLACE with explodeDelimitedList()
-			- uses a while loop to build new STRING with desired field order using original delimiter
-			- appends this string to returnList
+    - uses a while loop to build new STRING with desired field order using original delimiter
+    - appends this string to returnList
 
     Returns:		- new list of delimited strings with reorganized fields
     """
