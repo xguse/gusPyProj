@@ -1,9 +1,164 @@
 import sys
 import random
+import csv
 from scipy import mat, transpose
 from TAMO.MotifTools import Motif
 from TAMO.seq import Fasta
 from gusPyCode.defs.statsDefs import hypergeoP
+from gusPyCode.defs.JamesDefs import Bag
+from gusPyCode.defs import JamesDefs
+
+
+    
+
+def topCovHMMsplices(juncDict,frac=0.1):
+    """Returns a filtered version of juncDict containging _roughly_
+    the top 'frac' of splice juncs based on number of supporting
+    reads.
+    NOTE: Expects output from readJunctionsFromBed(saveWholeLine=True)"""
+
+    topJuncs = {}
+    covNums  = []
+    # --- get list of all coverages ---
+    for chrm in juncDict:
+        for jnc in juncDict[chrm]:
+            if 'junc=' in juncDict[chrm][jnc][0]:
+                covNums.append(int(juncDict[chrm][jnc][0].split('\t')[3].split('|')[-1].split('=')[-1]))
+            else:
+                covNums.append(1)
+    covNums.sort()
+    covNums.reverse()
+    covLim = covNums[int(round(len(covNums)*frac)-1)]
+    # --- build filtered dict ---
+    for chrm in juncDict:
+        for jnc in juncDict[chrm]:
+            if 'junc=' in juncDict[chrm][jnc][0]:
+                cov = int(juncDict[chrm][jnc][0].split('\t')[3].split('|')[-1].split('=')[-1])
+            else:
+                cov = 1
+            if cov >= covLim:
+                if topJuncs.has_key(chrm):
+                    topJuncs[chrm][jnc] = juncDict[chrm][jnc]
+                else:
+                    topJuncs[chrm]={}
+                    topJuncs[chrm][jnc] = juncDict[chrm][jnc]
+    return topJuncs
+
+                
+    
+
+
+
+def ensmblTx2BED(ensemblPath,BEDoutPath):
+    """Converts files(see below for colNames) to BED files of transcripts.
+    Ensembl Gene ID
+    Ensembl Transcript ID
+    Chromosome/plasmid
+    Gene Start (bp)
+    Gene End (bp)
+    Transcript Start (bp)
+    Transcript End (bp)
+    Strand
+    Transcript count
+    Ensembl Exon ID
+    Exon Chr Start (bp)
+    Exon Chr End (bp)
+    Exon Rank in Transcript
+    phase
+    Constitutive Exon
+    Biotype"""
+    # +++++ func specific Defs +++++
+    def getBlockSizes(tx):
+        blkSzList = []
+        for exn in tx:
+            blkSzList.append(str(int(exn[11])-int(exn[10])+1))
+        return ','.join(blkSzList)
+    
+    def getBlockStarts(tx,chrmStart):
+        blkStrtList = []
+        for exn in tx:
+            blkStrtList.append(str(int(exn[10])-1-int(chrmStart)))
+        return ','.join(blkStrtList)
+        
+    # +++++ initialize ensembl data +++++
+    txList = map(lambda l: l.strip('\n') , open(ensemblPath, 'rU'))
+    txList.pop(0)
+    txList = JamesDefs.groupByField_silent(txList,1)
+    
+    # +++++ prepare destination file +++++
+    bedFile = open(BEDoutPath,'w')
+    bedFile.write('track name="Ensembl Aa Tx Definitions"  description="From %s" useScore=0\n' % (ensemblPath))
+    
+    # +++++ loop through the Txs +++++
+    for tx in txList:
+        # --- sort tx based on lowest coords of each exon ---
+        tx.sort(key=lambda x: int(x[10]))
+        
+        chrm      = tx[0][2]
+        chrmStart = str(int(tx[0][5])-1)
+        chrmEnd   = tx[0][6]
+        name      = tx[0][1]
+        score     = '0'
+        strand    = tx[0][7]
+        thkStart  = chrmStart
+        thkEnd    = chrmEnd
+        rgb       = '0'
+        blkCount  = str(len(tx))
+        blkSizes  = getBlockSizes(tx)
+        blkStarts = getBlockStarts(tx,chrmStart)
+        
+        # --- write out line ---
+        bedFile.write('%s\n' % ('\t'.join([chrm,    
+                                           chrmStart,
+                                           chrmEnd,
+                                           name,
+                                           score,
+                                           strand,
+                                           thkStart,
+                                           thkEnd,
+                                           rgb,
+                                           blkCount,
+                                           blkSizes,
+                                           blkStarts])))
+    
+
+def getMosqXL_GOdata(path2XL_csv,bp=None,mf=None,cc=None):
+    """Returns a dict-tree of GOterm data tied to each Tx.
+    bp/mf/cc = (1stCol,lastCol) where columns are the GO data associated
+    with either the bp,mf,or cc GO domain types in the mosqXL csv file.
+    
+    Dict-tree = 'dictTree.Tx.domainType = tupleOfTuples(one for each GOterm
+    in this domain attached to this Tx)"""
+    
+    # Aa:
+    # mf(122,126)
+    # cc(127,131)
+    # bp(132,136)
+    
+    mXL_reader = csv.reader(path2XL_csv)
+    rDict      = Bag({})
+    dCoords    = Bag({}) 
+    
+    # -- build dCoords --
+    if bp:
+        dCoords.bp = Bag({'first':bp[0],
+                          'last' :bp[1]})
+    if mf:
+        dCoords.mf = Bag({'first':mf[0],
+                          'last' :mf[1]})
+    if cc:
+        dCoords.cc = Bag({'first':cc[0],
+                          'last' :cc[1]})
+     
+    # -- build rDict --
+    for row in mXL_reader:
+        if not row[0].startswith('#'):continue # dont want header
+        
+        
+        
+    
+    pass
+
 
 class ParseDEGseqOut(object):
     """Class to parse and represent a DEGseq output file type."""
@@ -27,7 +182,7 @@ class ParseDEGseqOut(object):
 
 
 def vbGFF2BED(pathToIn,pathToOut,filterOnType=False):
-    """Iterates through GFF file line-by-line convertingthe line
+    """Iterates through GFF file line-by-line converting the line
     to BED format and writing the new line out to the outFile. If
     fileterOnType: only return lines whose type matches it."""
     
@@ -52,8 +207,10 @@ def vbGFF2BED(pathToIn,pathToOut,filterOnType=False):
         start     = str(int(line[3])-1)
         end       = line[4]
         name      = '%s|%s' % (line[8].split(';')[0].split('|')[-1],line[2])
+        score     = '0'
+        strand    = line[6]
         
-        newLine = [chromName,start,end,name]
+        newLine = [chromName,start,end,name,score,strand]
         outFile.write('%s\n' % ('\t'.join(newLine)))
     
     outFile.flush()
