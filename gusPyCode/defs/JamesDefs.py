@@ -8,13 +8,13 @@ from gusPyCode.defs import xpermutations
 
 
 def openTableFile(path,strip=None,split=None):
-	"""Performs map(lambda,fileHandle) on path using optional args.
-	Returns list."""
-	if not strip:
-		strip = '\n'
-	if not split:
-		split = '\t'
-	return map(lambda l: l.strip(strip).split(split), open(path, 'rU'))
+    """Performs map(lambda,fileHandle) on path using optional args.
+    Returns list."""
+    if not strip:
+        strip = '\n'
+    if not split:
+        split = '\t'
+    return map(lambda l: l.strip(strip).split(split), open(path, 'rU'))
 
 
 
@@ -30,7 +30,7 @@ def pgrep(targetPath,pattern,options=None):
     else:
         args = "'%s' %s" % (pattern,targetPath)
     cmd = 'grep %s' % (args)
-    
+
     out = subprocess.Popen(cmd, shell=True,stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
     if not out[1]:
         rtrn = out[0].split('\n')
@@ -39,7 +39,7 @@ def pgrep(targetPath,pattern,options=None):
         return rtrn
     else:
         raise Exception('Error: "%s" returned by %s' % (out[1],cmd))
-    
+
 
 
 
