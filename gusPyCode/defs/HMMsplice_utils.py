@@ -506,7 +506,8 @@ def bowtieToWig(bowtieFile, trackName, trackDescription, outputName):
     print "Reading file in..."
     allCounts = _readBowtieInput(bowtieFile)
     print allCounts.keys()
-    _writeWiggle(trackName, trackDescription, allCounts, outputName, win=3)
+    _writeWiggleVar(trackName, trackDescription, allCounts, outputName)
+    #_writeWiggle(trackName, trackDescription, allCounts, outputName, win=3)
     #_writeWiggle(trackName, trackDescription, allCounts, outputName)        
 
 
@@ -585,6 +586,24 @@ def _writeWiggleWin(trackName, trackDescription, allCounts, wigOut, win=1):
 
     wigFile.close()
 
+def _writeWiggleVar(trackName, trackDescription, allCounts, wigOut):
+    """Writes the allCounts dictionary out to a wiggle file."""
+    wigFile = open(wigOut, "w")
+    wigFile.write("track type=wiggle_0 name='%s' description='%s' visibility=2\n" % (trackName,
+                                                                                     trackDescription))
+
+    for name in allCounts.keys():
+        start = 0
+        end = max(allCounts[name].keys())
+
+        wigFile.write("variableStep chrom=%s span=1\n" % (name))
+
+        for pos in sorted(allCounts[name].keys()):
+            wigFile.write("%s\t%s\n" % (pos,allCounts[name][pos]))
+
+
+    wigFile.close()    
+    
 
 def readJunctionsFromBed(inputBed, saveWholeLine=False, wiggle=0):
     junct = {}
