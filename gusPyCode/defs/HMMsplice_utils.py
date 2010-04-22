@@ -506,7 +506,8 @@ def bowtieToWig(bowtieFile, trackName, trackDescription, outputName):
     print "Reading file in..."
     allCounts = _readBowtieInput(bowtieFile)
     print allCounts.keys()
-    _writeWiggle(trackName, trackDescription, allCounts, outputName)        
+    _writeWiggle(trackName, trackDescription, allCounts, outputName, win=3)
+    #_writeWiggle(trackName, trackDescription, allCounts, outputName)        
 
 
 def _readBowtieInput(inputFile):
@@ -535,7 +536,7 @@ def _readBowtieInput(inputFile):
 
     return allCounts
 
-def _writeWiggle(trackName, trackDescription, allCounts, wigOut):
+def _writeWiggle(trackName, trackDescription, allCounts, wigOut, win=1):
     """Writes the allCounts dictionary out to a wiggle file."""
     wigFile = open(wigOut, "w")
     wigFile.write("track type=wiggle_0 name='%s' description='%s' visibility=2\n" % (trackName,
@@ -544,7 +545,7 @@ def _writeWiggle(trackName, trackDescription, allCounts, wigOut):
         start = 0
         end = max(allCounts[name].keys())
 
-        wigFile.write("fixedStep chrom=%s start=%s step=1 span=1\n" % (name, start+1))
+        wigFile.write("fixedStep chrom=%s start=%s step=%s span=%s\n" % (name, start+1, win, win))
 
         for i in range(start, end):
             if allCounts[name].has_key(i):
@@ -552,6 +553,35 @@ def _writeWiggle(trackName, trackDescription, allCounts, wigOut):
             else:
                 curValue = 0
             wigFile.write("%s\n" % (curValue))
+
+    wigFile.close()
+
+def _writeWiggleWin(trackName, trackDescription, allCounts, wigOut, win=1):
+    """Writes the allCounts dictionary out to a wiggle file."""
+    wigFile = open(wigOut, "w")
+    wigFile.write("track type=wiggle_0 name='%s' description='%s' visibility=2\n" % (trackName,
+                                                                                     trackDescription))
+
+    assert type(win) == type(1), \
+           'Error: win must be integer. You gave: %s' % (win)
+
+    for name in allCounts.keys():
+        start = 0
+        end = max(allCounts[name].keys())
+
+        wigFile.write("fixedStep chrom=%s start=%s step=%s span=%s\n" % (name, start+1, win, win))
+        i=0
+
+        while i <= end:
+            winCounts = []
+            for pos in range(i,i+win):
+                if allCounts[name].has_key(pos):
+                    winCounts.append(allCounts[name][pos])
+                else:
+                    winCounts.append(0)
+            winAvg = sum(winCounts)/float(len(winCounts))
+            wigFile.write("%.4f\n" % (winAvg))
+            i+=win
 
     wigFile.close()
 
