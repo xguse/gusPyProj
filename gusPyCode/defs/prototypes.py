@@ -36,3 +36,22 @@ def _writeWiggle(trackName, trackDescription, allCounts, wigOut, win=1):
             i+=win
 
     #wigFile.close()
+
+    
+def _writeWiggleVar(trackName, trackDescription, allCounts, wigOut):
+    """Writes the allCounts dictionary out to a wiggle file."""
+    wigFile = open(wigOut, "w")
+    wigFile.write("track type=wiggle_0 name='%s' description='%s' visibility=2\n" % (trackName,
+                                                                                     trackDescription))
+
+    for name in allCounts.keys():
+        start = 0
+        end = max(allCounts[name].keys())
+
+        wigFile.write("variableStep chrom=%s span=1\n" % (name))
+
+        for pos in sorted(allCounts[name].keys()):
+            wigFile.write("%s\t%s\n" % (pos,allCounts[name][pos]))
+
+
+    wigFile.close()
