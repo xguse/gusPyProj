@@ -28,11 +28,13 @@ def cnvrt2ScopeFasta(inPath,outPath):
             while i < recLen:
                 outFile.write('%s\n' % (rec[1][i:i+60]))
                 i+=60
+            outFile.flush()
             
             
         else:
             # -- Die --
             break
+        outFile.close()
 
 def cnvrtContigsInWig(wigPath,outPath,cnvrtnDict):
     """Converts between contig names using convertion dict.
