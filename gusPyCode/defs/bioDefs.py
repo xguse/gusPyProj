@@ -8,6 +8,32 @@ from gusPyCode.defs.statsDefs import hypergeoP
 from gusPyCode.defs.JamesDefs import Bag
 from gusPyCode.defs import JamesDefs
 
+def cnvrt2ScopeFasta(inPath,outPath):
+    """Takes a Fasta FilePath.  Reads it rec-by-rec,
+    writing out the same recs with the formatting expected by 
+    Scope."""
+    
+    fasParser = ParseFastA(inPath)
+    outFile   = open(outPath,'w')
+    while 1:
+        rec = fasParser.getNext()
+        if rec:
+            # ++ Convert and Write ++
+            recName = rec[0]
+            recLen  = len(rec[1])
+            header  = '>%s\tupstream sequence, from -%s to -1, size %s\n' % (recName,recLen,recLen)
+            outFile.write(header)
+            # -- break seq into 60bp chuncks --
+            i = 0
+            while i < recLen:
+                outFile.write('%s\n' % (rec[1][i:i+60]))
+                i+=60
+            
+            
+        else:
+            # -- Die --
+            break
+
 def cnvrtContigsInWig(wigPath,outPath,cnvrtnDict):
     """Converts between contig names using convertion dict.
     Writes result to outPath."""
