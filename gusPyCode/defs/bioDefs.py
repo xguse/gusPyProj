@@ -8,7 +8,20 @@ from gusPyCode.defs.statsDefs import hypergeoP
 from gusPyCode.defs.JamesDefs import Bag
 from gusPyCode.defs import JamesDefs
 
-
+def cnvrtContigsInWig(wigPath,outPath,cnvrtnDict):
+    """Converts between contig names using convertion dict.
+    Writes result to outPath."""
+    oFile = open(outPath,'w')
+    for line in open(wigPath,'rU'):
+        if 'chrom=' in line:
+            line = line.split(' ')
+            cntg = line[1].split('=')[-1]
+            cntg = cnvrtnDict[cntg]
+            line[1] = 'chrom=%s' % (cntg)
+            oFile.write(' '.join(line))
+        else:
+            oFile.write(line)
+    oFile.close()
     
 
 def topCovHMMsplices(juncDict,frac=0.1):
@@ -384,6 +397,73 @@ class ParseFastQ(object):
         else:return None
 
 
+class ParseFastA(object):
+    """Returns a record-by-record fastA parser analogous to file.readline()."""
+    def __init__(self,filePath,key=lambda x: x[1:].split()[0]):
+        """Returns a record-by-record fastA parser analogous to file.readline().
+        Exmpl: parser.getNext()
+        key == func used to parse the recName from HeaderInfo."""
+        self._file = open(filePath, 'rU')
+        self._key = key
+        self.bufferLine = None   # stores next headerLine between records.
+    
+    def getNext(self):
+        """Reads in next element, parses, and does minimal verification.
+        Returns: tuple: (seqName,seqStr)"""
+        # ++++ Get A Record ++++
+        recHead = ''
+        recData = []
+        # ++++ Check to see if we already have a headerLine ++++
+        if self.bufferLine:
+            recHead = self.bufferLine
+        else:
+        # ++++ If not, seek one ++++
+            while 1:
+                line = self._file.readline()
+                if line.startswith('>'):
+                    recHead = line
+                    break
+                elif not line:
+                    raise Exception, "CheckFastaFile: Encountered EOF before any data."
+                elif line.strip() == '':
+                    continue
+                else:
+                    raise Exception, 'CheckFastaFile: The first line containing text does not start with ">".'
+        # ++++ Collect recData ++++
+        while 1:
+            line = self._file.readline()
+            if not line:
+                break
+            elif line.startswith('>'):
+                self.bufferLine = line.strip('\n')
+                break
+            elif not line.startswith('>'):
+                recData.append(line.strip('\n'))
+
+        # ++++ Minor Seq Validation ++++
+        ## AddHere
+        # ++++ Format Rec For Return ++++
+        if not recData:
+            return None
+        else:
+            recHead = self._key(recHead)
+            return (recHead,''.join(recData))   
+    
+    def toDict(self):
+        """Returns a single Dict populated with the fastaRecs
+        contained in self._file."""
+        fasDict = {}
+        while 1:
+            fasRec = self.getNext()
+            if fasRec:
+                if not fasRec[0] in fasDict:
+                    fasDict[fasRec[0]] = fasRec[1]
+                else:
+                    raise Exception, "DuplicateFastaRec: %s occurs in your file more than once."
+            else:
+                break
+        return fasDict
+        
 class MASTmotif:
     """Represents MAST type motifs."""
     def __init__(self,TAMOmotif):
