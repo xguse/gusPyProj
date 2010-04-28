@@ -34,7 +34,7 @@ def cnvrt2ScopeFasta(inPath,outPath):
         else:
             # -- Die --
             break
-        outFile.close()
+    outFile.close()
 
 def cnvrtContigsInWig(wigPath,outPath,cnvrtnDict):
     """Converts between contig names using convertion dict.
