@@ -5,7 +5,7 @@ from gusPyCode.MDAP_proj.MD_wrappers import TamoWrap
 # TamoWrap -> def __init__(self, optionsObj, posArgs):
 
 #+++++++++++ File Parseing Etc +++++++++++    
-usage = """python %prog [options]  scopeOut.xml [scopeOut.xml ...]"""
+usage = """python %prog [options] """
 parser = optparse.OptionParser(usage)
 
 parser.add_option('--kSize',dest="ksize",type="int", default=7, 
