@@ -25,7 +25,7 @@ parser.add_option('--regs', dest="regs", type='str',default=None,
 if len(sys.argv) == 1:
     parser.print_help()
     exit(0)
-if (not opts.fas) or (not opts.regs) or (not opts.out):
+if (not opts.fasta) or (not opts.regs) or (not opts.out):
     parser.print_help()
     print '\n'
     raise Exception, 'ERROR: Missing a required input.'
