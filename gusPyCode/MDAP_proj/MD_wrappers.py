@@ -1,6 +1,5 @@
 import os
 import sys
-import pp
 from time import time
 from TAMO import MotifTools 
 from TAMO.seq import Fasta 
@@ -234,8 +233,7 @@ class TamoWrap:
         find kmers with good enrichment in listOfLinkedSeqs. Catches the output in 
         self.output for access from MDAP."""
         
-        # Initialize job_server for later
-        job_server = pp.Server()
+
         
         # set metric thresholds here
         pVal_thresh     = 0.01
