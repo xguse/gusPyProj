@@ -55,8 +55,8 @@ outFile    = opts.out
 
 tWrap = TamoWrap(optionsObj,posArgs)
 
+shorties = 0
 if opts.trim:
-    shorties = 0
     for i in tWrap.allSeqs.probes:
         oLen = len(tWrap.allSeqs.probes[i])
         tWrap.allSeqs.probes[i] = tWrap.allSeqs.probes[i][opts.trim[0]:opts.trim[1]]
