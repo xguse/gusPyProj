@@ -63,7 +63,8 @@ class MDAP():
 	
 	self.optParser.add_option('-t', '--tamo', dest='TAMO', action='store_true', default=False, \
 				  help='Include TAMO results. [default=%default]')
-	
+	self.optParser.add_option('--trim', dest='trim', default=None, \
+				  help='Define substring of all sequences to be used. Exp: "-2000,None" -> last 2000 bp of all sequences. [default=%default]')
 	# to add: markovBgFile, 
 	
 	
