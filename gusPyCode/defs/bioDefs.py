@@ -331,6 +331,19 @@ class ParseBowtieMap(object):
         Exmpl: parser.getNext() """
         self._file = open(filePath, 'rU')
         
+    
+    def _parseID(self,line):
+        """Returns ID."""
+        return line[0]
+    
+    def _parseStrand(self,line):
+        """Returns strand."""
+        return line[1]
+    
+    def _parseChrm(self,line):
+        """Returns Chrm."""
+        return line[2]
+
     def _parseCoords(self,line):
         """Returns coords info t(contig,start,stop) for a bowtie.map line tuple"""
         contig = line[2]
@@ -341,6 +354,19 @@ class ParseBowtieMap(object):
     def _parseReadSeq(self,line):
         """Returns seq string bowtie.map line tuple"""
         return line[4]
+    
+    def _parseQualStr(self,line):
+        """Returns quality string."""
+        return line[5]
+    
+    def _parseExtraAlgns(self,line):
+        """Returns number of extra EXACT alignements (i think).
+        NOT how many oter places the read could align with the alowable mismatches."""
+        return line[6]
+    
+    def _parseMisMatchStr(self,line):
+        """Returns the coded string showing the mismatches in this aligned read."""
+        return line[7]
     
     def getNext(self):
         """Reads in next line, splits fields, returns fieldTuple or None (eof)."""
@@ -355,6 +381,27 @@ class ParseBowtieMap(object):
         line = self.getNext()
         if line:
             return self._parseReadSeq(line)
+    
+    def getNextAsBED(self):
+        """Calls self.getNext and returns info in BED format.
+        'Chrm \t ChrmStart \t ChrmEnd \t readID_readSeq \t Score \t strand' """
+        line = self.getNext()
+        if line:
+            coords_ref1  = self._parseCoords(line)
+            
+            chrom      = coords_ref1[0]
+            chromStart = coords_ref1[1]-1
+            chromEnd   = coords_ref1[2]
+            name       = '%s_%s' % (self._parseID(line),self._parseReadSeq(line))
+            score      = 0
+            strand     = self._parseStrand(line)
+            
+            return '%s\t%s\t%s\t%s\t%s\t%s' % (chrom,
+                                               chromStart,
+                                               chromEnd,
+                                               name,
+                                               score,
+                                               strand)
 
 class ParseBowtieBed(object):
     """Class to parse and return a single read entry from bowtie_bed file type."""
@@ -383,11 +430,12 @@ class ParseBowtieBed(object):
 
 class ParseFastQ(object):
     """Returns a read-by-read fastQ parser analogous to file.readline()"""
-    def __init__(self,filePath):
+    def __init__(self,filePath,headerSymbols=['@','+']):
         """Returns a read-by-read fastQ parser analogous to file.readline().
         Exmpl: parser.getNext()"""
         self._file = open(filePath, 'rU')
         self._currentLineNumber = 0
+        self._hdSyms = headerSymbols
     
     def getNext(self):
         """Reads in next element, parses, and does minimal verification.
@@ -407,18 +455,18 @@ class ParseFastQ(object):
                "** ERROR: It looks like I encountered a premature EOF or empty line.\n\
                Please check FastQ file near line #%s (plus or minus ~4 lines) and try again**" % (self._currentLineNumber)
         # -- Make sure we are in the correct "register" --
-        assert elemList[0].startswith('@'),\
-               "** ERROR: The 1st line in fastq element does not start with '@'.\n\
-               Please check FastQ file and try again**"
-        assert elemList[2].startswith('+'),\
-               "** ERROR: The 3rd line in fastq element does not start with '+'.\n\
-               Please check FastQ file and try again**"
+        assert elemList[0].startswith(self._hdSyms[0]),\
+               "** ERROR: The 1st line in fastq element does not start with '%s'.\n\
+               Please check FastQ file and try again **" % (self._hdSyms[0])
+        assert elemList[2].startswith(self._hdSyms[1]),\
+               "** ERROR: The 3rd line in fastq element does not start with '%s'.\n\
+               Please check FastQ file and try again **" % (self._hdSyms[1])
         
         # ++++ Return fatsQ data as tuple ++++
         return tuple(elemList)
     
     def getNextReadSeq(self):
-        """Calls self.getNext and returns only the readSeq."""
+        """Convenience method: calls self.getNext and returns only the readSeq."""
         record = self.getNext()
         if record:
             return record[1]
