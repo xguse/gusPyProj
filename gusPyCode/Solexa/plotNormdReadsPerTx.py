@@ -7,14 +7,16 @@
 
 from matplotlib import pylab as pl
 
-inF = '/Users/biggus/Documents/James/Writings_Talks/Manuscripts/AedesStrainVar/2010_04_26/LSvsLB.TxReadCounts.txt'
+inF = '/Users/biggus/Documents/James/Writings_Talks/Manuscripts/AaTxDelta_RNAseq/2010_05_10/Manuscript/LBvLS_txReadCounts.txt'
 inF = map(lambda l: l.strip('\n').split('\t'), open(inF, 'rU'))
 
 
 title   = 'Sugarfed'
 xLab    = 'Transcripts'
-yLab    = 'Reads Mapped to Transcript'
-saveAs  = '/Users/biggus/Documents/James/Writings_Talks/Manuscripts/AedesStrainVar/2010_04_26'
+yLab    = 'Normalized Read Counts Mapped to Transcript'
+saveAs  = '/Users/biggus/Documents/James/Writings_Talks/Manuscripts/AaTxDelta_RNAseq/2010_05_10/Manuscript'
+xLim    =(0,15000)
+yLim    =(1e-1,1e6)
 
 toPlot = 1
 
@@ -69,10 +71,13 @@ ax.plot(data[toPlot])
         #orientation='vertical', rwidth=None, log=1)
 
 
-ax.set_xlabel(xLab)
-ax.set_ylabel(yLab)
+ax.set_xlabel(xLab,fontsize='large')
+ax.set_ylabel(yLab,fontsize='large')
 ax.set_yscale('log')
-ax.set_title(title)
+ax.set_title(title,fontsize='large')
+ax.set_xlim(xLim)
+ax.set_ylim(yLim)
+ax.minorticks_on()
 pl.savefig('%s/%s_normdReadsVsTx.pdf' % (saveAs,title))
 pl.show()
 
