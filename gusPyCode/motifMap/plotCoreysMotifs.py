@@ -217,6 +217,6 @@ if __name__ == "__main__":
     
 
     ax.autoscale_view()
-    #pl.savefig(opts.file_out)
+    pl.savefig(opts.file_out)
     pl.show()
 
