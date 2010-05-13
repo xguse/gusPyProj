@@ -3,9 +3,20 @@ import random
 import copy
 import os
 import collections
+import csv
 import subprocess
 from gusPyCode.defs import xpermutations
 
+def tableFile2namedTuple(tablePath,sep='\t'):
+    """Returns namedTuple from table file using first row fields as col headers."""
+    #import collections
+    #import csv
+    
+    reader  = csv.reader(open(tablePath), delimiter=sep)
+    headers = reader.next()
+    Table   = collections.namedtuple('Table', ', '.join(headers))
+    data    = map(Table._make, reader)
+    return data
 
 def openTableFile(path,strip=None,split=None):
     """Performs map(lambda,fileHandle) on path using optional args.
