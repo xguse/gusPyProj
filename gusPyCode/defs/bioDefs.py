@@ -8,6 +8,24 @@ from gusPyCode.defs.statsDefs import hypergeoP
 from gusPyCode.defs.JamesDefs import Bag
 from gusPyCode.defs import JamesDefs
 
+
+def bowtie2BED(path2Bowtie,path2out,trackName='untitled',description="no description given"):
+    """Converts bowtie.map file to BED format."""
+    
+    bowtieFile  = ParseBowtieMap(path2Bowtie)
+    outFile     = open(path2out,'w')
+    
+    outFile.write('track name=%s description=%s useScore=0\n' % (trackName,description))
+    
+    while 1:
+        record = bowtieFile.getNextAsBED()
+        if record:
+            outFile.write('%s\n' % (record))
+        else:
+            outFile.close()
+            break
+
+
 def cnvrt2ScopeFasta(inPath,outPath):
     """Takes a Fasta FilePath.  Reads it rec-by-rec,
     writing out the same recs with the formatting expected by 
