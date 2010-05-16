@@ -408,8 +408,8 @@ class ParseBowtieMap(object):
             coords_ref1  = self._parseCoords(line)
             
             chrom      = coords_ref1[0]
-            chromStart = coords_ref1[1]-1
-            chromEnd   = coords_ref1[2]
+            chromStart = coords_ref1[1]    # bt output already 0-ref'd
+            chromEnd   = coords_ref1[2]+1  # bed format ends are NOT inclusive (first 100 bp = 0,100 -> only 0-99 included)
             name       = '%s_%s' % (self._parseID(line),self._parseReadSeq(line))
             score      = 0
             strand     = self._parseStrand(line)
