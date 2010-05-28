@@ -306,7 +306,7 @@ def filterBedFile(inputBed, outputBed, scoreFilterSingle, scoreFilterMultiple, n
             numCollapsed = int(pieces[3].split("junc=")[-1])
 
         score = float(pieces[4])
-        if numCollapsed < 2 and score <= scoreFilterSingle:
+        if (numCollapsed < 2) and (score <= scoreFilterSingle):
             continue
         elif score <= scoreFilterMultiple:
             continue
@@ -914,6 +914,23 @@ def convertAedesContigs(genomeFasta, junctionBed, fixedName):
         out.write("\t".join(pieces))
         out.write("\n")
 
+#def getEdges(start, blockSizes, blockStarts):
+    #"""Returns the left and right edge of a junction.  There must be exactly
+    #one junction in the line or an exception is raised."""
+    #if blockSizes.endswith(","):
+        #sizes = [int(x) for x in blockSizes.split(",")[:-1]]
+        #starts = [int(x) for x in blockStarts.split(",")[:-1]]
+    #else:
+        #sizes = [int(x) for x in blockSizes.split(",")]
+        #starts = [int(x) for x in blockStarts.split(",")]
+
+    #if len(starts) > 2:
+        #raise Exception("ERROR! one junction per line")
+
+    #leftEdge = start + starts[0] + sizes[0]
+    #rightEdge = start + starts[1]
+
+    #return leftEdge, rightEdge 
 
 def getEdges(start, blockSizes, blockStarts):
     """Returns the left and right edge of a junction.  There must be exactly
@@ -938,9 +955,212 @@ blockStarts))
 
 
 
+############ Added via "May 26, 2010 8:49:08 AM PDT" email ############
+
+def testIfEst(ests, chr, start, blockCount, blockSizes, blockStarts, wiggle=0):
+    """Determines whether the ests dictionary contains the junction described by the                                                        
+    chr, start, blockCount, blockSizes."""
+    if int(blockCount) != 2:
+        print "ERROR!  the block count isn't 2!  %s, %s, %s, %s, %s" % (chr, start, blockCount, blockSizes, blockStarts)
+        return False
+
+    (leftEdge, rightEdge) = hmmUtils.getEdges(start, blockSizes, blockStarts)
+
+    return processJunctions.hasJunction(ests, chr, leftEdge, rightEdge, wiggle)
+
+
+def collapseCloseJunctions(inputBed, outputBed, withinBp):
+    """Collapses junctions that are within 'withinBp' bp of each other.  The most probable junction                                         
+    of the close junctions are used.  Probabilities are converted appropriately (see collapseJunctions                                      
+    for description).                                                                                                                       
+    Also collapses identical junctions in the same step.                                                                                    
+    Use withinBp=0 to only collapse identical junctions                                                                                     
+    """
+
+    junct = _readAndCombine(inputBed, withinBp)
+
+    # then go through each dictionary item                                                                                                  
+    #   -- if the list is length 1, just write the line                                                                                     
+    #   -- if the list is longer than 1, combine probabilities, adjust the name to include the number, and write 1                          
+    out = open(outputBed, "w")
+    out.write("track name=collapsedJunctions description='Junctions' useScore=1\n")
+    for chr, junctions in junct.iteritems():
+	for (leftEdge, x,rightEdge, y, intronLength), junctionList in junctions.iteritems():
+            if len(junctionList) == 1:
+                out.write(junctionList[0][1].strip())
+                #pieces = junctionList[0][0].split()                                                                                        
+                #pieces.pop(4)                                                                                                              
+                #pieces.insert(4, "100")                                                                                                    
+		#out.write("\t".join(pieces))                                                                                               
+	        out.write("\n")
+            else:
+                out.write(_combineLines(junctionList, leftEdge, rightEdge))
+	        out.write("\n")
+
+
+def _readAndCombine(inputBed, withinBp):
+    """Helper for collapseCloseJunctions reads in the inputBed into a dictionary."""
+    junct = {}
+
+    # collapse a                                                                                                                            
+    count = 0
+    for line in open(inputBed):
+	count += 1
+	#if count % 100000==0:                                                                                                              
+        #    print count                                                                                                                    
+        if line.startswith("track"):
+            #out.write(line.strip())                                                                                                        
+            #out.write(" useScore=1\n")                                                                                                     
+            continue
+
+        [chr, start, stop, name, score, strand, thStart, thStop, rgb, blockCount, blockSizes, blockStarts] = line.split("\t")
+        score = float(score)
+	if not junct.has_key(chr):
+            junct[chr] = {}
+
+        if int(blockCount) != 2:
+            #print "Illegal line does not have 2 blocks"                                                                                    
+            #print line                                                                                                                     
+            continue
+
+        start = int(start)
+	stop = int(stop)
+        [size1, size2] = [int(x) for x in blockSizes.split(",")[:2]]
+        [start1, start2] = [int(x) for x in blockStarts.split(",")[:2]]
+	leftEdge = start + size1
+        rightEdge = start + start2  # start2 is relative to chr start                                                                       
+        intronLength = rightEdge - leftEdge
+
+	toCombine = []
+	for (other) in junct[chr].keys():
+            (otherMinLeft, otherMaxLeft, otherMinRight, otherMaxRight, otherLength) = other
+            if otherLength != intronLength:
+                continue
+
+            if otherMaxLeft < (leftEdge-withinBp) or otherMinLeft > (leftEdge+withinBp):
+                continue
+
+            if otherMaxRight < (rightEdge-withinBp) or otherMinRight > (rightEdge+withinBp):
+                continue
+
+            toCombine.append(other)
+
+        allLines = [ (score, line, leftEdge, rightEdge) ]
+        minLeft = maxLeft = leftEdge
+        minRight = maxRight = rightEdge
+        for (other) in toCombine:
+	    (otherMinLeft, otherMaxLeft, otherMinRight, otherMaxRight, intronLength) = other
+            minLeft = min(minLeft, otherMinLeft)
+            maxLeft = max(maxLeft, otherMaxLeft)
+            minRight = min(minRight, otherMinRight)
+            maxRight = max(maxRight, otherMaxRight)
+
+	    allLines.extend(junct[chr][other])
+	    del junct[chr][other]
+
+        junct[chr][ (minLeft, maxLeft, minRight, maxRight, intronLength) ] = allLines
+
+    return junct
+
+def _combineLines(junctionList, leftEdge, rightEdge):
+    """Helper method for collapseCloseJunctions.                                                                                            
+    Takes several junction lines and combines them into a single line, then returns that line.                                              
+    The score for the combined junction is increased accordingly.                                                                           
+    """
+
+    # the only things we have to adjust are the score and the name                                                                          
+    scoreSoFar = 0
+    previousNumBasesCovered = 0
+    minStart = -1
+    maxStop = -1
+    # keep a count of all the left/right edges so we can pick the most common                                                               
+    leftEdgeCount = {}
+    rightEdgeCount = {}
+
+    # first we need to sort the junctionList by score, in reverse (highest score first)                                                     
+    junctionList.sort(reverse=True)
+    name = junctionList[0][1].split("\t")[3]
+    countPlus = 0
+    countMinus = 0
+    numJunctions = 0
+    for (score, line, leftEdge, rightEdge) in junctionList:
+        pieces = line.split("\t")
+	#print "previous start: %s, this start: %s" % (minStart, pieces[1])                                                                 
+        start = int(pieces[1])
+	stop = int(pieces[2])
+        strand = pieces[5]
+        if strand == "+":
+	    countPlus += 1
+        elif strand == "-":
+            countMinus += 1
+	else:
+	    print line
+	    raise hmmErrors.InvalidInputException("ERROR!  strand value %s not valid. " % strand)
+
+        name = pieces[3]
+        if pieces[3].find("|junc=") > 0:
+            numCollapsed = int(pieces[3].split("junc=")[-1])
+            numJunctions += numCollapsed
+        else:
+            numJunctions += 1
+
+        if previousNumBasesCovered == 0:
+            previousNumBasesCovered = (leftEdge - start) + (stop - rightEdge)
+            scoreSoFar = float(pieces[4])
+	else:
+            # we only want to count bases grown on the outer sides (start and stop) and ignore bases on the inner edges                     
+            newBases = max(0, minStart-start) + max(0, stop-maxStop)
+            scoreSoFar = scoreSoFar + (newBases / float(newBases+previousNumBasesCovered) ) * float(pieces[4])
+            previousNumBasesCovered = previousNumBasesCovered + newBases
+
+
+        if minStart > 0:
+            minStart = min(minStart, start)
+        else:
+            minStart = start
+
+	maxStop = max(maxStop, stop)
+
+        if not leftEdgeCount.has_key(leftEdge):
+            leftEdgeCount[leftEdge] = 0
+        leftEdgeCount[leftEdge] += 1
+	if not rightEdgeCount.has_key(rightEdge):
+            rightEdgeCount[rightEdge] = 0
+        rightEdgeCount[rightEdge] += 1
+
+    maxLeft = max(leftEdgeCount.values())
+    for k, v in leftEdgeCount.iteritems():
+	if v == maxLeft:
+            useLeft = k
+            break
+    maxRight = max(rightEdgeCount.values())
+    for k, v in rightEdgeCount.iteritems():
+        if v == maxRight:
+            useRight = k
+            break
+    if countPlus >= countMinus:
+	strand = "+"
+    else:
+        strand = "-"
+
+    pieces = junctionList[0][1].split("\t")
+    namePieces = pieces[3].split("|")
+    rootName = ""
+    for piece in namePieces:
+        if not piece.startswith("junc="):
+	    rootName += piece + "|"
+    finalName = rootName + ("junc=%s" % numJunctions)
+    blockStarts = "0,%s," % (useRight - minStart)
+    blockSizes = "%s,%s," % ( (useLeft-minStart), (maxStop-useRight) )
+
+    return "\t".join(str(x) for x in [pieces[0], minStart, maxStop, finalName, scoreSoFar,
+                      strand, minStart, maxStop, "0", "2", blockSizes, blockStarts
+                      ])
 
 
 
+########### Below be DRAGONS!! ###############
+########### (gus's additions)  ###############
 
 
 
