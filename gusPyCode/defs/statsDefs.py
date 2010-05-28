@@ -15,7 +15,9 @@ def benjHochFDR(pVals,pValColumn=1,FDR=0.05):
     """
     assert type(pValColumn) == type(1),\
            "ERROR: pValColumn must be int type!"
-    # Sort pVals from highest to lowest
+    # Sort pVals from highest to lowest after converting them all to floats.
+    for i in range(len(pVals)):
+        pVals[i][pValColumn] = float(pVals[i][pValColumn])
     pVals.sort(key=lambda x: x[pValColumn])
     pVals.reverse()
     
