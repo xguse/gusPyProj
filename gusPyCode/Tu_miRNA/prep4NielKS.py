@@ -2,9 +2,32 @@ import sys
 import csv
 import optparse
 from gusPyCode.defs.JamesDefs import filter2Dlist
+from gusPyCode.defs.mathDefs import mean
 
 
 # ++++ Definitions ++++
+def averageProbeSets(xpnData):
+    """return xpnData after averageing probeset results for genes with
+    multiple probesets."""
+    newXpnData = []
+    dataDict   = {}
+    
+    for line in xpnData:
+        if line[1] in dataDict:
+            dataDict[line[1]].append(line)
+        else:
+            dataDict[line[1]] = []
+            dataDict[line[1]].append(line)
+            
+    for gene in dataDict:
+        newDataLine = ["avg'd",gene]
+        for i in range(2,len(dataDict[gene][0])):
+            newDataLine.append(mean([float(x) for x in [y[i] for y in dataDict[gene]]]))
+        
+        newXpnData.append(tuple(newDataLine[:]))
+    
+    return newXpnData
+    
 def getExpressionData(path2File):
     """Load data from mircroarray."""
     maFile = open(path2File,'rU')
@@ -126,6 +149,7 @@ if __name__ == '__main__':
     
     print 'Reading in data files...'
     headers,xpnData = getExpressionData(args[0])
+    xpnData         = averageProbeSets(xpnData)
     mirData         = getMicroRNAData(args[1])
     
 
