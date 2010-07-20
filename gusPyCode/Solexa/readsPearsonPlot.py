@@ -36,8 +36,10 @@ def parseVecfiles(pathsList):
             if not line:
                 break
             line = line.strip('\n').split('\t')
-            vec0.append(int(line[0]))
-            vec1.append(int(line[1]))
+            if (line[0]=='NA') or (line[1]=='NA'):
+                continue
+            vec0.append(int(float(line[0])))
+            vec1.append(int(float(line[1])))
         rList.append(tuple([tuple(header),tuple(vec0),tuple(vec1)]))
     
     return tuple(rList)
@@ -55,7 +57,8 @@ if __name__ == '__main__':
         
     usage = """python %prog [options] vectorFile0 [vectorFile1 vectorFile2 ...]"""
     parser = optparse.OptionParser(usage)
-
+    parser.add_option('--log',dest="log",action="store_true",default=False,
+                      help="""Use log scale. (default=%default)""")
     parser.add_option('--show',dest="show",action="store_true",default=False,
                       help="""Show plot(s) in window. (default=%default)""")
 
@@ -93,12 +96,18 @@ if __name__ == '__main__':
         print "Drawing..."
         fig = pl.figure()
         ax  = fig.add_subplot(111)
-        ax.set_xscale('log')
-        ax.set_yscale('log')
+        if opts.log:
+            ax.set_xscale('log')
+            ax.set_yscale('log')
         
-        ax.scatter(vecFile[1],vecFile[2], s=15, c='b', marker='o', alpha=0.2)
+        
+        ax.scatter(vecFile[1],vecFile[2], s=15, c='b', marker='o', alpha=1)
+        if not opts.log:
+            ax.set_autoscale_on(False)
         ax.set_xlabel(vecFile[0][0])
         ax.set_ylabel(vecFile[0][1])
+        upperLim = max(vecFile[1]+vecFile[2])
+        
 
         
         m,b  = pl.polyfit(vecFile[1],vecFile[2],1)
@@ -113,7 +122,6 @@ if __name__ == '__main__':
                 transform = ax.transAxes)
         
         
-
         pl.savefig('%s_vs_%s.png' % (vecFile[0][0],vecFile[0][1]))
         print 'Show?  %s' % (opts.show)
         if opts.show:
