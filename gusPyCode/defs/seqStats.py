@@ -7,9 +7,6 @@ from TAMO.seq import Fasta
 
 def calcStats(fastaPath):
     seqFile = Fasta.load(fastaPath)
-    
-    
-    
     combinedSeq = ''
     
     for each in seqFile:

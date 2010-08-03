@@ -3,7 +3,6 @@ from decimal import Decimal
 
 
 
-
 def benjHochFDR(pVals,pValColumn=1,FDR=0.05):
     """
     pVals      = 2D list(hypothesis,p-value) hypothesis could = geneName tested for enrichment
@@ -35,17 +34,7 @@ def benjHochFDR(pVals,pValColumn=1,FDR=0.05):
     pVals.reverse()
     return pVals
 
-    
 
-
-def setChoose():
-    try:
-        from gmpy import comb
-
-    except ImportError:
-        return binComb
-    else:
-        return comb
 
 
 def binComb(n, k):
@@ -63,28 +52,6 @@ def binComb(n, k):
         rv /= j + 1
     return rv
 
-
-def binom(n, m):
-    """
-    Calulates n-choose-k.
-
-    def binom(n, m) is from "Data Structures and Algorithms
-    with Object-Oriented Design Patterns in Python"
-    by Bruno R. Preiss.
-
-    Copyright (c) 2003 by Bruno R. Preiss, P.Eng. All rights reserved.
-
-    http://www.brpreiss.com/books/opus7/programs/pgm14_10.txt
-    """
-    b = [0] * (n + 1)
-    b[0] = 1
-    for i in xrange(1, n + 1):
-        b[i] = 1
-        j = i - 1
-        while j > 0:
-            b[j] += b[j - 1]
-            j -= 1
-    return b[m]
 
 def choose(n, k):
     if (k > n): return 0
@@ -132,12 +99,27 @@ def cumHypergeoP(n,i,m,N):
     return cumPVal
 
 
+def binomialPval(n,k,p):
+    """Returns exact binomial P-value.
+    n = number of trials
+    k = number of successes
+    p = probability of a success
+    
+    P(k succeses in n trials) = choose(n,k) * p^k * (1-p)^(n-k)
+    """
+    
+    return bestChoose(n,k) * p**k * (1-p)**(n-k)
 
+def binomialPval_gte(n,k,p):
+    """Returns binomial P-value of k or greater successes in n trials."""
+    cumPVal = 0
+    for k in range(k,n+1):
+        cumPVal = cumPVal + binomialPval(n,k,p)
+    return cumPVal
 
 
 # determine whether we can use gmpy and set "bestChoose" to that or the standby.
 try:
-    from gmpy import comb as bestChoose
+    from gmpy import comb as bestChoose #timeit says comb is 10 times faster than choose!
 except ImportError:
-    bestChoose = binComb
-
+    bestChoose = choose # timeit says that choose is 7% faster than binComb
