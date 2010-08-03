@@ -9,19 +9,22 @@ import os
 # Parse scopeXMLoutput into motif objects filterable by rank, algorithm, or genes conating the motif,
 # and capable of outputing a SeqFeature(FeatureLocation()) passible to GenomeDiagram.
 
-
+ltr2wrd = {'A':'adenine',
+           'C':'cytosine',
+           'G':'guanine',
+           'T':'thymine'}
 
 
 class SCOPEmotifResult(object):
     """Represents the information attributed to a single SCOPE result motif.
     
     """
-    def __init__(self,xmlTagWrap_motif,rank):
+    def __init__(self,xmlTagWrap_motif,rank=None):
         """Fill in soon.
         """
         xmlMotif = xmlTagWrap_motif # rename for simplicity
         
-        self.sigValRank = rank
+        self.rank = rank
         self.consensus = xmlMotif.sequence
         self.sigvalue = xmlMotif.sigvalue
         self.algorithm = xmlMotif.algorithm
@@ -39,33 +42,59 @@ class SCOPEmotifResult(object):
         for base in xmlMotif.pwm:
             self.pwm[base.name.upper()] = tuple([int(x[2][0]) for x in base._children])
         
+    def _getFreq(col,base):
+        """get fractional weight for a base at given column."""
+        counts = [float(self.pwm['A'][col]),
+                  float(self.pwm['C'][col]),
+                  float(self.pwm['G'][col]),
+                  float(self.pwm['T'][col])]
+        tot = sum(counts)
+        return float(self.pwm[base][col])/tot
+    
+    def toPossumMotif(self):
+        """Return String representing the PossumSearch form of this motif.
+        """
+        
+        # ++ initialize possum motif string ++
+        if type(self.pwm['A'][0]) == type(1):
+            pType = 'INT'
+        elif type(self.pwm['A'][0]) == type(1.0):
+            pType = 'FLOAT'
+            
+        pMtf  = 'BEGIN %s\n' % (pType)
+        pMtf += 'ID %s\n'    % (self.consensus)
+        pMtf += 'AC %s_%.5g\n' % (self.consensus,float(self.sigvalue))
+        pMtf += 'DE %s\n'    % (self.consensus)
+        pMtf += 'AL ACGT\n'
+        pMtf += 'LE %s\n'    % (len(self.pwm['A']))
+        
+        # ++ create and add each column's data ++
+        for i in range(len(self.pwm['A'])):
+            pMtf += 'MA '
+            for base in sorted(self.pwm.keys()):
+                pMtf += '%.6g ' % (self.pwm[base][i])
+            pMtf += '\n'
+            
+        
+        pMtf += 'END\n'
+        return pMtf
+        
+        
     def toXMSmotif(self):
         """Return string representing the XMS motif element for
         this motif.
         """
-        ltr2wrd = {'A':'adenine',
-                   'C':'cytosine',
-                   'G':'guanine',
-                   'T':'thymine'}
         
         # ++ initialize xms motif string ++
         xMtf = '<motif>\n\t<name>%s_%.3f</name>\n\t\t<weightmatrix alphabet="DNA" columns="%s">\n' %\
              (self.consensus,float(self.sigvalue),len(self.pwm['A']))
         # ++ create and add each column's data ++
-        def getFreq(col,base):
-            """get fractional weight for a base at given column."""
-            counts = [float(self.pwm['A'][col]),
-                      float(self.pwm['C'][col]),
-                      float(self.pwm['G'][col]),
-                      float(self.pwm['T'][col])]
-            tot = sum(counts)
-            return float(self.pwm[base][col])/tot
                         
         for i in range(len(self.pwm['A'])):
             xMtf += '\t\t\t<column pos="%s">\n' % (i)
             for base in sorted(self.pwm.keys()):
-                freq = getFreq(i,base)
-                xMtf += '\t\t\t\t<weight symbol="%s">%.4f</weight>\n' % \
+                freq = self._getFreq(i,base)
+                xMtf += '\t\t\t\t<weight symbol="%s">%.7f</weight>\n' % \
                      (ltr2wrd[base],freq)
             xMtf += "\t\t\t</column>\n"
         xMtf += '\t\t</weightmatrix>\n'
@@ -74,8 +103,8 @@ class SCOPEmotifResult(object):
              (self.consensus)
         xMtf += '\t\t<prop>\n\t\t\t<key>sigvalue</key>\n\t\t\t<value>%s</value></prop>\n' % \
              (self.sigvalue)
-        xMtf += '\t\t<prop>\n\t\t\t<key>sigValRank</key>\n\t\t\t<value>%s</value></prop>\n' % \
-             (self.sigValRank)
+        xMtf += '\t\t<prop>\n\t\t\t<key>rank</key>\n\t\t\t<value>%s</value></prop>\n' % \
+             (self.rank)
         xMtf += '\t\t<prop>\n\t\t\t<key>algorithm</key>\n\t\t\t<value>%s</value></prop>\n' % \
              (self.algorithm)
         xMtf += '</motif>\n'
@@ -131,5 +160,15 @@ def toXMSfile(mtfDict,outPath):
     oFile.write('</motifset>\n')
     oFile.close()
         
+def toPossumFile(mtfDict,outPath):
+    """Take a scopeMotif dict and write out the motifs in Possum format."""
+    dKeys = sorted(mtfDict.keys(), key=lambda x: float(mtfDict[x].sigvalue))
+    dKeys.reverse()
+    oFile = open(outPath, 'w')
+    oFile.write('BEGIN GROUP\n')
+    for k in dKeys:
+        oFile.write('%s' % (mtfDict[k].toPossumMotif()))
+    oFile.write('END')
+    oFile.close()
 
 None
