@@ -3,6 +3,8 @@ import sys
 import os
 import optparse
 import glob
+from gusPyCode.defs.mpl_custom import autoPickColors
+import random
 
 import matplotlib as mpl
 #mpl.use('Qt4Agg')
@@ -18,16 +20,23 @@ pl.rcParams['figure.figsize'] = 11, 8.5
 
 #+++++++++++ Definitions +++++++++++
 
-colors = ['#FDFF00',
-          '#222222',
-          '#00FF00',
-          '#78006F',
-          '#00FFFF',
-          '#FF0000',
-          '#FFC300',
-          '#808080',
-          '#1B00FF',
-          '#FF00AE',]
+def random_color(color='#'):
+    if len(color) == 7:
+        return color
+    else:
+        color = color + hex(random.randrange(0, 255))[2:][:1]
+        return random_color(color)
+
+#colors = ['#FDFF00',
+          #'#222222',
+          #'#00FF00',
+          #'#78006F',
+          #'#00FFFF',
+          #'#FF0000',
+          #'#FFC300',
+          #'#808080',
+          #'#1B00FF',
+          #'#FF00AE',]
 
 def loadMotifs(args,sigLvl,filterMotifs):
     """load and store motifs from XML files giving each a unique ID and culling out the ones we want."""
@@ -124,26 +133,57 @@ def plotMotifs4Gene(axes,patchDict,gene,motifsInGene,yVal,zorder):
         ax.add_patch(p)
     
     
-def setMotifColors(motifDict,colors):
+#def setMotifColors(motifDict,colors):
+    #"""Assign colors to the filtered motifs in motifDict.  Adds
+    #"self.color" attrib to the motif object directly."""
+    #for m in motifDict:
+        #motifDict[m].color = colors.pop()
+        
+def setMotifColorsManual(motifDict,colorDict):
     """Assign colors to the filtered motifs in motifDict.  Adds
     "self.color" attrib to the motif object directly."""
+    print '-----'
+    for motif in reversed(sorted(motifDict.values(),key=lambda x: float(x.sigvalue))):
+        print '%s:%s' % (motif.consensus,colorDict[motif.consensus])
     for m in motifDict:
-        motifDict[m].color = colors.pop()
+        motifDict[m].color = colorDict[motifDict[m].consensus]
         
-def buildLegend(axes,patchDict):
-    """Use motifDict and each motifs color to build a legend with consensus and color patch."""
-    labels  = sorted(patchDict.keys())
-    patches = []
-    for l in labels:
-        patches.append(patchDict[l])
+def setMotifColorsRand(motifDict):
+    """Build and use randomized colorDict to call
+    setMotifColorsManual(motifDict,colorDict)."""
+    colorDict = {}
+    for m in motifDict.values():
+        colorDict[m.consensus] = random_color()
+    setMotifColorsManual(motifDict,colorDict)
     
-    legend  = pl.legend(patches,labels, loc=(1.02,0.5), numpoints=None,
+def setMotifColors(motifDict):
+    """AutoBuild and use colorDict to call 
+    setMotifColorsManual(motifDict,colorDict)
+    with contrasting colors."""
+    if len(motifDict) < 4:
+        colors = ['#0000FF','#008000','#FF0000']
+    else:
+        colors = list(autoPickColors(len(motifDict)))
+    colorDict = {}
+    for m in motifDict.values():
+        colorDict[m.consensus] = colors.pop()
+    setMotifColorsManual(motifDict,colorDict)
+    
+        
+def buildLegend(axes,patchDict,consensusList):
+    """Use motifDict and each motifs color to build a legend with consensus and color patch."""
+    
+    patches = []
+    for c in consensusList:
+        patches.append(patchDict[c])
+    
+    legend  = pl.legend(patches,consensusList, loc='upper left', numpoints=None,
                         markerscale=None, scatterpoints=3, scatteryoffsets=None,
                         prop=None, pad=None, labelsep=None, handlelen=None,
                         handletextsep=None, axespad=None, borderpad=None,
                         labelspacing=None, handlelength=None, handletextpad=None,
                         borderaxespad=None, columnspacing=None, ncol=1, mode=None,
-                        fancybox=None, shadow=None, title=None, bbox_to_anchor=None,
+                        fancybox=None, shadow=None, title=None,bbox_to_anchor=(1.01,0.99),
                         bbox_transform=None)
 
 if __name__ == "__main__":
@@ -163,7 +203,12 @@ if __name__ == "__main__":
     parser.add_option('--sig', dest="sig_lvl", type='float',default=5.0,
                       help="""Only plot motifs with sig values >= this value. (default=%default)""")
     parser.add_option('--include', dest="include", type='str',default=None,
-                      help="""REQUIRED: Comma separated list of consenus strings for motifs to plot. (default=%default)""")
+                      help="""REQUIRED: Comma separated list of consenus strings for motifs to plot. OPTIONALLY: Comma sep'd list of consensus:hexColorCode to manually set each motif color. (default=%default)""")
+    parser.add_option('--rand-colors', dest="rand_colors", action="store_true",default=False,
+                      help="""Choose colors for motifs randomly. (default=%default)""")
+    defParams = '0.12,0.10,0.90,0.90,0.20,0.20'
+    parser.add_option('--params', dest="params", type='str',default=defParams,
+                      help="""Comma separated list of custom subplot parameters: 'left,bottom,right,top,wspace,hspace' (default=%default)""")
     
     
     (opts, args) = parser.parse_args()
@@ -182,11 +227,28 @@ if __name__ == "__main__":
         args = glob.glob(args[0])   
     
     if opts.include:
-        opts.include = opts.include.split(',')
+        origInclude = opts.include
+        if ":" in opts.include:
+            tmpInclude = opts.include.split(',')
+            opts.include = []
+            colorDict = {}
+            for elem in tmpInclude:
+                elem = elem.split(':')
+                colorDict[elem[0]] = elem[1]
+                opts.include.append(elem[0])
+        else:
+            opts.include = opts.include.split(',')
     else:
         parser.print_help()
         print "\n*** ERROR: You must supply at least one value for '--include'. ***\n"
-
+    
+    if type(opts.params) == type(''):
+        tmpParams = []
+        for p in opts.params.split(','):
+            tmpParams.append(float(p))
+        if len(tmpParams) != 6:
+            raise Exception('Malformed --params option. (%s)' % (opts.params))
+        opts.params = tmpParams
         
     #+++++++++++ Load Motifs and GeneList +++++++++++
     motifDict    = loadMotifs(args,opts.sig_lvl,opts.include)
@@ -204,19 +266,33 @@ if __name__ == "__main__":
     pl.yticks(range(len(geneList)),geneList)
     
     #+++++++++++ Plot Motifs On Lines +++++++++++
-    setMotifColors(motifDict,colors)
+    try:
+        setMotifColorsManual(motifDict,colorDict)
+    except NameError:
+        if opts.rand_colors:
+            setMotifColorsRand(motifDict)
+        else:
+            setMotifColors(motifDict)
+
+        
     mPatches = []
     patchDict = {}
     for i in range(len(geneList)):
         mPatches.append(plotMotifs4Gene(ax,patchDict,geneList[i],motifsByGene[geneList[i]],i,zorder))
     
     #+++++++++++ Build Legend +++++++++++
-    buildLegend(ax,patchDict)
+    buildLegend(ax,patchDict,opts.include)
     
     None
     
 
     ax.autoscale_view()
+    fig.subplots_adjust(left=opts.params[0],
+                        bottom=opts.params[1],
+                        right=opts.params[2],
+                        top=opts.params[3],
+                        wspace=opts.params[4],
+                        hspace=opts.params[5])
     pl.savefig(opts.file_out)
     pl.show()
 
