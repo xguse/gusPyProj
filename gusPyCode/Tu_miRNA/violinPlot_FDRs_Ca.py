@@ -7,7 +7,7 @@ from matplotlib import rc
 from matplotlib import pylab as pl
 from collections import namedtuple
 from gusPyCode.defs.JamesDefs import Bag
-from gusPyCode.defs.mpl_custom import violin_plot
+from gusPyCode.defs.mpl_custom import violin_plot,setTickSizes
 rc('text', usetex=True)
 
 print '\n\n'
@@ -75,6 +75,8 @@ for x in header:
         vectors.append(0)
     
 violin_plot(ax,vectors,range(len(header)), bp=opts.box_plot)
+
+setTickSizes(ax,19)
 
 if opts.out_file:
     pl.savefig(opts.out_file)
