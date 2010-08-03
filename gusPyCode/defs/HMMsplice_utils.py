@@ -603,7 +603,7 @@ def _writeWiggleVar(trackName, trackDescription, allCounts, wigOut):
 
 
     wigFile.close()    
-    
+
 
 def readJunctionsFromBed(inputBed, saveWholeLine=False, wiggle=0):
     junct = {}
@@ -745,6 +745,7 @@ def generateROCcurve(junctionBed, ests, stepSize=100, wiggle=0):
 
     goodNames, badNames = findGoodBadReads(junctionBed, ests, wiggle)
 
+    rocTable = []
     scores = []
     scoredDict = {}
     countGood = 0
@@ -758,9 +759,9 @@ def generateROCcurve(junctionBed, ests, stepSize=100, wiggle=0):
         [chr, start, stop, name, score] = line.split()[:5]
         score = float(score)
         if goodNames.has_key(name):
-            isGood = True
+            isGood = 1 #True
         elif badNames.has_key(name):
-            isGood = False
+            isGood = 0 #False
         else:
             continue
 
@@ -776,10 +777,10 @@ def generateROCcurve(junctionBed, ests, stepSize=100, wiggle=0):
 
     print "Counted %s good and %s bad" % (countGood, countBad)
 
-    print scores[:3]
+    #print scores[:3]
     scores.sort(reverse=True)
-    print scores[:5]
-    # use every 100th score
+    #print scores[:5]
+    #use every 100th score
     for x in scores[::stepSize]:
         numGoodAbove = 0
         numBadAbove = 0
@@ -791,12 +792,14 @@ def generateROCcurve(junctionBed, ests, stepSize=100, wiggle=0):
                 else:
                     numBadAbove += 1
 
-        print x, numGoodAbove, numBadAbove, numGoodAbove / float(countGood) , numBadAbove / float(countBad)
+        #print x, numGoodAbove, numBadAbove, numGoodAbove / float(countGood) , numBadAbove / float(countBad)
+        rocTable.append((x, numGoodAbove, numBadAbove, numGoodAbove / float(countGood) , numBadAbove / float(countBad)))
+    return rocTable,scoredDict
 
 def findGoodBadReads(junctionBed, ests, wiggle):
     """Finds 'good' and 'bad' reads, only using the estBed as a guide."""
 
-    #ests = processJunctions.readJunctionsFromBed(estBed)
+    ests = readJunctionsFromBed(ests)
 
     goodNames = {}
     badNames = {}
@@ -964,9 +967,9 @@ def testIfEst(ests, chr, start, blockCount, blockSizes, blockStarts, wiggle=0):
         print "ERROR!  the block count isn't 2!  %s, %s, %s, %s, %s" % (chr, start, blockCount, blockSizes, blockStarts)
         return False
 
-    (leftEdge, rightEdge) = hmmUtils.getEdges(start, blockSizes, blockStarts)
+    (leftEdge, rightEdge) = getEdges(start, blockSizes, blockStarts)
 
-    return processJunctions.hasJunction(ests, chr, leftEdge, rightEdge, wiggle)
+    return hasJunction(ests, chr, leftEdge, rightEdge, wiggle)
 
 
 def collapseCloseJunctions(inputBed, outputBed, withinBp):
@@ -985,17 +988,17 @@ def collapseCloseJunctions(inputBed, outputBed, withinBp):
     out = open(outputBed, "w")
     out.write("track name=collapsedJunctions description='Junctions' useScore=1\n")
     for chr, junctions in junct.iteritems():
-	for (leftEdge, x,rightEdge, y, intronLength), junctionList in junctions.iteritems():
+        for (leftEdge, x,rightEdge, y, intronLength), junctionList in junctions.iteritems():
             if len(junctionList) == 1:
                 out.write(junctionList[0][1].strip())
                 #pieces = junctionList[0][0].split()                                                                                        
                 #pieces.pop(4)                                                                                                              
                 #pieces.insert(4, "100")                                                                                                    
-		#out.write("\t".join(pieces))                                                                                               
-	        out.write("\n")
+                #out.write("\t".join(pieces))                                                                                               
+                out.write("\n")
             else:
                 out.write(_combineLines(junctionList, leftEdge, rightEdge))
-	        out.write("\n")
+                out.write("\n")
 
 
 def _readAndCombine(inputBed, withinBp):
@@ -1005,8 +1008,8 @@ def _readAndCombine(inputBed, withinBp):
     # collapse a                                                                                                                            
     count = 0
     for line in open(inputBed):
-	count += 1
-	#if count % 100000==0:                                                                                                              
+        count += 1
+        #if count % 100000==0:                                                                                                              
         #    print count                                                                                                                    
         if line.startswith("track"):
             #out.write(line.strip())                                                                                                        
@@ -1015,7 +1018,7 @@ def _readAndCombine(inputBed, withinBp):
 
         [chr, start, stop, name, score, strand, thStart, thStop, rgb, blockCount, blockSizes, blockStarts] = line.split("\t")
         score = float(score)
-	if not junct.has_key(chr):
+        if not junct.has_key(chr):
             junct[chr] = {}
 
         if int(blockCount) != 2:
@@ -1024,15 +1027,15 @@ def _readAndCombine(inputBed, withinBp):
             continue
 
         start = int(start)
-	stop = int(stop)
+        stop = int(stop)
         [size1, size2] = [int(x) for x in blockSizes.split(",")[:2]]
         [start1, start2] = [int(x) for x in blockStarts.split(",")[:2]]
-	leftEdge = start + size1
+        leftEdge = start + size1
         rightEdge = start + start2  # start2 is relative to chr start                                                                       
         intronLength = rightEdge - leftEdge
 
-	toCombine = []
-	for (other) in junct[chr].keys():
+        toCombine = []
+        for (other) in junct[chr].keys():
             (otherMinLeft, otherMaxLeft, otherMinRight, otherMaxRight, otherLength) = other
             if otherLength != intronLength:
                 continue
@@ -1049,14 +1052,14 @@ def _readAndCombine(inputBed, withinBp):
         minLeft = maxLeft = leftEdge
         minRight = maxRight = rightEdge
         for (other) in toCombine:
-	    (otherMinLeft, otherMaxLeft, otherMinRight, otherMaxRight, intronLength) = other
+            (otherMinLeft, otherMaxLeft, otherMinRight, otherMaxRight, intronLength) = other
             minLeft = min(minLeft, otherMinLeft)
             maxLeft = max(maxLeft, otherMaxLeft)
             minRight = min(minRight, otherMinRight)
             maxRight = max(maxRight, otherMaxRight)
 
-	    allLines.extend(junct[chr][other])
-	    del junct[chr][other]
+            allLines.extend(junct[chr][other])
+            del junct[chr][other]
 
         junct[chr][ (minLeft, maxLeft, minRight, maxRight, intronLength) ] = allLines
 
@@ -1085,17 +1088,17 @@ def _combineLines(junctionList, leftEdge, rightEdge):
     numJunctions = 0
     for (score, line, leftEdge, rightEdge) in junctionList:
         pieces = line.split("\t")
-	#print "previous start: %s, this start: %s" % (minStart, pieces[1])                                                                 
+        #print "previous start: %s, this start: %s" % (minStart, pieces[1])                                                                 
         start = int(pieces[1])
-	stop = int(pieces[2])
+        stop = int(pieces[2])
         strand = pieces[5]
         if strand == "+":
-	    countPlus += 1
+            countPlus += 1
         elif strand == "-":
             countMinus += 1
-	else:
-	    print line
-	    raise hmmErrors.InvalidInputException("ERROR!  strand value %s not valid. " % strand)
+        else:
+            print line
+            raise hmmErrors.InvalidInputException("ERROR!  strand value %s not valid. " % strand)
 
         name = pieces[3]
         if pieces[3].find("|junc=") > 0:
@@ -1107,7 +1110,7 @@ def _combineLines(junctionList, leftEdge, rightEdge):
         if previousNumBasesCovered == 0:
             previousNumBasesCovered = (leftEdge - start) + (stop - rightEdge)
             scoreSoFar = float(pieces[4])
-	else:
+        else:
             # we only want to count bases grown on the outer sides (start and stop) and ignore bases on the inner edges                     
             newBases = max(0, minStart-start) + max(0, stop-maxStop)
             scoreSoFar = scoreSoFar + (newBases / float(newBases+previousNumBasesCovered) ) * float(pieces[4])
@@ -1119,18 +1122,18 @@ def _combineLines(junctionList, leftEdge, rightEdge):
         else:
             minStart = start
 
-	maxStop = max(maxStop, stop)
+        maxStop = max(maxStop, stop)
 
         if not leftEdgeCount.has_key(leftEdge):
             leftEdgeCount[leftEdge] = 0
         leftEdgeCount[leftEdge] += 1
-	if not rightEdgeCount.has_key(rightEdge):
+        if not rightEdgeCount.has_key(rightEdge):
             rightEdgeCount[rightEdge] = 0
         rightEdgeCount[rightEdge] += 1
 
     maxLeft = max(leftEdgeCount.values())
     for k, v in leftEdgeCount.iteritems():
-	if v == maxLeft:
+        if v == maxLeft:
             useLeft = k
             break
     maxRight = max(rightEdgeCount.values())
@@ -1139,7 +1142,7 @@ def _combineLines(junctionList, leftEdge, rightEdge):
             useRight = k
             break
     if countPlus >= countMinus:
-	strand = "+"
+        strand = "+"
     else:
         strand = "-"
 
@@ -1148,14 +1151,14 @@ def _combineLines(junctionList, leftEdge, rightEdge):
     rootName = ""
     for piece in namePieces:
         if not piece.startswith("junc="):
-	    rootName += piece + "|"
+            rootName += piece + "|"
     finalName = rootName + ("junc=%s" % numJunctions)
     blockStarts = "0,%s," % (useRight - minStart)
     blockSizes = "%s,%s," % ( (useLeft-minStart), (maxStop-useRight) )
 
     return "\t".join(str(x) for x in [pieces[0], minStart, maxStop, finalName, scoreSoFar,
-                      strand, minStart, maxStop, "0", "2", blockSizes, blockStarts
-                      ])
+                                      strand, minStart, maxStop, "0", "2", blockSizes, blockStarts
+                                      ])
 
 
 
