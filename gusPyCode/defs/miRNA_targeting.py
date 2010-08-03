@@ -1,5 +1,6 @@
 import numpy
 import re
+from random import sample
 from TAMO.seq import Fasta
 from gusPyCode.defs import xpermutations
 from gusPyCode.defs import JamesDefs
@@ -8,7 +9,33 @@ from gusPyCode.defs import mathDefs
 from pprint import pprint
 
 
+def shuffSeedsInMatMiRs(inPath,outPathBase,seed=[1,8],num=1):
+    """Takes mature miR fasta file from inPath, permutes nucs in <seed>
+    <num> times and writes records to outPaths derived from outPathBase
+    with unique ctrl numbers.
+    
+    <seed> coords are as pyhton slice coords (0-based and
+    non-inclusive on the right side)"""
+    inFile = open(inPath,'rU')
+    outFiles = []
+    for i in range(num):
+        outFiles.append(open('%s.ctrl%s.fas' % (outPathBase,i),'w'))
 
+    for line in inFile:
+        if line.startswith('>'):
+            for oF in outFiles:
+                oF.write(line)
+        else:
+            line = line.strip('\n')
+            seedSeq  = line[seed[0]:seed[1]]
+            fvPrm    = line[:seed[0]]
+            trPrm    = line[seed[1]:]
+            shfSeeds = [x for x in xpermutations.xpermutations(list(seedSeq))]
+            sampShfs = sample(shfSeeds,num)
+            for i in range(num):
+                nLine = '%s%s%s\n' % (fvPrm,''.join(sampShfs[i]),trPrm)
+                outFiles[i].write(nLine)
+            
 
 
 #variable to centrally define the versions of seed representations and facilitate
