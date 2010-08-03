@@ -1,7 +1,41 @@
+import os
 from scipy.stats import gaussian_kde
 from numpy.random import normal
 from numpy import arange
+import numpy as np
+from gusPyCode.defs import packings
+import matplotlib as mpl
 
+
+
+def autoPickColors(number):
+    """Generate a set of colors with near optimal contrasts."""
+    packingsPath = os.path.dirname(os.path.realpath(packings.__file__))
+    
+    coords = map(lambda l: l.strip('\n'), open("%s/pack.3.%s.txt" % (packingsPath,number), 'rU'))
+    coords = np.array(coords, dtype=np.float)
+    coords = coords.reshape(number,3)
+    coords = coords * 0.5
+    coords = coords + coords.max()
+    
+    colors = []
+    for c in coords:
+        colors.append(mpl.colors.rgb2hex(np.absolute(c)))
+        
+    return tuple(colors)
+    
+def setTickSizes(axObj,fontSize):
+    for label in axObj.xaxis.get_ticklabels():
+        # label is a Text instance
+        #label.set_color('red')
+        #label.set_rotation(45)
+        label.set_fontsize(fontSize)
+        
+    for label in axObj.yaxis.get_ticklabels():
+        # label is a Text instance
+        #label.set_color('red')
+        #label.set_rotation(45)
+        label.set_fontsize(fontSize)
 
 def violin_plot(ax,data,pos, bp=False):
     '''(http://pyinsci.blogspot.com/2009/09/violin-plot-with-matplotlib.html)
