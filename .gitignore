@@ -13,3 +13,7 @@ gusPyCode/*.wpr
 gusPyCode/MDAP_proj/MDAP_Results/.svn/entries
 gusPyCode/MDAP_proj/MDAP_Results/.svn/format
 config
+/.eric4project/gPyEric.e4q
+/.eric4project/gPyEric.e4t
+/gPyEric.e4p
+/__init__.py
