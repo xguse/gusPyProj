@@ -4,6 +4,7 @@ import optparse
 import csv
 import collections
 
+
 def tableFile2namedTuple(tablePath,sep='\t'):
     """Returns namedTuple from table file using first row fields as col headers."""
     #import collections
@@ -36,6 +37,7 @@ def hypergeoP(n,i,m,N):
     For more details -> http://mathworld.wolfram.com/HypergeometricDistribution.html
     """
     return 10**(log10(choose(n,i))+log10(choose(m,N-i))-log10(choose(n+m,N)))
+
 
 
 
