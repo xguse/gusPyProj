@@ -3,6 +3,8 @@ import optparse
 import csv
 import collections
 
+from bigfloat import BigFloat
+
 def tableFile2namedTuple(tablePath,sep='\t'):
     """Returns namedTuple from table file using first row fields as col headers."""
     #import collections
@@ -34,7 +36,7 @@ def hypergeoP(n,i,m,N):
 
     For more details -> http://mathworld.wolfram.com/HypergeometricDistribution.html
     """
-    return (choose(n,i)*choose(m,N-i))/float(choose(n+m,N))
+    return (choose(n,i)*choose(m,N-i))/BigFloat(choose(n+m,N))
 
 
 
