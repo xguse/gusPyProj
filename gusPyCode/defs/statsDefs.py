@@ -1,5 +1,8 @@
+from math import log10
+
 from decimal import Decimal
 # see bottom for conditional import of "bestChoose"
+
 
 
 
@@ -75,7 +78,19 @@ def hypergeoP(n,i,m,N):
     """
     return (bestChoose(n,i)*bestChoose(m,N-i))/float(bestChoose(n+m,N))
 
+def hypergeoP_byLog(n,i,m,N):
+    """
+    Calculates the non-cumulative hypergeometric p-value for variables:
+    n = # of positives in population
+    i = # of positives in sample
+    m = # of negatives in population
+    N = sample size
 
+    P(x=i) = (choose(n,i)choose(m,N-i))/choose(n+m,N)
+
+    For more details -> http://mathworld.wolfram.com/HypergeometricDistribution.html
+    """
+    return 10**(log10(bestChoose(n,i))+log10(bestChoose(m,N-i))-log10(bestChoose(n+m,N)))
 
 
 def cumHypergeoP(n,i,m,N):
@@ -93,7 +108,9 @@ def cumHypergeoP(n,i,m,N):
 
     cumPVal = 0
 
-    for x in range(i,N+1):
+    upperLim = min(N,n)
+    
+    for x in range(i,upperLim+1):
         cumPVal = cumPVal + hypergeoP(n,x,m,N)
 
     return cumPVal
