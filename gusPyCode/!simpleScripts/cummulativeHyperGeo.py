@@ -5,6 +5,37 @@ import csv
 import collections
 
 
+def benjHochFDR(pVals,pValColumn=1,FDR=0.05):
+    """
+    pVals      = 2D list(hypothesis,p-value) hypothesis could = geneName tested for enrichment
+    pValColumn = integer of column index containing the p-value.
+    !*! FDR    = threshold above which FDR is unacceptable [not yet implemented]!*! 
+    
+    Returns, for all *acceptable q-values: hypothesis,origPval,adjustedPval 
+    *NOTE:  For now, returns _ALL_ items passed to it with no filtering at the moment.
+    """
+    assert type(pValColumn) == type(1),\
+           "ERROR: pValColumn must be int type!"
+    # Sort pVals from highest to lowest after converting them all to floats.
+    for i in range(len(pVals)):
+        pVals[i][pValColumn] = float(pVals[i][pValColumn])
+    pVals.sort(key=lambda x: x[pValColumn])
+    pVals.reverse()
+    
+    n = len(pVals)
+    
+    lastPval = pVals[0][pValColumn]
+    for i in range(len(pVals)):
+        p    = pVals[i][pValColumn]
+        adj  = (float(n)/(n-i))
+        adjP = p*adj
+        miN  = min(adjP,lastPval)
+        pVals[i].append(miN)
+        lastPval = pVals[i][-1]
+    
+    pVals.reverse()
+    return pVals
+
 def tableFile2namedTuple(tablePath,sep='\t'):
     """Returns namedTuple from table file using first row fields as col headers."""
     #import collections
@@ -65,11 +96,29 @@ def cumHypergeoP(n,i,m,N):
     return cumPVal
 
 
+def updateOutDict(outDict,rowData):
+    """Create and/or add rowData to dict key row.CorrectionGroup
+    which is at rowData[0].
+    """
+    try:
+        outDict[rowData[0]].append(rowData)
+    except KeyError:
+        outDict[rowData[0]] = []
+        outDict[rowData[0]].append(rowData)
+        
+def getQvals(outDict,pValColumn):
+    """Call benjHochFDR() on all value lists in outDict,
+    doing the work in place.
+    """
+    for group in outDict:
+        benjHochFDR(outDict[group],pValColumn)
+
 if __name__ == "__main__":
 
     
     #+++++++++++ File Parseing Etc +++++++++++
-    columnNames = ['SampleName',
+    columnNames = ['CorrectionGroup',
+                   'SampleName',
                    'PositivesInPopulation',
                    'PositivesInSample',
                    'NegativesInPopulation',
@@ -112,27 +161,38 @@ if __name__ == "__main__":
                         (len(tableFields),len(columnNames)))
     
     # Initialize output list
-    output = [columnNames + ['UnCorrectedPvalues']]
+    outputHeaders = columnNames + ['UnCorrectedPvalues','BH:qVals']
     
+    output = {}
     # run the analysis:
     for row in table:
-        n=int(row.PositivesInPopulation),
-        i=int(row.PositivesInSample),
-        m=int(row.NegativesInPopulation),
+        n=int(row.PositivesInPopulation)
+        i=int(row.PositivesInSample)
+        m=int(row.NegativesInPopulation)
         N=int(row.SampleSize)
-        pVal = cumHypergeoP(n=int(row.PositivesInPopulation),
-                            i=int(row.PositivesInSample),
-                            m=int(row.NegativesInPopulation),
-                            N=int(row.SampleSize))
-        output.append([row.SampleName,
-                       row.PositivesInPopulation,
-                       row.PositivesInSample,
-                       row.NegativesInPopulation,
-                       row.SampleSize,
-                       str(pVal)])
+        if ((n > 0) and (i > 0)):
+            pVal = cumHypergeoP(n,i,m,N)
+            
+            updateOutDict(output,[row.CorrectionGroup,
+                                  row.SampleName,
+                                  row.PositivesInPopulation,
+                                  row.PositivesInSample,
+                                  row.NegativesInPopulation,
+                                  row.SampleSize,
+                                  str(pVal)])
+        
+    
+    getQvals(output,-1)
     
     # write the output
     outFile = open(opts.outfile,'w')
-    for line in output:
-        outFile.write('%s\n' % ('\t'.join(line)))
+    outFile.write('%s\n' % ('\t'.join(outputHeaders)))
+    output = output.values()
+    outLines = []
+    for group in output:
+        outLines.extend(group)
+    outLines.sort(key=lambda x: x[0])
+    
+    for line in outLines:
+        outFile.write('%s\n' % ('\t'.join([str(x) for x in line])))
     outFile.close()
