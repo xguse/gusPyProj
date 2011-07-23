@@ -1,9 +1,9 @@
+from math import log10
 import sys
 import optparse
 import csv
 import collections
 
-from bigfloat import BigFloat
 
 def tableFile2namedTuple(tablePath,sep='\t'):
     """Returns namedTuple from table file using first row fields as col headers."""
@@ -36,7 +36,8 @@ def hypergeoP(n,i,m,N):
 
     For more details -> http://mathworld.wolfram.com/HypergeometricDistribution.html
     """
-    return (choose(n,i)*choose(m,N-i))/BigFloat(choose(n+m,N))
+    return 10**(log10(choose(n,i))+log10(choose(m,N-i))-log10(choose(n+m,N)))
+
 
 
 
@@ -56,7 +57,9 @@ def cumHypergeoP(n,i,m,N):
 
     cumPVal = 0
 
-    for x in range(i,N+1):
+    upperLim = min(N,n)
+    
+    for x in range(i,upperLim+1):
         cumPVal = cumPVal + hypergeoP(n,x,m,N)
 
     return cumPVal
@@ -113,6 +116,10 @@ if __name__ == "__main__":
     
     # run the analysis:
     for row in table:
+        n=int(row.PositivesInPopulation),
+        i=int(row.PositivesInSample),
+        m=int(row.NegativesInPopulation),
+        N=int(row.SampleSize)
         pVal = cumHypergeoP(n=int(row.PositivesInPopulation),
                             i=int(row.PositivesInSample),
                             m=int(row.NegativesInPopulation),
