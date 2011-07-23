@@ -5,7 +5,7 @@ import sys
 import os
 import scipy.stats as stats
 import matplotlib as mpl
-mpl.use('TkAgg')
+#mpl.use('TkAgg')
 from matplotlib import pylab as pl
 from gusPyCode.defs.JamesDefs import Bag
 from gusPyCode.defs.bioDefs import ParseFastQ, ParseBowtieBed
