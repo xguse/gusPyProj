@@ -214,13 +214,13 @@ def BufferClear(Buffer,file):
         Buffer.pop(0)
     return Buffer
 
-def qual2prob(qualChar):
+def qual2prob(qualChar,offset=32):
     """Takes a single Phred quality score character and returns a the probability
     that the corresponding base was called incorrectly.
     Q_phred = -10 * log10(p)
     p = 10^(Q_phred/-10)
     """
-    q = ord(qualChar)-64
+    q = ord(qualChar)-offset
     return pow(10,(float(q)/-10))
 
 if __name__=="__main__":
